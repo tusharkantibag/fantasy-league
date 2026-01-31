@@ -120,7 +120,6 @@
   });
 
   /************ Helpers ************/
-  const toastEl = document.getElementById('toast');
   function notify(msg) { M.toast({html: msg}); }
   function todayISO() {
     const d = new Date();
@@ -186,8 +185,7 @@
       const txt = await res.text();
 
       let j; 
-      try { j = JSON.parse(txt); }
-      catch(e){
+      try { j = JSON.parse(txt);} catch(e){
         box.innerHTML = '<span class="red-text">Response not JSON (CORS/deploy?).</span>';
         console.error('[players] non-JSON:', res.status, txt);
         return;
@@ -219,13 +217,13 @@
       lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>
         `<tr><td>${i+1}</td><td>${r.name||''}</td><td>${r.email}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`
       ).join('') || '<tr><td colspan="4" class="grey-text">No data yet.</td></tr>';
-    } catch(e){ 
+    }catch(e){ 
       lbTable.innerHTML = '<tr><td colspan="4" class="red-text">Failed</td></tr>'; 
       console.error('[leaderboard] fetch failed:', e);
     }
   }
 
-  // ---- REVISED: submitTeam uses text/plain (simple request) ----
+  // ---- UPDATED: submitTeam uses form-encoded body (simple request) ----
   async function submitTeam() {
     const email = (emailEl.value||'').trim();
     const date = dateEl.value;
@@ -236,12 +234,13 @@
 
     submitBtn.classList.add('disabled');
     try{
-      const payload = { action:'submitTeam', email, date, players };
-      const res = await fetch(API, {
-        method:'POST',
-        headers:{ 'Content-Type':'text/plain' }, // simple request (no preflight)
-        body: JSON.stringify(payload)
-      });
+      const data = new URLSearchParams();
+      data.set('action','submitTeam');
+      data.set('email', email);
+      data.set('date', date);
+      data.set('players', JSON.stringify(players));
+
+      const res = await fetch(API, { method:'POST', body: data }); // no headers → simple request
       const raw = await res.text();
       console.log('[submit] status:', res.status, 'body:', raw);
 
@@ -266,7 +265,7 @@
     }
   }
 
-  // ---- REVISED: adminSetPoints uses text/plain (simple request) ----
+  // ---- UPDATED: adminSetPoints uses form-encoded body (simple request) ----
   async function adminSetPoints(){
     const adminToken = adminTokenEl.value;
     const date = adminDateEl.value || dateEl.value;
@@ -276,12 +275,14 @@
     if (!adminToken || !playerName || !date) { notify('Token, player & date required'); return; }
 
     try{
-      const payload = { action:'setPoints', adminToken, playerName, matchDate:date, points };
-      const res = await fetch(API, {
-        method:'POST',
-        headers:{ 'Content-Type':'text/plain' }, // simple request
-        body: JSON.stringify(payload)
-      });
+      const data = new URLSearchParams();
+      data.set('action','setPoints');
+      data.set('adminToken', adminToken);
+      data.set('playerName', playerName);
+      data.set('matchDate', date);
+      data.set('points', String(points));
+
+      const res = await fetch(API, { method:'POST', body: data });
       const raw = await res.text();
       console.log('[admin] status:', res.status, 'body:', raw);
 
