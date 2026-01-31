@@ -289,7 +289,7 @@
     }
   }
 
-  // UPDATED: submit via GET (avoids 302 body drop)
+  // SUBMIT via GET (avoids 302 body drop)
   async function submitTeam() {
     const email = (emailEl.value||'').trim();
     const date = dateEl.value;
@@ -318,7 +318,7 @@
     }
   }
 
-  // UPDATED: admin set points via GET (avoids 302 body drop)
+  // ADMIN via GET (avoids 302 body drop)
   async function adminSetPoints(){
     const adminToken = adminTokenEl.value;
     const date = adminDateEl.value || dateEl.value;
@@ -360,46 +360,3 @@
   function makeChip(player, cls){ const span = document.createElement('span'); span.className = 'chip-p ' + cls; span.textContent = player; return span; }
   function renderTeamPlayers(container, players, compareSet, side) {
     container.innerHTML=''; const ownSet=new Set(players||[]);
-    const onlyOwn = [...ownSet].filter(p=>!compareSet.has(p));
-    const common  = [...ownSet].filter(p=>compareSet.has(p));
-    common.forEach(p=>container.appendChild(makeChip(p,'chip-common')));
-    if (side==='left') onlyOwn.forEach(p=>container.appendChild(makeChip(p,'chip-left-only')));
-    else onlyOwn.forEach(p=>container.appendChild(makeChip(p,'chip-right-only')));
-  }
-  function overlapCount(a,b){ const s=new Set(a||[]); return (b||[]).reduce((acc,x)=>acc+(s.has(x)?1:0),0); }
-  function setTeamMeta(el, team){ el.textContent = team ? `Date: ${team.date} • Points: ${team.points} • ID: ${team.entryId}` : '—'; }
-  function buildCompareOptions(teams){ const opts=['<option value="">-- Select --</option>']; teams.slice(1).forEach(t=>opts.push(`<option value="${t.entryId}">${t.date} (Pts ${t.points})</option>`)); compareSelect.innerHTML = opts.join(''); M.FormSelect.init(compareSelect); }
-  function renderList(teams){ if(!teams.length){ listBody.innerHTML='<tr><td colspan="5">No submissions yet.</td></tr>'; return;} listBody.innerHTML = teams.map((t,i)=>`<tr><td>${i+1}</td><td>${t.date}</td><td>${t.points}</td><td class="grey-text text-darken-1">${t.entryId}</td><td><a class="btn-flat waves-effect" onclick="selectRight('${t.entryId}')"><i class="material-icons left">compare</i>Compare</a></td></tr>`).join(''); }
-  function selectRight(entryId){ const t = allTeams.find(x=>x.entryId===entryId); if(!t) return; const leftSet=new Set(latestTeam?latestTeam.players:[]); setTeamMeta(rightMeta,t); const o=overlapCount(latestTeam?latestTeam.players:[], t.players||[]); overlapMeta.textContent=`Common: ${o} / 11`; renderTeamPlayers(rightPlayersBox, t.players||[], leftSet, 'right'); compareSelect.value=entryId; M.FormSelect.init(compareSelect); }
-  async function loadMyTeams(){ const email=(email2El.value||'').trim().toLowerCase(); if(!email){ notify('Please enter your email'); return;} setStoredEmail(email); const limit=Number(limitEl.value||20); const url=`${API}?action=myteams&email=${encodeURIComponent(email)}&limit=${encodeURIComponent(limit)}`; try{ const res=await fetch(url); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON'); return;} if(!j.ok){ notify(j.error||'API error'); return;} latestTeam=j.latest||null; allTeams=Array.isArray(j.items)?j.items:[]; if(!latestTeam){ leftMeta.textContent='No submissions yet.'; leftPlayersBox.innerHTML=''; rightMeta.textContent='—'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; compareSelect.innerHTML=''; M.FormSelect.init(compareSelect); renderList([]); return; } setTeamMeta(leftMeta, latestTeam); renderTeamPlayers(leftPlayersBox, latestTeam.players||[], new Set(), 'left'); buildCompareOptions(allTeams); if(allTeams.length>1){ selectRight(allTeams[1].entryId); } else { rightMeta.textContent='No previous team to compare.'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; } renderList(allTeams); } catch(err){ console.error('[myteams] load failed:', err); notify('Network error while loading teams'); } }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    M.AutoInit();
-    const dp = document.querySelectorAll('.datepicker');
-    M.Datepicker.init(dp, { format:'yyyy-mm-dd', autoClose:true, defaultDate:new Date(), setDefaultDate:true });
-    dateEl.value = todayISO();
-
-    const stored = (function(){ try { return localStorage.getItem('ml_email') || ''; } catch(_) { return ''; } })();
-    if (stored) { emailEl.value = stored; document.getElementById('email2').value = stored; }
-    M.updateTextFields();
-
-    fetchPlayers();
-    loadLeaderboard();
-    activateView(location.hash||'#submit');
-
-    document.addEventListener('input', (e)=>{
-      if (e.target.id==='email'){ try{ localStorage.setItem('ml_email', e.target.value||''); }catch(_){} updateSelectionUI(); }
-      if (e.target.id==='email2'){ try{ localStorage.setItem('ml_email', e.target.value||''); }catch(_){} }
-      if (e.target.id==='date'){ updateSelectionUI(); }
-    });
-    document.getElementById('submitBtn').addEventListener('click', submitTeam);
-    document.getElementById('refreshPlayers').addEventListener('click', fetchPlayers);
-    document.getElementById('refreshLb').addEventListener('click', loadLeaderboard);
-    document.getElementById('adminSetPoints').addEventListener('click', adminSetPoints);
-    document.getElementById('loadBtn').addEventListener('click', loadMyTeams);
-  });
-
-  window.selectRight = selectRight;
-  </script>
-</body>
-</html>
