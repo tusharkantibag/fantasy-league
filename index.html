@@ -3,32 +3,31 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mini Fantasy League – Combined (GET submit)</title>
+  <title>Fantasy League – DEBUG (GET submit + Echo)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
     body { background:#f5f7fb; }
     nav .brand-logo { font-weight:800; }
-    .chip-player { display:flex; align-items:center; gap:.5rem; padding:.5rem .75rem; background:#fff; border:1px solid #e0e0e0; border-radius:10px; }
     .grid { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:.5rem; }
     @media (max-width: 992px) { .grid { grid-template-columns: repeat(2, 1fr);} }
     @media (max-width: 600px) { .grid { grid-template-columns: 1fr;} }
+    .chip-player { display:flex; align-items:center; gap:.5rem; padding:.5rem .75rem; background:#fff; border:1px solid #e0e0e0; border-radius:10px; }
     .sticky-actions { position: sticky; bottom: 0; background: #fff; padding: .75rem; border-top:1px solid #eee; display:flex; gap:.5rem; justify-content:flex-end; }
-    .card-title .badge { font-size:.8rem; margin-left:.5rem; }
-    .chip-p { display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .6rem; border-radius:16px; margin:0 .3rem .4rem 0; }
-    .chip-common { background:#eceff1; color:#263238; }
-    .chip-left-only { background:#e8f5e9; color:#1b5e20; }
-    .chip-right-only { background:#e3f2fd; color:#0d47a1; }
-    .team-meta { font-size:.95rem; color:#546e7a; }
-    .sticky-head { position:sticky; top:0; background:white; z-index:2; border-bottom:1px solid #eee; }
-    section.view { display:none; }
-    section.view.active { display:block; }
+    /* DEBUG PANEL */
+    .debug-panel { position: fixed; right: 12px; bottom: 12px; width: 420px; max-width: 95vw; background:#0d47a1; color:#fff; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.2); z-index:9999; }
+    .debug-panel .head { display:flex; align-items:center; justify-content:space-between; padding:.6rem .9rem; background:#08306b; border-radius:10px 10px 0 0; }
+    .debug-panel .body { padding:.75rem .9rem; max-height: 52vh; overflow:auto; background:#0d47a1; }
+    .debug-panel pre { white-space: pre-wrap; word-break: break-all; font-size:.86rem; background: rgba(255,255,255,.1); padding:.5rem; border-radius:6px; }
+    .debug-btns a { margin-right:.5rem; }
+    .kv { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .86rem; }
+    .kv b { color: #ffecb3; }
   </style>
 </head>
 <body>
   <nav class="blue">
     <div class="nav-wrapper container">
-      <a href="#submit" class="brand-logo"><i class="material-icons">emoji_events</i> Fantasy League</a>
+      <a href="#submit" class="brand-logo"><i class="material-icons">bug_report</i> Fantasy League – DEBUG</a>
       <ul class="right">
         <li><a href="#submit"><i class="material-icons left">send</i>Submit</a></li>
         <li><a href="#my-teams"><i class="material-icons left">view_week</i>My Teams</a></li>
@@ -38,325 +37,164 @@
 
   <main class="container" style="margin-top:1.25rem;">
 
-    <section id="submit" class="view active">
-      <div class="row">
-        <div class="col l7 s12">
-          <div class="card">
-            <div class="card-content">
-              <span class="card-title">Submit Team
-                <span class="new badge blue" id="selCount" data-badge-caption="/11 selected">0</span>
-              </span>
-              <div class="row">
-                <div class="input-field col s12 m6">
-                  <input id="email" type="email" class="validate" placeholder="you@example.com">
-                  <label class="active" for="email">Your Email</label>
-                </div>
-                <div class="input-field col s12 m6">
-                  <input id="date" type="date" class="datepicker">
-                  <label class="active" for="date">Date</label>
-                </div>
-              </div>
-              <label>Player Pool (for selected date)</label>
-              <div id="playersBox" class="grid">Loading players…</div>
-              <p class="grey-text">Select exactly 11 players. List is filtered by the match date.</p>
-            </div>
-            <div class="sticky-actions">
-              <a id="refreshPlayers" class="btn-flat waves-effect"><i class="material-icons left">refresh</i>Reload</a>
-              <a id="submitBtn" class="btn waves-effect waves-light blue disabled"><i class="material-icons left">send</i>Submit Team</a>
-            </div>
-          </div>
-        </div>
-        <div class="col l5 s12">
-          <div class="card">
-            <div class="card-content">
-              <span class="card-title">Leaderboard <a id="refreshLb" class="btn-flat right"><i class="material-icons">autorenew</i></a></span>
-              <table class="striped highlight responsive-table">
-                <thead>
-                  <tr><th>#</th><th>User</th><th>Email</th><th>Points</th></tr>
-                </thead>
-                <tbody id="lbTable"><tr><td colspan="4">Loading…</td></tr></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="adminModal" class="modal">
-        <div class="modal-content">
-          <h5>Admin: Update Player Points</h5>
+    <!-- Submit view (trimmed for debug) -->
+    <section id="submit" class="view">
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">Submit Team (DEBUG)</span>
           <div class="row">
-            <div class="input-field col s12">
-              <input id="adminToken" type="password">
-              <label for="adminToken">Admin token</label>
+            <div class="input-field col s12 m4">
+              <input id="email" type="email" class="validate" placeholder="you@example.com">
+              <label class="active" for="email">Your Email</label>
             </div>
-            <div class="input-field col s12 m6">
-              <input id="adminDate" type="date" class="datepicker">
-              <label class="active" for="adminDate">Match Date</label>
+            <div class="input-field col s12 m4">
+              <input id="date" type="date" class="datepicker">
+              <label class="active" for="date">Date</label>
             </div>
-            <div class="input-field col s12 m6">
-              <input id="adminPoints" type="number">
-              <label for="adminPoints">Points</label>
-            </div>
-            <div class="input-field col s12">
-              <input id="adminPlayer" type="text">
-              <label for="adminPlayer">Player Name</label>
+            <div class="input-field col s12 m4">
+              <a id="submitBtn" class="btn waves-effect waves-light blue"><i class="material-icons left">send</i>Submit (GET)</a>
             </div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <a href="#!" id="adminSetPoints" class="modal-close waves-effect waves-green btn red">Set Points</a>
+          <div>
+            <label>Player Pool (mock for debug) – check 11</label>
+            <div id="playersBox" class="grid"></div>
+            <div class="grey-text">This debug file creates a simple mock list P1..P15 so you can test the pipeline even without your live players endpoint.</div>
+          </div>
         </div>
       </div>
     </section>
 
+    <!-- My Teams minimal (only loader to verify endpoint) -->
     <section id="my-teams" class="view">
       <div class="card">
         <div class="card-content">
-          <span class="card-title">View & Compare Your Teams</span>
+          <span class="card-title">My Teams (DEBUG mini)</span>
           <div class="row">
             <div class="input-field col s12 m6">
               <input id="email2" type="email" class="validate" placeholder="you@example.com">
               <label class="active" for="email2">Your Email</label>
-              <span class="helper-text">We’ll remember it on this device.</span>
             </div>
             <div class="input-field col s12 m3">
-              <input id="limit" type="number" min="1" max="100" value="20">
-              <label class="active" for="limit">How many recent teams?</label>
-            </div>
-            <div class="input-field col s12 m3">
-              <a id="loadBtn" class="btn waves-effect waves-light blue"><i class="material-icons left">cloud_download</i>Load</a>
+              <a id="loadBtn" class="btn waves-effect waves-light"><i class="material-icons left">cloud_download</i>Load</a>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col l6 s12">
-          <div class="card">
-            <div class="card-content">
-              <div class="sticky-head" style="padding-bottom:.5rem;">
-                <span class="card-title" style="margin-bottom:0;">Latest Team</span>
-                <div class="team-meta" id="leftMeta">—</div>
-              </div>
-              <div id="leftPlayers" style="margin-top:.75rem;">Load to view…</div>
-            </div>
-          </div>
-        </div>
-        <div class="col l6 s12">
-          <div class="card">
-            <div class="card-content">
-              <div class="sticky-head" style="padding-bottom:.5rem;">
-                <span class="card-title" style="margin-bottom:0;">Compare With</span>
-                <div class="row" style="margin-bottom:0;">
-                  <div class="input-field col s12 m8">
-                    <select id="compareSelect"></select>
-                    <label>Select a previous submission</label>
-                  </div>
-                  <div class="input-field col s12 m4">
-                    <div class="team-meta" id="overlapMeta" style="margin-top:.75rem;">—</div>
-                  </div>
-                </div>
-                <div class="team-meta" id="rightMeta">—</div>
-              </div>
-              <div id="rightPlayers" style="margin-top:.75rem;">Load to view…</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-content">
-          <span class="card-title">Recent Submissions</span>
-          <table class="highlight responsive-table">
-            <thead>
-              <tr><th>#</th><th>Date</th><th>Points</th><th>Entry ID</th><th>View</th></tr>
-            </thead>
-            <tbody id="listBody"><tr><td colspan="5">—</td></tr></tbody>
-          </table>
+          <pre id="myTeamsOut">(awaiting load)</pre>
         </div>
       </div>
     </section>
 
   </main>
 
+  <!-- DEBUG PANEL -->
+  <div class="debug-panel" id="debugPanel">
+    <div class="head">
+      <div><i class="material-icons" style="vertical-align:middle">bug_report</i> <b>Debug Console</b></div>
+      <div class="debug-btns">
+        <a class="btn-small yellow darken-3" id="btnEcho" target="_blank">Open Echo</a>
+        <a class="btn-small grey darken-3" id="btnCopy">Copy URL</a>
+        <a class="btn-small red darken-3" id="btnClear">Clear</a>
+      </div>
+    </div>
+    <div class="body">
+      <div class="kv"><b>API</b>: <span id="apiVal">(set below)</span></div>
+      <div class="kv"><b>Final URL</b>: <span id="urlVal">—</span></div>
+      <div class="kv"><b>Echo URL</b>: <span id="echoVal">—</span></div>
+      <div class="kv"><b>Params</b>:</div>
+      <pre id="paramOut">{}</pre>
+      <div class="kv"><b>Response</b>:</div>
+      <pre id="respOut">(no response yet)</pre>
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script>
+  /******** CONFIG ********/
+  // Paste your Apps Script Web App /exec URL here
   const API = 'https://script.google.com/macros/s/AKfycbx0d02ONKNajQuoZwuwlimZ9bjdQ-rUQXBPLrrp0a7X3i2IwCt7pBQQEijHh8tudlIg/exec';
+  document.getElementById('apiVal').textContent = API;
 
-  function activateView(hash){
-    const target = (hash || location.hash || '#submit').replace('#','');
-    document.querySelectorAll('section.view').forEach(s=>s.classList.remove('active'));
-    const el = document.getElementById(target) || document.getElementById('submit');
-    el.classList.add('active');
-  }
-  window.addEventListener('hashchange', ()=>activateView(location.hash));
-
+  /******** Helpers ********/
   function notify(msg) { M.toast({html: msg}); }
-  function todayISO() {
-    const d = new Date();
-    const off = d.getTimezoneOffset();
-    const d2 = new Date(d.getTime() - off*60000);
-    return d2.toISOString().slice(0,10);
+  function todayISO(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
+  function setView(hash){ document.querySelectorAll('section.view').forEach(s=>s.style.display='none'); const el=document.querySelector(hash)||document.querySelector('#submit'); el.style.display='block'; }
+  function mkPlayerChips(){
+    const box=document.getElementById('playersBox');
+    box.innerHTML='';
+    // create simple mock players P1..P15 for debug
+    for(let i=1;i<=15;i++){
+      const lab=document.createElement('label'); lab.className='chip-player';
+      lab.innerHTML = `<label><input type="checkbox"/><span></span></label> <span>P${i}</span>`;
+      lab.querySelector('input').value = `P${i}`;
+      box.appendChild(lab);
+    }
   }
+  function selectedPlayers(){ return Array.from(document.querySelectorAll('#playersBox input[type=checkbox]:checked')).map(x=>x.value); }
+  function paramPretty(obj){ try{ return JSON.stringify(obj, null, 2);}catch(e){ return String(obj);} }
 
-  // SUBMIT VIEW
-  const emailEl = document.getElementById('email');
-  const dateEl = document.getElementById('date');
-  const playersBox = document.getElementById('playersBox');
-  const submitBtn = document.getElementById('submitBtn');
-  const selCount = document.getElementById('selCount');
-  const refreshPlayersBtn = document.getElementById('refreshPlayers');
-  const lbTable = document.getElementById('lbTable');
-  const refreshLbBtn = document.getElementById('refreshLb');
-  const adminTokenEl = document.getElementById('adminToken');
-  const adminDateEl = document.getElementById('adminDate');
-  const adminPointsEl = document.getElementById('adminPoints');
-  const adminPlayerEl = document.getElementById('adminPlayer');
-  const adminSetBtn = document.getElementById('adminSetPoints');
+  /******** Debug wiring ********/
+  const urlVal = document.getElementById('urlVal');
+  const echoVal= document.getElementById('echoVal');
+  const paramOut = document.getElementById('paramOut');
+  const respOut = document.getElementById('respOut');
+  const btnEcho = document.getElementById('btnEcho');
+  const btnCopy = document.getElementById('btnCopy');
+  const btnClear= document.getElementById('btnClear');
 
-  function selectedPlayers() {
-    return Array.from(playersBox.querySelectorAll('input[type=checkbox]:checked')).map(x => x.value);
-  }
-  function updateSelectionUI() {
-    const n = selectedPlayers().length;
-    selCount.setAttribute('data-badge-caption','/11 selected');
-    selCount.textContent = n;
-    if (!emailEl.value || !dateEl.value || n !== 11) {
-      submitBtn.classList.add('disabled');
-    } else {
-      submitBtn.classList.remove('disabled');
-    }
-  }
-  function renderPlayers(list) {
-    if (!Array.isArray(list) || list.length === 0) {
-      playersBox.innerHTML = '<span class="grey-text">No players found for this date.</span>';
-      updateSelectionUI();
-      return;
-    }
-    const frag = document.createDocumentFragment();
-    list.forEach(p => {
-      const label = document.createElement('label');
-      label.className = 'chip-player';
-      label.innerHTML = `<label><input type="checkbox"/><span></span></label> <span>${p.name} <span class="grey-text">${p.team ? '('+p.team+')' : ''}</span></span>`;
-      label.querySelector('input').value = p.name;
-      frag.appendChild(label);
-    });
-    playersBox.innerHTML = '';
-    playersBox.appendChild(frag);
-    playersBox.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', updateSelectionUI));
-    updateSelectionUI();
-  }
-  async function fetchPlayers() {
-    playersBox.textContent = 'Loading players…';
-    selCount.textContent = '0';
-    try {
-      const date = dateEl.value;
-      const url = `${API}?action=players&date=${encodeURIComponent(date)}`;
-      const res = await fetch(url);
-      const txt = await res.text();
-      let j; try { j = JSON.parse(txt);} catch(e){
-        playersBox.innerHTML = '<span class="red-text">Response not JSON (deploy?).</span>';
-        console.error('[players] non-JSON:', res.status, txt);
-        return;
-      }
-      if (!j.ok){ playersBox.innerHTML = `<span class="red-text">${j.error||'API error'}</span>`; return; }
-      renderPlayers(j.players || []);
-    } catch(err){ 
-      playersBox.innerHTML = '<span class="red-text">Network error</span>'; 
-      console.error('[players] fetch failed:', err);
-    }
-  }
-  async function loadLeaderboard(){
-    lbTable.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
-    try{
-      const res = await fetch(`${API}?action=leaderboard`);
-      const txt = await res.text();
-      let j; try { j = JSON.parse(txt); } catch (e) {
-        lbTable.innerHTML = `<tr><td colspan="4" class="red-text">Response not JSON</td></tr>`;
-        console.error('[leaderboard] non-JSON:', res.status, txt);
-        return;
-      }
-      if (!j.ok){ 
-        lbTable.innerHTML = `<tr><td colspan="4" class="red-text">${j.error||'API error'}</td></tr>`;
-        return; 
-      }
-      lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>
-        `<tr><td>${i+1}</td><td>${r.name||''}</td><td>${r.email}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`
-      ).join('') || '<tr><td colspan="4" class="grey-text">No data yet.</td></tr>';
-    }catch(e){ 
-      lbTable.innerHTML = '<tr><td colspan="4" class="red-text">Failed</td></tr>'; 
-      console.error('[leaderboard] fetch failed:', e);
-    }
-  }
+  btnCopy.addEventListener('click', async ()=>{
+    try{ await navigator.clipboard.writeText(urlVal.textContent||''); notify('Copied final URL'); }catch(e){ notify('Copy failed'); }
+  });
+  btnClear.addEventListener('click', ()=>{ respOut.textContent='(cleared)'; });
 
-  // SUBMIT via GET (avoids 302 body drop)
-  async function submitTeam() {
-    const email = (emailEl.value||'').trim();
-    const date = dateEl.value;
+  // Submit GET
+  async function submitTeam(){
+    const email = (document.getElementById('email').value||'').trim();
+    const date  = document.getElementById('date').value;
     const players = selectedPlayers();
-    if (!email || !date) { notify('Email & Date required'); return; }
-    if (players.length !== 11) { notify('Pick exactly 11 players'); return; }
+    if(!email||!date){ notify('Email & Date required'); return; }
+    if(players.length!==11){ notify('Pick exactly 11 players'); return; }
 
-    submitBtn.classList.add('disabled');
-    try{
-      const qs = new URLSearchParams();
-      qs.set('action','submitteam');
-      qs.set('email', email);
-      qs.set('date', date);
-      qs.set('players', JSON.stringify(players));
-      const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
-      const raw = await res.text();
-      console.log('[submit] status:', res.status, 'body:', raw);
-      let j; try { j = JSON.parse(raw); } catch (e) { notify('Response not JSON (see console).'); return; }
-      if (j.ok) { notify('Submitted! Refresh leaderboard.'); playersBox.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false); updateSelectionUI(); }
-      else { notify(j.error || 'Submission failed'); }
-    } catch (e) {
-      console.error('[submit] fetch failed:', e);
-      notify('Network error while submitting (see console).');
-    } finally {
-      submitBtn.classList.remove('disabled');
-    }
-  }
+    const qs = new URLSearchParams();
+    qs.set('action','submitteam');
+    qs.set('email', email);
+    qs.set('date', date);
+    qs.set('players', JSON.stringify(players));
 
-  // ADMIN via GET (avoids 302 body drop)
-  async function adminSetPoints(){
-    const adminToken = adminTokenEl.value;
-    const date = adminDateEl.value || dateEl.value;
-    const points = Number(adminPointsEl.value);
-    const playerName = adminPlayerEl.value;
-    if (!adminToken || !playerName || !date) { notify('Token, player & date required'); return; }
+    const finalUrl = `${API}?${qs.toString()}`;
+    const echoUrl  = `${API}?action=echo&email=${encodeURIComponent(email)}&date=${encodeURIComponent(date)}&players=${encodeURIComponent(JSON.stringify(players))}`;
+    urlVal.textContent = finalUrl;
+    echoVal.textContent = echoUrl;
+    paramOut.textContent = paramPretty({ action:'submitteam', email, date, players });
+    btnEcho.setAttribute('href', echoUrl);
 
     try{
-      const qs = new URLSearchParams();
-      qs.set('action','setpoints');
-      qs.set('adminToken', adminToken);
-      qs.set('playerName', playerName);
-      qs.set('matchDate', date);
-      qs.set('points', String(points));
-      const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
-      const raw = await res.text();
-      console.log('[admin] status:', res.status, 'body:', raw);
-      let j; try { j = JSON.parse(raw); } catch (e) { notify('Response not JSON (see console).'); return; }
-      if (j.ok) notify(`Points updated (rows: ${j.updated||0})`);
-      else notify(j.error || 'Update failed');
-    } catch (e) { console.error('[admin] fetch failed:', e); notify('Network error while updating points'); }
+      const res = await fetch(finalUrl, { method:'GET' });
+      const txt = await res.text();
+      console.log('[submit][debug] status:', res.status, 'body:', txt);
+      respOut.textContent = txt;
+    }catch(e){ respOut.textContent = 'Network error: '+e; }
   }
 
-  // MY TEAMS VIEW
-  const email2El = document.getElementById('email2');
-  const limitEl = document.getElementById('limit');
-  const loadBtn = document.getElementById('loadBtn');
-  const leftMeta = document.getElementById('leftMeta');
-  const rightMeta = document.getElementById('rightMeta');
-  const overlapMeta = document.getElementById('overlapMeta');
-  const leftPlayersBox = document.getElementById('leftPlayers');
-  const rightPlayersBox = document.getElementById('rightPlayers');
-  const compareSelect = document.getElementById('compareSelect');
-  const listBody = document.getElementById('listBody');
+  // MyTeams GET (quick visibility)
+  async function loadMyTeams(){
+    const email = (document.getElementById('email2').value||'').trim().toLowerCase();
+    if(!email){ notify('Enter email'); return; }
+    const url = `${API}?action=myteams&email=${encodeURIComponent(email)}&limit=10`;
+    urlVal.textContent = url; echoVal.textContent = `${API}?action=echo&email=${encodeURIComponent(email)}`; btnEcho.setAttribute('href', echoVal.textContent);
+    paramOut.textContent = paramPretty({ action:'myteams', email, limit:10 });
+    try{ const r=await fetch(url); const t=await r.text(); document.getElementById('myTeamsOut').textContent=t; respOut.textContent=t; }catch(e){ respOut.textContent='Network error: '+e; }
+  }
 
-  let latestTeam = null; let allTeams = [];
-  function setStoredEmail(v){ try { localStorage.setItem('ml_email', v || ''); } catch(_){} }
-  function getStoredEmail(){ try { return localStorage.getItem('ml_email') || ''; } catch(_) { return ''; } }
-  function makeChip(player, cls){ const span = document.createElement('span'); span.className = 'chip-p ' + cls; span.textContent = player; return span; }
-  function renderTeamPlayers(container, players, compareSet, side) {
-    container.innerHTML=''; const ownSet=new Set(players||[]);
+  // Init UI
+  document.addEventListener('DOMContentLoaded', ()=>{
+    M.AutoInit();
+    const dps = document.querySelectorAll('.datepicker'); M.Datepicker.init(dps, { format:'yyyy-mm-dd', autoClose:true, defaultDate:new Date(), setDefaultDate:true });
+    document.getElementById('date').value = todayISO();
+    mkPlayerChips();
+    setView(location.hash||'#submit');
+    window.addEventListener('hashchange', ()=> setView(location.hash||'#submit'));
+    document.getElementById('submitBtn').addEventListener('click', submitTeam);
+    document.getElementById('loadBtn').addEventListener('click', loadMyTeams);
+  });
+  </script>
+</body>
+</html>
