@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mini Fantasy League</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 20px; background:#f7f9fc; color:#222; }
+  h1 { margin: 0 0 8px; }
+  .card { background:#fff; border:1px solid #e6e8ee; border-radius:12px; padding:16px; margin:12px 0; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+  label { display:block; margin:8px 0 4px; font-weight:600; }
+  input, select, button { padding:10px; border:1px solid #d1d5db; border-radius:8px; width:100%; box-sizing: border-box; }
+  button { background:#2563eb; color:#fff; cursor:pointer; border:none; font-weight:700; }
+  button:disabled { opacity:.6; cursor:not-allowed; }
+  .row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  .grid-3 { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }
+  table { width:100%; border-collapse: collapse; margin-top:8px; }
+  th, td { padding:10px; border-bottom: 1px solid #eee; text-align:left; }
+  th { background:#f3f4f6; }
+  .note { font-size:.9rem; color:#555; }
+  .success { color: #047857; }
+  .error { color: #b91c1c; }
+</style>
+</head>
+<body>
+  <h1>Mini Fantasy League</h1>
+  <div class="note">Pick 11 players for a date. The owner updates points after the match.</div>
+
+  <div class="card">
+    <h2>Submit Team</h2>
+    <div class="row">
+      <div>
+        <label for="email">Your Email</label>
+        <input id="email" type="email" placeholder="you@example.com" required />
+      </div>
+      <div>
+        <label for="date">Match Date</label>
+        <input id="date" type="date" required />
+      </div>
+    </div>
+
+    <div id="playersBox" class="grid-3" style="margin-top:12px;"></div>
+
+    <div class="note">Select exactly 11 players.</div>
+    <button id="submitBtn" style="margin-top:12px;">Submit Team</button>
+    <div id="submitMsg" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>Leaderboard</h2>
+    <button id="refreshLb">Refresh</button>
+    <table id="lbTable">
+      <thead>
+        <tr><th>#</th><th>User</th><th>Email</th><th>Total Points</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbyLgEpBvAb7X17dXooxru4uLcxA4N-pjBVo1zpboz7PBAFQDcLryDWlR8YfvRBJrTuc/exec'; // <-- paste your Apps Script Web App URL
+
+const emailEl = document.getElementById('email');
+const dateEl = document.getElementById('date');
+const box = document.getElementById('playersBox');
+const submitBtn = document.getElementById('submitBtn');
+const submitMsg = document.getElementById('submitMsg');
+const lbTable = document.getElementById('lbTable').querySelector('tbody');
+const refreshBtn = document.getElementById('refreshLb');
+
+function todayISO() {
+  const d = new Date();
+  const off = d.getTimezoneOffset();
+  const d2 = new Date(d.getTime() - off*60000);
+  return d2.toISOString().slice(0,10);
+}
+
+dateEl.value = todayISO();
+
+async function fetchPlayers() {
+  box.innerHTML = 'Loading players…';
+  const date = dateEl.value;
+  const res = await fetch(`${API}?action=players&date=${encodeURIComponent(date)}`);
+  const j = await res.json();
+  if (!j.ok) {
+    box.innerHTML = `<div class="error">Failed to load players: ${j.error || 'Unknown'}</div>`;
+    return;
+  }
+  if (!j.players || j.players.length === 0) {
+    box.innerHTML = `<div class="note">No players found for this date.</div>`;
+    return;
+  }
+  // Render checkboxes
+  box.innerHTML = '';
+  j.players.forEach((p, idx) => {
+    const id = `p_${idx}`;
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <label style="font-weight:500">
+        <input type="checkbox" value="${p.name}" style="margin-right:8px" id="${id}" />
+        ${p.name} <span class="note">(${p.team || ''})</span>
+      </label>`;
+    box.appendChild(div);
+  });
+}
+
+async function submitTeam() {
+  submitMsg.textContent = '';
+  const email = (emailEl.value || '').trim();
+  const date = dateEl.value;
+  if (!email || !date) {
+    submitMsg.innerHTML = '<span class="error">Email and Date are required.</span>';
+    return;
+  }
+  const selected = Array.from(box.querySelectorAll('input[type=checkbox]:checked')).map(x => x.value);
+  if (selected.length !== 11) {
+    submitMsg.innerHTML = '<span class="error">Please select exactly 11 players.</span>';
+    return;
+  }
+  submitBtn.disabled = true;
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        action: 'submitTeam',
+        email,
+        date,
+        players: selected
+      })
+    });
+    const j = await res.json();
+    if (j.ok) {
+      submitMsg.innerHTML = '<span class="success">Submitted! You can refresh the leaderboard.</span>';
+      // uncheck
+      box.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+    } else {
+      submitMsg.innerHTML = `<span class="error">${j.error || 'Failed to submit'}</span>`;
+    }
+  } catch (e) {
+    submitMsg.innerHTML = `<span class="error">${e}</span>`;
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
+async function loadLeaderboard() {
+  lbTable.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
+  const res = await fetch(`${API}?action=leaderboard`);
+  const j = await res.json();
+  if (!j.ok) {
+    lbTable.innerHTML = `<tr><td colspan="4" class="error">Failed: ${j.error || 'Unknown'}</td></tr>`;
+    return;
+  }
+  if (!j.leaderboard || j.leaderboard.length === 0) {
+    lbTable.innerHTML = '<tr><td colspan="4" class="note">No data yet.</td></tr>';
+    return;
+  }
+  lbTable.innerHTML = j.leaderboard.map((r, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${r.name || ''}</td>
+      <td>${r.email}</td>
+      <td><b>${r.total}</b></td>
+    </tr>
+  `).join('');
+}
+
+dateEl.addEventListener('change', fetchPlayers);
+submitBtn.addEventListener('click', submitTeam);
+refreshBtn.addEventListener('click', loadLeaderboard);
+
+fetchPlayers();
+loadLeaderboard();
+</script>
+</body>
+</html>
+``
