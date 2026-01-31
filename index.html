@@ -5,96 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Sports Fever IPL Fantasy 2026</title>
 
-<!-- Materialize (layout/grid) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"/>
-
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Roboto+Slab:wght@400;700&family=Monoton&display=swap" rel="stylesheet"/>
+<!-- Materialize CSS -->
+https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css
+https://fonts.googleapis.com/icon?family=Material+Icons
 
 <style>
-  :root{
-    --bg:#0f1320;       /* deep navy */
-    --panel:#151a2c;    /* card bg */
-    --ink:#e7efff;      /* text */
-    --sub:#9db0d8;      /* secondary text */
-    --accent:#6ee7ff;   /* cyan */
-    --accent2:#ff7ab6;  /* pink */
-    --accent3:#7cff7a;  /* green */
-    --chip-left:#1b5e20;
-    --chip-right:#0d47a1;
-    --chip-common:#263238;
-  }
-  html,body{ background:linear-gradient(180deg,#0b0e1a, #0f1320 40%, #0b0e1a); color:var(--ink); font-family:Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-  nav{ background:transparent; box-shadow:none; border-bottom:1px solid rgba(255,255,255,.05); }
-  nav .brand-logo{
-    font-family:Monoton, cursive;
-    letter-spacing:.5px; color:var(--accent);
-    text-shadow:0 0 6px rgba(110,231,255,.5);
-  }
-  main .card{
-    background:var(--panel);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:16px;
-  }
-  .card-title{ font-weight:800; color:var(--ink); }
-  .badge, .new.badge{ background:linear-gradient(90deg, var(--accent), var(--accent2)); color:#001018; }
+  /* Light base styles (you can theme as you like) */
+  body { background:#f5f7fb; color:#222; }
+  nav .brand-logo { font-weight:800; }
+  section.view { display:none; }
+  section.view.active { display:block; }
+  .sticky-actions { position: sticky; bottom: 0; background:#fff; padding:.75rem; border-top:1px solid #eee; display:flex; gap:.5rem; justify-content:flex-end; }
+  .sticky-head { position:sticky; top:0; background:#fff; z-index:2; border-bottom:1px solid #eee; }
 
-  /* Submit grid: two columns by team */
-  .teams-grid{
-    display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:1rem;
-  }
-  @media (max-width: 800px){
-    .teams-grid{ grid-template-columns: 1fr; }
-  }
+  /* Two-team layout during submission */
+  .teams-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+  @media (max-width:800px){ .teams-grid{ grid-template-columns:1fr; } }
+  .p-list{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.5rem; }
+  @media (max-width:520px){ .p-list{ grid-template-columns:1fr; } }
 
-  /* Player card */
   .p-card{
     display:flex; align-items:center; gap:.75rem;
-    background:#0d1122;
-    border:1px solid rgba(255,255,255,.07);
-    border-radius:12px; padding:.5rem .75rem;
+    background:#fff; border:1px solid #e0e0e0; border-radius:12px; padding:.5rem .75rem;
   }
-  .p-card:hover{ border-color:var(--accent); }
-  .p-card img{
-    width:38px; height:38px; border-radius:50%;
-    object-fit:cover; background:#0a0d19;
-    border:1px solid rgba(255,255,255,.08);
-  }
+  .p-card img{ width:38px; height:38px; border-radius:50%; object-fit:cover; background:#fafafa; border:1px solid #eee; }
   .p-name{ font-weight:600; }
-  .p-team{ font-size:.8rem; color:var(--sub); }
+  .p-team{ font-size:.8rem; color:#6b7c8a; }
 
-  .p-list{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:.5rem; }
-  @media (max-width: 520px){ .p-list{ grid-template-columns: 1fr; } }
-
-  .sticky-actions{ position: sticky; bottom: 0; background:#0b0f1e; padding:.75rem; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:.5rem; justify-content:flex-end; }
-  .btn{ background: linear-gradient(90deg, var(--accent2), var(--accent)); border:none; }
-  .btn-flat{ color:var(--accent); }
-
-  /* Chips for comparison */
+  /* Chips for compare (with images) */
   .chip-p{
-    display:inline-flex; align-items:center; gap:.5rem;
-    padding:.25rem .5rem; border-radius:18px; margin:0 .35rem .35rem 0;
-    background:#101630; color:#dfe7ff; border:1px solid rgba(255,255,255,.07);
+    display:inline-flex; align-items:center; gap:.5rem; padding:.25rem .6rem; border-radius:16px;
+    margin:0 .35rem .35rem 0; background:#eceff1; color:#263238; border:1px solid #d8dee3;
   }
   .chip-p img{ width:22px; height:22px; border-radius:50%; object-fit:cover; }
-  .chip-common{ background:#cfd8dc; color:var(--chip-common); }
-  .chip-left-only{ background:#e8f5e9; color:var(--chip-left); }
-  .chip-right-only{ background:#e3f2fd; color:var(--chip-right); }
-
-  .team-meta{ color:var(--sub); font-size:.95rem; }
-  .sticky-head{ position:sticky; top:0; background:transparent; z-index:2; border-bottom:1px solid rgba(255,255,255,.06); }
-
-  label, .input-field>label{ color:var(--sub) !important; }
-  input, select{ color:var(--ink) !important; }
-  .select-wrapper input.select-dropdown{ color:var(--ink); }
-  .dropdown-content{ background:#0f152c; }
-  .dropdown-content li>span{ color:#cfe4ff; }
+  .chip-common{ background:#cfd8dc; }
+  .chip-left-only{ background:#e8f5e9; }
+  .chip-right-only{ background:#e3f2fd; }
+  .team-meta{ font-size:.95rem; color:#546e7a; }
 </style>
 </head>
 <body>
-  <nav>
+  <nav class="blue">
     <div class="nav-wrapper container">
-      <a href="#submit" class="brand-logo">  <img class="brand-logo-img" src="https://drive.google.com/uc?export=view&id=1L8oEZzIVipUg5ntjdHWr7MB_6AZLw7Iv" alt="" />  <span class="brand-title">Sports Fever IPL Fantasy 2026</span></a>
+      <a href="#submit" class="brand-logo"><i class="material-icons">emoji_events</i> Sports Fever IPL Fantasy 2026</a>
       <ul class="right">
         <li><a href="#submit"><i class="material-icons left">send</i>Submit</a></li>
         <li><a href="#my-teams"><i class="material-icons left">view_week</i>My Teams</a></li>
@@ -111,32 +64,32 @@
             <div class="card-content">
               <span class="card-title">
                 Submit Team
-                <span class="new badge" id="selCount" data-badge-caption="/11 selected">0</span>
+                <span class="new badge blue" id="selCount" data-badge-caption="/11 selected">0</span>
               </span>
+
               <div class="row">
                 <div class="input-field col s12 m6">
                   <input id="email" type="email" class="validate" placeholder="you@example.com">
                   <label class="active" for="email">Your Email</label>
                 </div>
+                <!-- Match Number selector -->
                 <div class="input-field col s12 m6">
-                  <select id="matchNo"></select>
-                  <label>Match Number</label>
+                  <select id="mber</label>
                 </div>
               </div>
 
-              <label>Players (by teams for this match)</label>
-              <div id="teamsBox" class="teams-grid">
-                Loading players…
-              </div>
-              <p class="grey-text text-lighten-1">Select exactly 11 players.</p>
+              <label>Players (for selected match)</label>
+              <div id="teamsBox" class="teams-grid">Loading players…</div>
+              <p class="grey-text">Select exactly 11 players.</p>
             </div>
             <div class="sticky-actions">
               <a id="refreshPlayers" class="btn-flat waves-effect"><i class="material-icons left">refresh</i>Reload</a>
-              <a id="submitBtn" class="btn waves-effect waves-light disabled"><i class="material-icons left">send</i>Submit Team</a>
+              <a id="submitBtn" class="btn waves-effect waves-light blue disabled"><i class="material-icons left">send</i>Submit Team</a>
             </div>
           </div>
         </div>
 
+        <!-- Leaderboard -->
         <div class="col l5 s12">
           <div class="card">
             <div class="card-content">
@@ -154,7 +107,7 @@
         </div>
       </div>
 
-      <!-- Admin modal (still available) -->
+      <!-- Admin modal (matchNo-based) -->
       <div id="adminModal" class="modal">
         <div class="modal-content">
           <h5>Admin: Update Player Points</h5>
@@ -199,7 +152,7 @@
               <label class="active" for="limit">How many recent teams?</label>
             </div>
             <div class="input-field col s12 m3">
-              <a id="loadBtn" class="btn waves-effect waves-light"><i class="material-icons left">cloud_download</i>Load</a>
+              <a id="loadBtn" class="btn waves-effect waves-light blue"><i class="material-icons left">cloud_download</i>Load</a>
             </div>
           </div>
         </div>
@@ -257,10 +210,9 @@
     </section>
   </main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <script>
-    // TODO: Replace with your deployed Apps Script URL:
-    const API = 'https://script.google.com/macros/s/AKfycbyJCFnjEb3XnM0fI511lW6wkJ2NgJyAO7585nD9shKWX10pShfnor0qKRo93vaV7Kv6/exec';
+  <!-- Materialize JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1. URL:
+    const API = 'https://script.google.com/macros/s/AKfycby_9hA7hrhLfsE_zmdaVEzTycOZ_yvVl3nf29PWu99Q2_hL2UCR84sgKfMeVPE_spM/exec';
 
     function activateView(hash){
       const target = (hash || location.hash || '#submit').replace('#','');
@@ -270,22 +222,167 @@
     window.addEventListener('hashchange', ()=>activateView(location.hash));
     function notify(msg){ M.toast({html: msg}); }
 
-    // Elements
+    // ---- Submit elements ----
     const emailEl = document.getElementById('email');
     const matchNoSel = document.getElementById('matchNo');
     const teamsBox = document.getElementById('teamsBox');
     const submitBtn = document.getElementById('submitBtn');
     const selCount = document.getElementById('selCount');
-    const refreshPlayersBtn = document.getElementById('refreshPlayers');
     const lbTable = document.getElementById('lbTable');
-    const refreshLbBtn = document.getElementById('refreshLb');
 
     const adminTokenEl = document.getElementById('adminToken');
     const adminMatchNoEl = document.getElementById('adminMatchNo');
     const adminPointsEl = document.getElementById('adminPoints');
     const adminPlayerEl = document.getElementById('adminPlayer');
 
-    // My Teams elements
+    function selectedPlayers(){
+      return Array.from(teamsBox.querySelectorAll('input[type=checkbox]:checked')).map(x => x.value);
+    }
+    function updateSelectionUI(){
+      const n = selectedPlayers().length;
+      selCount.setAttribute('data-badge-caption','/11 selected');
+      selCount.textContent = n;
+      if (!emailEl.value || !matchNoSel.value || n !== 11) submitBtn.classList.add('disabled');
+      else submitBtn.classList.remove('disabled');
+    }
+
+    // --- Build two buckets by team (top 2 by count) ---
+    function twoTeamBuckets(players){
+      const byTeam = new Map();
+      players.forEach(p => {
+        const key = (p.team || 'TEAM').toUpperCase();
+        if (!byTeam.has(key)) byTeam.set(key, []);
+        byTeam.get(key).push(p);
+      });
+      const sorted = [...byTeam.entries()].sort((a,b)=> b[1].length - a[1].length);
+      const pick = sorted.slice(0, 2).map(([team, list]) => ({team, list}));
+      return pick.length ? pick : [{team:'Team A', list:players.slice(0,Math.ceil(players.length/2))},
+                                   {team:'Team B', list:players.slice(Math.ceil(players.length/2))}];
+    }
+
+    function playerCardHTML(p){
+      const imgTag = p.image ? `<img src="${p.image}" alt="${p.name}">` : `<img src="" alt="">`;
+      return `
+        <label class="p-card">
+          <label><input type="checkbox"/><span></span></label>
+          ${imgTag}
+          <div>
+            <div class="p-name">${p.name}</div>
+            <div class="p-team">${p.team||''}</div>
+          </div>
+        </label>`;
+    }
+
+   ms(players){
+      if (!Array.isArray(players) || players.length === 0){
+        teamsBox.innerHTML = '<span class="grey-text">No players found for this match.</span>';
+        updateSelectionUI(); return;
+      }
+      const buckets = twoTeamBuckets(players);
+      teamsBox.innerHTML = buckets.map(b => `
+        <div>
+          <h6 style="font-weight:800; margin:0 0 .5rem 0;">${b.team}</h6>
+          <div class="p-list">${b.list.map(playerCardHTML).join('')}</div>
+        </div>
+      `).join('');
+      teamsBox.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.value = cb.closest('.p-card').querySelector('.p-name').textContent.trim();
+        cb.addEventListener('change', updateSelectionUI);
+      });
+      updateSelectionUI();
+    }
+
+    async function fetchMatchNos(){
+      try{
+        const res = await fetch(`${API}?action=matchnos`);
+        const j = await res.json();
+        const opts = ['<option value="">— Select Match —</option>']
+          .concat((j.matchNos||[]).map(n => `<option value="${n}">Match ${n}</option>`));
+        matchNoSel.innerHTML = opts.join('');
+        M.FormSelect.init(matchNoSel);
+      }catch(e){
+        matchNoSel.innerHTML = '<option value="">(failed)</option>';
+        M.FormSelect.init(matchNoSel);
+      }
+    }
+
+    async function fetchPlayers(){
+      teamsBox.textContent = 'Loading players…';
+      selCount.textContent = '0';
+      try{
+        const matchNo = matchNoSel.value;
+        if (!matchNo){ teamsBox.textContent = 'Pick a match first.'; return; }
+        const res = await fetch(`${API}?action=players&matchNo=${encodeURIComponent(matchNo)}`);
+        const j = await res.json();
+        if (!j.ok){ teamsBox.innerHTML = `<span class="red-text">${j.error||'API error'}</span>`; return; }
+        renderPlayersByTeams(j.players||[]);
+      }catch(err){
+        teamsBox.innerHTML = '<span class="red-text">Network error</span>';
+      }
+    }
+
+    async function loadLeaderboard(){
+      lbTable.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
+      try{
+        const res = await fetch(`${API}?action=leaderboard`);
+        const j = await res.json();
+        if (!j.ok){ lbTable.innerHTML = `<tr><td colspan="4" class="red-text">${j.error||'API error'}</td></tr>`; return; }
+        lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>`
+          <tr>
+            <td>${i+1}</td>
+            <td>${r.name||''}</td>
+            <td>${r.email}</td>
+            <td><span class="new badge green" data-badge-caption="">${r.total}</span></td>
+          </tr>`).join('') || '<tr><td colspan="4" class="grey-text">No data yet.</td></tr>';
+      }catch(e){
+        lbTable.innerHTML = '<tr><td colspan="4" class="red-text">Failed</td></tr>';
+      }
+    }
+
+    // Submit by matchNo
+    async function submitTeam(){
+      const email = (emailEl.value||'').trim();
+      const matchNo = matchNoSel.value;
+      const players = selectedPlayers();
+      if (!email || !matchNo){ notify('Email & Match No required'); return; }
+      if (players.length !== 11){ notify('Pick exactly 11 players'); return; }
+
+      submitBtn.classList.add('disabled');
+      try{
+        const qs = new URLSearchParams({ action:'submitteam', email, matchNo, players: JSON.stringify(players) });
+        const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
+        const j = await res.json();
+        if (j.ok){
+          notify('Submitted! Refresh leaderboard.');
+          teamsBox.querySelectorAll('input[type=checkbox]').forEach(c => c.checked=false);
+          updateSelectionUI();
+        } else {
+          notify(j.error || 'Submission failed');
+        }
+      }catch(e){
+        notify('Network error while submitting');
+      }finally{
+        submitBtn.classList.remove('disabled');
+      }
+    }
+
+    // ---- Admin (matchNo-based) ----
+    async function adminSetPoints(){
+      const adminToken = adminTokenEl.value;
+      const matchNo = Number(adminMatchNoEl.value || matchNoSel.value);
+      const points = Number(adminPointsEl.value);
+      const playerName = adminPlayerEl.value;
+      if (!adminToken || !playerName || !matchNo){ notify('Token, player & matchNo required'); return; }
+      try{
+        const qs = new URLSearchParams({ action:'setpoints', adminToken, playerName, matchNo:String(matchNo), points:String(points) });
+        const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
+        const j = await res.json();
+        if (j.ok) notify(`Points updated (rows: ${j.updated||0})`);
+        else notify(j.error || 'Update failed');
+      }catch(e){ notify('Network error while updating points'); }
+    }
+
+    // ---- MY TEAMS (compare with images) ----
     const email2El = document.getElementById('email2');
     const limitEl = document.getElementById('limit');
     const loadBtn = document.getElementById('loadBtn');
@@ -299,221 +396,19 @@
 
     let latestTeam = null; let allTeams = [];
 
-    function setStoredEmail(v){ try{ localStorage.setItem('ml_email', v || ''); }catch(_){} }
-    function getStoredEmail(){ try{ return localStorage.getItem('ml_email') || ''; }catch(_){ return ''; } }
-
-    function selectedPlayers(){
-      return Array.from(teamsBox.querySelectorAll('input[type=checkbox]:checked')).map(x => x.value);
-    }
-    function updateSelectionUI(){
-      const n = selectedPlayers().length;
-      selCount.setAttribute('data-badge-caption','/11 selected');
-      selCount.textContent = n;
-      if (!emailEl.value || !matchNoSel.value || n !== 11) submitBtn.classList.add('disabled');
-      else submitBtn.classList.remove('disabled');
-    }
-
-    function teamBuckets(players){
-      // group players by Team
-      const byTeam = new Map();
-      players.forEach(p => {
-        const key = (p.team || 'Team').toUpperCase();
-        if (!byTeam.has(key)) byTeam.set(key, []);
-        byTeam.get(key).push(p);
-      });
-      // choose two teams if more present
-      const keys = Array.from(byTeam.keys());
-      const chosen = keys.slice(0, 2);
-      return chosen.map(k => ({ team:k, players: byTeam.get(k) }));
-    }
-
-    function playerCardHTML(p){
-      const img = p.image || '';
-      const safeName = p.name.replace(/"/g,'&quot;');
-      return `
-        <label class="p-card">
-          <label><input type="checkbox"/><span></span></label>
-          <img src="${img}" alt="${safeName}" onerror="this.style.visibility='hidden'">
-          <div>
-            <div class="p-name">${safeName}</div>
-            <div class="p-team">${p.team || ''}</div>
-          </div>
-        </label>
-      `;
-    }
-
-    function renderPlayersByTeams(players){
-      if (!Array.isArray(players) || players.length === 0){
-        teamsBox.innerHTML = '<span class="grey-text text-lighten-1">No players found for this match.</span>';
-        updateSelectionUI(); return;
-      }
-      const buckets = teamBuckets(players);
-      const html = buckets.map(b => `
-        <div>
-          <h6 style="color:var(--accent3); font-weight:800; margin-top:0;">${b.team}</h6>
-          <div class="p-list">
-            ${b.players.map(playerCardHTML).join('')}
-          </div>
-        </div>
-      `).join('');
-      teamsBox.innerHTML = html || '<span class="grey-text text-lighten-1">No players for this match.</span>';
-      teamsBox.querySelectorAll('input[type=checkbox]').forEach(cb => {
-        cb.value = cb.closest('.p-card').querySelector('.p-name').textContent.trim();
-        cb.addEventListener('change', updateSelectionUI);
-      });
-      updateSelectionUI();
-    }
-
-    async function fetchMatchNos(){
-      try{
-        const res = await fetch(`${API}?action=matchnos`);
-        const j = await res.json();
-        if (!j.ok) throw new Error(j.error || 'API error');
-        const opts = ['<option value="">— Select Match —</option>']
-          .concat(j.matchNos.map(n => `<option value="${n}">Match ${n}</option>`));
-        matchNoSel.innerHTML = opts.join('');
-        M.FormSelect.init(matchNoSel);
-      }catch(err){
-        console.error('[matchnos]', err);
-        matchNoSel.innerHTML = '<option value="">(failed)</option>';
-        M.FormSelect.init(matchNoSel);
-      }
-    }
-
-    async function fetchPlayers(){
-      teamsBox.textContent = 'Loading players…';
-      selCount.textContent = '0';
-      try{
-        const matchNo = matchNoSel.value;
-        if (!matchNo){ teamsBox.textContent = 'Pick a match first.'; return; }
-        const url = `${API}?action=players&matchNo=${encodeURIComponent(matchNo)}`;
-        const res = await fetch(url);
-        const txt = await res.text();
-        let j; try{ j = JSON.parse(txt); }catch(e){
-          teamsBox.innerHTML = '<span class="red-text">Response not JSON (deploy?).</span>';
-          console.error('[players] non-JSON:', res.status, txt); return;
-        }
-        if (!j.ok){ teamsBox.innerHTML = `<span class="red-text">${j.error||'API error'}</span>`; return; }
-        renderPlayersByTeams(j.players||[]);
-      }catch(err){
-        teamsBox.innerHTML = '<span class="red-text">Network error</span>';
-        console.error('[players] fetch failed:', err);
-      }
-    }
-
-    async function loadLeaderboard(){
-      lbTable.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
-      try{
-        const res = await fetch(`${API}?action=leaderboard`);
-        const txt = await res.text();
-        let j; try{ j = JSON.parse(txt); }catch(e){
-          lbTable.innerHTML = '<tr><td colspan="4" class="red-text">Response not JSON</td></tr>';
-          console.error('[leaderboard] non-JSON:', res.status, txt); return;
-        }
-        if (!j.ok){ lbTable.innerHTML = `<tr><td colspan="4" class="red-text">${j.error||'API error'}</td></tr>`; return; }
-        lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>`
-          <tr>
-            <td>${i+1}</td>
-            <td>${r.name||''}</td>
-            <td>${r.email}</td>
-            <td><span class="new badge green" data-badge-caption="">${r.total}</span></td>
-          </tr>`).join('') || '<tr><td colspan="4" class="grey-text">No data yet.</td></tr>';
-      }catch(e){
-        lbTable.innerHTML = '<tr><td colspan="4" class="red-text">Failed</td></tr>';
-        console.error('[leaderboard] fetch failed:', e);
-      }
-    }
-
-    // Submit by GET (matchNo)
-    async function submitTeam(){
-      const email = (emailEl.value||'').trim();
-      const matchNo = matchNoSel.value;
-      const players = selectedPlayers();
-      if (!email || !matchNo){ notify('Email & Match No required'); return; }
-      if (players.length !== 11){ notify('Pick exactly 11 players'); return; }
-
-      submitBtn.classList.add('disabled');
-      try{
-        const qs = new URLSearchParams();
-        qs.set('action','submitteam');
-        qs.set('email', email);
-        qs.set('matchNo', matchNo);
-        qs.set('players', JSON.stringify(players));
-        const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
-        const raw = await res.text();
-        let j; try{ j = JSON.parse(raw); } catch(e){ notify('Response not JSON (see console).'); return; }
-        if (j.ok){
-          notify('Submitted! Refresh leaderboard.');
-          teamsBox.querySelectorAll('input[type=checkbox]').forEach(c => c.checked=false);
-          updateSelectionUI();
-        } else {
-          notify(j.error || 'Submission failed');
-        }
-      }catch(e){
-        console.error('[submit] fetch failed:', e);
-        notify('Network error while submitting (see console).');
-      }finally{
-        submitBtn.classList.remove('disabled');
-      }
-    }
-
-    // Admin via GET (matchNo)
-    async function adminSetPoints(){
-      const adminToken = adminTokenEl.value;
-      const matchNo = Number(adminMatchNoEl.value || matchNoSel.value);
-      const points = Number(adminPointsEl.value);
-      const playerName = adminPlayerEl.value;
-      if (!adminToken || !playerName || !matchNo){ notify('Token, player & matchNo required'); return; }
-      try{
-        const qs = new URLSearchParams();
-        qs.set('action','setpoints');
-        qs.set('adminToken', adminToken);
-        qs.set('playerName', playerName);
-        qs.set('matchNo', String(matchNo));
-        qs.set('points', String(points));
-        const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
-        const raw = await res.text();
-        let j; try{ j = JSON.parse(raw); } catch(e){ notify('Response not JSON (see console).'); return; }
-        if (j.ok) notify(`Points updated (rows: ${j.updated||0})`);
-        else notify(j.error || 'Update failed');
-      }catch(e){ console.error('[admin] fetch failed:', e); notify('Network error while updating points'); }
-    }
-
-    // ---- MY TEAMS VIEW ----
     function chip(player, imgSrc, cls){
-      const src = imgSrc || '';
-      const safe = String(player||'');
-      return `<span class="chip-p ${cls}">
-        <img src="${src}" onerror="this.style.visibility='hidden'">${safe}
-      </span>`;
-    }
-
-    function renderTeamPlayers(container, players, compareSet, side, imageMap){
-      container.innerHTML = '';
-      const ownSet = new Set(players||[]);
-      const onlyOwn = [...ownSet].filter(p => !compareSet.has(p));
-      const common  = [...ownSet].filter(p => compareSet.has(p));
-
-      // Common first
-      common.forEach(p => container.insertAdjacentHTML('beforeend', chip(p, imageMap.get(p)||'', 'chip-common')));
-      if (side === 'left'){
-        onlyOwn.forEach(p => container.insertAdjacentHTML('beforeend', chip(p, imageMap.get(p)||'', 'chip-left-only')));
-      } else {
-        onlyOwn.forEach(p => container.insertAdjacentHTML('beforeend', chip(p, imageMap.get(p)||'', 'chip-right-only')));
-      }
+      const imgTag = imgSrc ? `<img src="${imgSrc}" alt="${player}">` : '';
+      return `<span classplayer}</span>`;
     }
     function overlapCount(a,b){ const s=new Set(a||[]); return (b||[]).reduce((acc,x)=>acc+(s.has(x)?1:0),0); }
     function setTeamMeta(el, team){ el.textContent = team ? `Match: ${team.matchNo} • Points: ${team.points} • ID: ${team.entryId}` : '—'; }
 
-    // Get (name -> image) map for a given match to show chips with images
     async function getImageMapForMatch(matchNo){
       const map = new Map();
       try{
         const res = await fetch(`${API}?action=players&matchNo=${encodeURIComponent(matchNo)}`);
         const j = await res.json();
-        if (j.ok){
-          (j.players||[]).forEach(p => map.set(p.name, p.image||''));
-        }
+        if (j.ok){ (j.players||[]).forEach(p => map.set(p.name, p.image||'')); }
       }catch(_){}
       return map;
     }
@@ -525,7 +420,7 @@
       M.FormSelect.init(compareSelect);
     }
     function renderList(teams){
-      if (!teams.length){ listBody.innerHTML = '<tr><td colspan="5">No submissions yet.</td></tr>'; return; }
+      if(!teams.length){ listBody.innerHTML='<tr><td colspan="5">No submissions yet.</td></tr>'; return; }
       listBody.innerHTML = teams.map((t,i)=>`
         <tr>
           <td>${i+1}</td>
@@ -538,9 +433,8 @@
 
     async function selectRight(entryId){
       const t = allTeams.find(x => x.entryId === entryId);
-      if (!t) return;
+      if(!t) return;
 
-      // Build image maps for both matches so chips show images
       const leftMap  = await getImageMapForMatch(latestTeam ? latestTeam.matchNo : t.matchNo);
       const rightMap = await getImageMapForMatch(t.matchNo);
       const mergedMap = new Map([...leftMap, ...rightMap]);
@@ -555,67 +449,75 @@
       M.FormSelect.init(compareSelect);
     }
 
+    function renderTeamPlayers(container, players, compareSet, side, imageMap){
+      container.innerHTML='';
+      const ownSet = new Set(players||[]);
+      const onlyOwn = [...ownSet].filter(p => !compareSet.has(p));
+      const common  = [...ownSet].filter(p => compareSet.has(p));
+
+      common.forEach(p => container.insertAdjacentHTML('beforeend', chip(p, imageMap.get(p)||'', 'chip-common')));
+      if (side==='left'){
+        onlyOwn.forEach(p => container.insertAdjacentHTML('beforeend', chip(p, imageMap.get(p)||'', 'chip-left-only')));
+      } else {
+        onlyOwn.forEach(p => container.insertAdjacentHTML('beforeend', chip(p, imageMap.get(p)||'', 'chip-right-only')));
+      }
+    }
+
     async function loadMyTeams(){
-      const email = (email2El.value||'').trim().toLowerCase();
-      if (!email){ notify('Please enter your email'); return; }
-      setStoredEmail(email);
-      const limit = Number(limitEl.value||20);
-      const url = `${API}?action=myteams&email=${encodeURIComponent(email)}&limit=${encodeURIComponent(limit)}`;
+      const email=(email2El.value||'').trim().toLowerCase();
+      if(!email){ notify('Please enter your email'); return; }
+      localStorage.setItem('ml_email', email);
+      const limit=Number(limitEl.value||20);
+
       try{
-        const res = await fetch(url);
-        const txt = await res.text();
-        let j; try{ j = JSON.parse(txt); }catch(e){ notify('Response not JSON'); return; }
-        if (!j.ok){ notify(j.error || 'API error'); return; }
-        latestTeam = j.latest || null;
-        allTeams = Array.isArray(j.items) ? j.items : [];
-        if (!latestTeam){
+        const res = await fetch(`${API}?action=myteams&email=${encodeURIComponent(email)}&limit=${encodeURIComponent(limit)}`);
+        const j = await res.json();
+        if(!j.ok){ notify(j.error||'API error'); return; }
+
+        latestTeam=j.latest||null;
+        allTeams=Array.isArray(j.items)?j.items:[];
+        if(!latestTeam){
           leftMeta.textContent='No submissions yet.'; leftPlayersBox.innerHTML='';
           rightMeta.textContent='—'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—';
           compareSelect.innerHTML=''; M.FormSelect.init(compareSelect); renderList([]); return;
         }
 
-        // image map for left match
         const imgMap = await getImageMapForMatch(latestTeam.matchNo);
         setTeamMeta(leftMeta, latestTeam);
         renderTeamPlayers(leftPlayersBox, latestTeam.players||[], new Set(), 'left', imgMap);
 
         buildCompareOptions(allTeams);
-        if (allTeams.length > 1){ selectRight(allTeams[1].entryId); }
+        if(allTeams.length>1){ selectRight(allTeams[1].entryId); }
         else { rightMeta.textContent='No previous team to compare.'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; }
         renderList(allTeams);
       }catch(err){
-        console.error('[myteams] load failed:', err);
         notify('Network error while loading teams');
       }
     }
 
-    // INIT
     document.addEventListener('DOMContentLoaded', function(){
       M.AutoInit();
-      const stored = getStoredEmail();
-      if (stored){ emailEl.value = stored; document.getElementById('email2').value = stored; }
-      M.updateTextFields();
-
-      fetchMatchNos().then(fetchPlayers);
-      loadLeaderboard();
+      const stored = (localStorage.getItem('ml_email')||'');
+      if (stored){ emailEl.value = stored; document.getElementById('email2').value = stored; M.updateTextFields(); }
       activateView(location.hash || '#submit');
 
       document.addEventListener('input', (e)=>{
-        if (e.target.id==='email'){ setStoredEmail(e.target.value||''); updateSelectionUI(); }
-        if (e.target.id==='email2'){ setStoredEmail(e.target.value||''); }
+        if (e.target.id==='email'){ localStorage.setItem('ml_email', e.target.value||''); updateSelectionUI(); }
+        if (e.target.id==='email2'){ localStorage.setItem('ml_email', e.target.value||''); }
       });
+
       matchNoSel.addEventListener('change', fetchPlayers);
       document.getElementById('submitBtn').addEventListener('click', submitTeam);
       document.getElementById('refreshPlayers').addEventListener('click', fetchPlayers);
       document.getElementById('refreshLb').addEventListener('click', loadLeaderboard);
       document.getElementById('adminSetPoints').addEventListener('click', adminSetPoints);
       document.getElementById('loadBtn').addEventListener('click', loadMyTeams);
+
+      fetchMatchNos().then(fetchPlayers);
+      loadLeaderboard();
     });
 
-    // expose for table action
-    window.selectRight = selectRight;
+    window.selectRight = selectRight; // expose for table action
   </script>
 </body>
 </html>
-
-
