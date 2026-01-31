@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mini Fantasy League – Combined</title>
-  <!-- Materialize CSS (Material Design) -->
+  <title>Mini Fantasy League – Combined (GET submit)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -16,14 +15,12 @@
     @media (max-width: 600px) { .grid { grid-template-columns: 1fr;} }
     .sticky-actions { position: sticky; bottom: 0; background: #fff; padding: .75rem; border-top:1px solid #eee; display:flex; gap:.5rem; justify-content:flex-end; }
     .card-title .badge { font-size:.8rem; margin-left:.5rem; }
-    /* Compare chips */
     .chip-p { display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .6rem; border-radius:16px; margin:0 .3rem .4rem 0; }
     .chip-common { background:#eceff1; color:#263238; }
     .chip-left-only { background:#e8f5e9; color:#1b5e20; }
     .chip-right-only { background:#e3f2fd; color:#0d47a1; }
     .team-meta { font-size:.95rem; color:#546e7a; }
     .sticky-head { position:sticky; top:0; background:white; z-index:2; border-bottom:1px solid #eee; }
-    /* Simple view switch */
     section.view { display:none; }
     section.view.active { display:block; }
   </style>
@@ -41,7 +38,6 @@
 
   <main class="container" style="margin-top:1.25rem;">
 
-    <!-- =============== SUBMIT / LEADERBOARD VIEW =============== -->
     <section id="submit" class="view active">
       <div class="row">
         <div class="col l7 s12">
@@ -85,7 +81,6 @@
         </div>
       </div>
 
-      <!-- Admin Modal -->
       <div id="adminModal" class="modal">
         <div class="modal-content">
           <h5>Admin: Update Player Points</h5>
@@ -114,7 +109,6 @@
       </div>
     </section>
 
-    <!-- =============== MY TEAMS (COMPARE) VIEW =============== -->
     <section id="my-teams" class="view">
       <div class="card">
         <div class="card-content">
@@ -185,15 +179,10 @@
 
   </main>
 
-  <div id="toast" class="toast"></div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script>
-  /************ CONFIG ************/
-  // IMPORTANT: paste your Apps Script Web App /exec URL below
   const API = 'https://script.google.com/macros/s/AKfycbx0d02ONKNajQuoZwuwlimZ9bjdQ-rUQXBPLrrp0a7X3i2IwCt7pBQQEijHh8tudlIg/exec';
 
-  /************ NAV / VIEW SWITCH ************/
   function activateView(hash){
     const target = (hash || location.hash || '#submit').replace('#','');
     document.querySelectorAll('section.view').forEach(s=>s.classList.remove('active'));
@@ -202,7 +191,6 @@
   }
   window.addEventListener('hashchange', ()=>activateView(location.hash));
 
-  /************ COMMON HELPERS ************/
   function notify(msg) { M.toast({html: msg}); }
   function todayISO() {
     const d = new Date();
@@ -211,7 +199,7 @@
     return d2.toISOString().slice(0,10);
   }
 
-  /************ SUBMIT VIEW ************/
+  // SUBMIT VIEW
   const emailEl = document.getElementById('email');
   const dateEl = document.getElementById('date');
   const playersBox = document.getElementById('playersBox');
@@ -300,6 +288,8 @@
       console.error('[leaderboard] fetch failed:', e);
     }
   }
+
+  // UPDATED: submit via GET (avoids 302 body drop)
   async function submitTeam() {
     const email = (emailEl.value||'').trim();
     const date = dateEl.value;
@@ -309,12 +299,12 @@
 
     submitBtn.classList.add('disabled');
     try{
-      const data = new URLSearchParams();
-      data.set('action','submitTeam');
-      data.set('email', email);
-      data.set('date', date);
-      data.set('players', JSON.stringify(players));
-      const res = await fetch(API, { method:'POST', body: data });
+      const qs = new URLSearchParams();
+      qs.set('action','submitteam');
+      qs.set('email', email);
+      qs.set('date', date);
+      qs.set('players', JSON.stringify(players));
+      const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
       const raw = await res.text();
       console.log('[submit] status:', res.status, 'body:', raw);
       let j; try { j = JSON.parse(raw); } catch (e) { notify('Response not JSON (see console).'); return; }
@@ -327,21 +317,32 @@
       submitBtn.classList.remove('disabled');
     }
   }
+
+  // UPDATED: admin set points via GET (avoids 302 body drop)
   async function adminSetPoints(){
-    const adminToken = adminTokenEl.value; const date = adminDateEl.value || dateEl.value; const points = Number(adminPointsEl.value); const playerName = adminPlayerEl.value;
+    const adminToken = adminTokenEl.value;
+    const date = adminDateEl.value || dateEl.value;
+    const points = Number(adminPointsEl.value);
+    const playerName = adminPlayerEl.value;
     if (!adminToken || !playerName || !date) { notify('Token, player & date required'); return; }
+
     try{
-      const data = new URLSearchParams();
-      data.set('action','setPoints'); data.set('adminToken', adminToken); data.set('playerName', playerName); data.set('matchDate', date); data.set('points', String(points));
-      const res = await fetch(API, { method:'POST', body: data });
+      const qs = new URLSearchParams();
+      qs.set('action','setpoints');
+      qs.set('adminToken', adminToken);
+      qs.set('playerName', playerName);
+      qs.set('matchDate', date);
+      qs.set('points', String(points));
+      const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
       const raw = await res.text();
       console.log('[admin] status:', res.status, 'body:', raw);
       let j; try { j = JSON.parse(raw); } catch (e) { notify('Response not JSON (see console).'); return; }
-      if (j.ok) notify(`Points updated (rows: ${j.updated||0})`); else notify(j.error || 'Update failed');
-    } catch (e) { console.error('[admin] fetch failed:', e); notify('Network error while updating points.'); }
+      if (j.ok) notify(`Points updated (rows: ${j.updated||0})`);
+      else notify(j.error || 'Update failed');
+    } catch (e) { console.error('[admin] fetch failed:', e); notify('Network error while updating points'); }
   }
 
-  /************ MY TEAMS (COMPARE) VIEW ************/
+  // MY TEAMS VIEW
   const email2El = document.getElementById('email2');
   const limitEl = document.getElementById('limit');
   const loadBtn = document.getElementById('loadBtn');
@@ -372,26 +373,20 @@
   function selectRight(entryId){ const t = allTeams.find(x=>x.entryId===entryId); if(!t) return; const leftSet=new Set(latestTeam?latestTeam.players:[]); setTeamMeta(rightMeta,t); const o=overlapCount(latestTeam?latestTeam.players:[], t.players||[]); overlapMeta.textContent=`Common: ${o} / 11`; renderTeamPlayers(rightPlayersBox, t.players||[], leftSet, 'right'); compareSelect.value=entryId; M.FormSelect.init(compareSelect); }
   async function loadMyTeams(){ const email=(email2El.value||'').trim().toLowerCase(); if(!email){ notify('Please enter your email'); return;} setStoredEmail(email); const limit=Number(limitEl.value||20); const url=`${API}?action=myteams&email=${encodeURIComponent(email)}&limit=${encodeURIComponent(limit)}`; try{ const res=await fetch(url); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON'); return;} if(!j.ok){ notify(j.error||'API error'); return;} latestTeam=j.latest||null; allTeams=Array.isArray(j.items)?j.items:[]; if(!latestTeam){ leftMeta.textContent='No submissions yet.'; leftPlayersBox.innerHTML=''; rightMeta.textContent='—'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; compareSelect.innerHTML=''; M.FormSelect.init(compareSelect); renderList([]); return; } setTeamMeta(leftMeta, latestTeam); renderTeamPlayers(leftPlayersBox, latestTeam.players||[], new Set(), 'left'); buildCompareOptions(allTeams); if(allTeams.length>1){ selectRight(allTeams[1].entryId); } else { rightMeta.textContent='No previous team to compare.'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; } renderList(allTeams); } catch(err){ console.error('[myteams] load failed:', err); notify('Network error while loading teams'); } }
 
-  /************ INIT ************/
   document.addEventListener('DOMContentLoaded', function(){
     M.AutoInit();
     const dp = document.querySelectorAll('.datepicker');
     M.Datepicker.init(dp, { format:'yyyy-mm-dd', autoClose:true, defaultDate:new Date(), setDefaultDate:true });
     dateEl.value = todayISO();
 
-    // Stored email sync between views
     const stored = (function(){ try { return localStorage.getItem('ml_email') || ''; } catch(_) { return ''; } })();
-    if (stored) { emailEl.value = stored; email2El.value = stored; }
+    if (stored) { emailEl.value = stored; document.getElementById('email2').value = stored; }
     M.updateTextFields();
 
-    // Load initial data for submit view
     fetchPlayers();
     loadLeaderboard();
-
-    // View switch
     activateView(location.hash||'#submit');
 
-    // Events
     document.addEventListener('input', (e)=>{
       if (e.target.id==='email'){ try{ localStorage.setItem('ml_email', e.target.value||''); }catch(_){} updateSelectionUI(); }
       if (e.target.id==='email2'){ try{ localStorage.setItem('ml_email', e.target.value||''); }catch(_){} }
@@ -404,7 +399,6 @@
     document.getElementById('loadBtn').addEventListener('click', loadMyTeams);
   });
 
-  // Expose for table Compare buttons
   window.selectRight = selectRight;
   </script>
 </body>
