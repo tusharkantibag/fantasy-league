@@ -289,7 +289,7 @@
     }
   }
 
-  // UPDATED: submit via GET (avoids 302 body drop)
+  // SUBMIT via GET (avoids 302 body drop)
   async function submitTeam() {
     const email = (emailEl.value||'').trim();
     const date = dateEl.value;
@@ -318,7 +318,7 @@
     }
   }
 
-  // UPDATED: admin set points via GET (avoids 302 body drop)
+  // ADMIN via GET (avoids 302 body drop)
   async function adminSetPoints(){
     const adminToken = adminTokenEl.value;
     const date = adminDateEl.value || dateEl.value;
