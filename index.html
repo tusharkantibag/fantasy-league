@@ -106,6 +106,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script>
   /************ CONFIG ************/
+  // IMPORTANT: paste your Apps Script Web App /exec URL below
   const API = 'https://script.google.com/macros/s/AKfycbx0d02ONKNajQuoZwuwlimZ9bjdQ-rUQXBPLrrp0a7X3i2IwCt7pBQQEijHh8tudlIg/exec';
 
   /************ Init ************/
@@ -183,52 +184,119 @@
       const url = `${API}?action=players&date=${encodeURIComponent(date)}`;
       const res = await fetch(url);
       const txt = await res.text();
-      let j; try { j = JSON.parse(txt);} catch(e){
-        box.innerHTML = '<span class="red-text">Response not JSON (CORS?)</span>';
+
+      let j; 
+      try { j = JSON.parse(txt); }
+      catch(e){
+        box.innerHTML = '<span class="red-text">Response not JSON (CORS/deploy?).</span>';
+        console.error('[players] non-JSON:', res.status, txt);
         return;
       }
       if (!j.ok){ box.innerHTML = `<span class="red-text">${j.error||'API error'}</span>`; return; }
       renderPlayers(j.players || []);
-    } catch(err){ box.innerHTML = '<span class="red-text">Network error</span>'; }
+    } catch(err){ 
+      box.innerHTML = '<span class="red-text">Network error</span>'; 
+      console.error('[players] fetch failed:', err);
+    }
   }
 
   async function loadLeaderboard(){
     lbTable.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
     try{
       const res = await fetch(`${API}?action=leaderboard`);
-      const j = await res.json();
-      if (!j.ok){ lbTable.innerHTML = `<tr><td colspan="4" class="red-text">${j.error||'API error'}</td></tr>`; return; }
+      const txt = await res.text();
+
+      let j; 
+      try { j = JSON.parse(txt); } catch (e) {
+        lbTable.innerHTML = `<tr><td colspan="4" class="red-text">Response not JSON</td></tr>`;
+        console.error('[leaderboard] non-JSON:', res.status, txt);
+        return;
+      }
+      if (!j.ok){ 
+        lbTable.innerHTML = `<tr><td colspan="4" class="red-text">${j.error||'API error'}</td></tr>`;
+        return; 
+      }
       lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>
         `<tr><td>${i+1}</td><td>${r.name||''}</td><td>${r.email}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`
       ).join('') || '<tr><td colspan="4" class="grey-text">No data yet.</td></tr>';
-    }catch(e){ lbTable.innerHTML = '<tr><td colspan="4" class="red-text">Failed</td></tr>'; }
+    } catch(e){ 
+      lbTable.innerHTML = '<tr><td colspan="4" class="red-text">Failed</td></tr>'; 
+      console.error('[leaderboard] fetch failed:', e);
+    }
   }
 
-  async function submitTeam(){
+  // ---- REVISED: submitTeam uses text/plain (simple request) ----
+  async function submitTeam() {
     const email = (emailEl.value||'').trim();
     const date = dateEl.value;
     const players = selectedPlayers();
-    if (!email || !date) return notify('Email & Date required');
-    if (players.length !== 11) return notify('Pick exactly 11 players');
+
+    if (!email || !date) { notify('Email & Date required'); return; }
+    if (players.length !== 11) { notify('Pick exactly 11 players'); return; }
 
     submitBtn.classList.add('disabled');
     try{
-      const res = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'submitTeam', email, date, players})});
-      const j = await res.json();
-      if (j.ok){ notify('Submitted! Refresh leaderboard.'); box.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false); updateSelectionUI(); }
-      else { notify(j.error||'Submission failed'); }
-    }catch(e){ notify('Network error'); }
-    submitBtn.classList.remove('disabled');
+      const payload = { action:'submitTeam', email, date, players };
+      const res = await fetch(API, {
+        method:'POST',
+        headers:{ 'Content-Type':'text/plain' }, // simple request (no preflight)
+        body: JSON.stringify(payload)
+      });
+      const raw = await res.text();
+      console.log('[submit] status:', res.status, 'body:', raw);
+
+      let j; 
+      try { j = JSON.parse(raw); } catch (e) {
+        notify('Response not JSON (see console).');
+        return;
+      }
+
+      if (j.ok) {
+        notify('Submitted! Refresh leaderboard.');
+        box.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false);
+        updateSelectionUI();
+      } else {
+        notify(j.error || 'Submission failed');
+      }
+    } catch (e) {
+      console.error('[submit] fetch failed:', e);
+      notify('Network error while submitting (see console).');
+    } finally {
+      submitBtn.classList.remove('disabled');
+    }
   }
 
+  // ---- REVISED: adminSetPoints uses text/plain (simple request) ----
   async function adminSetPoints(){
-    const token = adminTokenEl.value; const date = adminDateEl.value || dateEl.value; const points = Number(adminPointsEl.value); const playerName = adminPlayerEl.value;
-    if (!token || !playerName || !date) return notify('Token, player & date required');
+    const adminToken = adminTokenEl.value;
+    const date = adminDateEl.value || dateEl.value;
+    const points = Number(adminPointsEl.value);
+    const playerName = adminPlayerEl.value;
+
+    if (!adminToken || !playerName || !date) { notify('Token, player & date required'); return; }
+
     try{
-      const res = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'setPoints', adminToken:token, playerName, matchDate:date, points})});
-      const j = await res.json();
-      if (j.ok) notify(`Points updated (rows: ${j.updated||0})`); else notify(j.error||'Update failed');
-    }catch(e){ notify('Network error'); }
+      const payload = { action:'setPoints', adminToken, playerName, matchDate:date, points };
+      const res = await fetch(API, {
+        method:'POST',
+        headers:{ 'Content-Type':'text/plain' }, // simple request
+        body: JSON.stringify(payload)
+      });
+      const raw = await res.text();
+      console.log('[admin] status:', res.status, 'body:', raw);
+
+      let j; 
+      try { j = JSON.parse(raw); } catch (e) {
+        notify('Response not JSON (see console).');
+        return;
+      }
+
+      if (j.ok) notify(`Points updated (rows: ${j.updated||0})`);
+      else notify(j.error || 'Update failed');
+    } catch (e) {
+      console.error('[admin] fetch failed:', e);
+      notify('Network error while updating points.');
+    }
   }
 
   // Events
@@ -240,8 +308,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
