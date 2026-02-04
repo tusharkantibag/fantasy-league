@@ -23,7 +23,13 @@
     .sticky-head { position:sticky; top:0; background:white; z-index:2; border-bottom:1px solid #eee; }
     section.view { display:none; }
     section.view.active { display:block; }
-  </style>
+  
+ /* Player headshots */
+ .avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid #e0e0e0; background:#fafafa; }
+ .chip-player img.avatar { flex:0 0 auto; }
+ .chip-p img.avatar { width:24px; height:24px; margin-right:.35rem; vertical-align:middle; }
+
+ </style>
 </head>
 <body>
   <nav class="blue">
@@ -181,7 +187,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script>
-  const API = 'https://script.google.com/macros/s/AKfycbw-xqfZ_JcFPmXcOkGj3E9r8FFqwNxLIa3VR7lljyxHZuUdwBU-PWNBsGgCuSH55d85/exec';
+  const API = 'https://script.google.com/macros/s/AKfycbxpvgPMOxPTzd9y9zzU3jX71bslNQ9ko8Tlb95xB4S4l6qLPRvIvtexQxcsffFQ_A5E/exec';
 
   function activateView(hash){
     const target = (hash || location.hash || '#submit').replace('#','');
@@ -203,6 +209,7 @@
   const emailEl = document.getElementById('email');
   const dateEl = document.getElementById('date');
   const playersBox = document.getElementById('playersBox');
+ const playerImgMap = {}; // player name -> image URL cache
   const submitBtn = document.getElementById('submitBtn');
   const selCount = document.getElementById('selCount');
   const refreshPlayersBtn = document.getElementById('refreshPlayers');
@@ -227,26 +234,30 @@
       submitBtn.classList.remove('disabled');
     }
   }
-  function renderPlayers(list) {
-    if (!Array.isArray(list) || list.length === 0) {
-      playersBox.innerHTML = '<span class="grey-text">No players found for this date.</span>';
-      updateSelectionUI();
-      return;
-    }
-    const frag = document.createDocumentFragment();
-    list.forEach(p => {
-      const label = document.createElement('label');
-      label.className = 'chip-player';
-      label.innerHTML = `<label><input type="checkbox"/><span></span></label> <span>${p.name} <span class="grey-text">${p.team ? '('+p.team+')' : ''}</span></span>`;
-      label.querySelector('input').value = p.name;
-      frag.appendChild(label);
-    });
-    playersBox.innerHTML = '';
-    playersBox.appendChild(frag);
-    playersBox.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', updateSelectionUI));
+  function renderPlayers(list){
+  if (!Array.isArray(list) || list.length === 0) {
+    playersBox.innerHTML = '<span class="grey-text">No players found for this date.</span>';
     updateSelectionUI();
+    return;
   }
-  async function fetchPlayers() {
+  const frag = document.createDocumentFragment();
+  list.forEach(p => {
+    const label = document.createElement('label');
+    label.className = 'chip-player';
+    const imgSrc = p.imageUrl || p.image || p.img || p.PlayerImageURL || p.photo || '';
+    if (p && p.name && imgSrc) { playerImgMap[p.name] = imgSrc; }
+    const imgTag = imgSrc ? `<img class="avatar" src="${imgSrc}" alt="${p.name || ''}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://via.placeholder.com/72?text=%F0%9F%91%A4'">` : '<i class="material-icons grey-text">person</i>';
+    label.innerHTML = `<label><input type="checkbox"/><span></span></label> ${imgTag} <span>${p.name} <span class="grey-text">${p.team ? '('+p.team+')' : ''}</span></span>`;
+    label.querySelector('input').value = p.name;
+    frag.appendChild(label);
+  });
+  playersBox.innerHTML = '';
+  playersBox.appendChild(frag);
+  playersBox.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', updateSelectionUI));
+  updateSelectionUI();
+}
+
+async function fetchPlayers() {
     playersBox.textContent = 'Loading players…';
     selCount.textContent = '0';
     try {
@@ -357,7 +368,23 @@
   let latestTeam = null; let allTeams = [];
   function setStoredEmail(v){ try { localStorage.setItem('ml_email', v || ''); } catch(_){} }
   function getStoredEmail(){ try { return localStorage.getItem('ml_email') || ''; } catch(_) { return ''; } }
-  function makeChip(player, cls){ const span = document.createElement('span'); span.className = 'chip-p ' + cls; span.textContent = player; return span; }
+  function makeChip(player, cls){
+  const span = document.createElement('span');
+  span.className = 'chip-p ' + cls;
+  const imgUrl = playerImgMap[player];
+  if (imgUrl) {
+    const img = document.createElement('img');
+    img.className = 'avatar';
+    img.loading = 'lazy'; img.decoding='async'; img.referrerPolicy='no-referrer';
+    img.src = imgUrl;
+    img.onerror = function(){ this.remove(); };
+    span.appendChild(img);
+  }
+  const text = document.createElement('span');
+  text.textContent = player;
+  span.appendChild(text);
+  return span;
+}
   function renderTeamPlayers(container, players, compareSet, side) {
     container.innerHTML=''; const ownSet=new Set(players||[]);
     const onlyOwn = [...ownSet].filter(p=>!compareSet.has(p));
