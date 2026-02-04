@@ -23,6 +23,10 @@
     .sticky-head { position:sticky; top:0; background:white; z-index:2; border-bottom:1px solid #eee; }
     section.view { display:none; }
     section.view.active { display:block; }
+    /* Player headshots */
+    .avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid #e0e0e0; background:#fafafa; }
+    .chip-player img.avatar { flex:0 0 auto; }
+    .chip-p img.avatar { width:24px; height:24px; margin-right:.35rem; vertical-align:middle; }
   </style>
 </head>
 <body>
@@ -52,13 +56,13 @@
                   <label class="active" for="email">Your Email</label>
                 </div>
                 <div class="input-field col s12 m6">
-                  <input id="date" type="date" class="datepicker">
-                  <label class="active" for="date">Date</label>
+                  <select id="matchSelect"></select>
+                  <label>Match</label>
                 </div>
               </div>
-              <label>Player Pool (for selected date)</label>
+              <label>Player Pool (for selected match)</label>
               <div id="playersBox" class="grid">Loading players…</div>
-              <p class="grey-text">Select exactly 11 players. List is filtered by the match date.</p>
+              <p class="grey-text">Select exactly 11 players. List is filtered by the match.</p>
             </div>
             <div class="sticky-actions">
               <a id="refreshPlayers" class="btn-flat waves-effect"><i class="material-icons left">refresh</i>Reload</a>
@@ -90,8 +94,8 @@
               <label for="adminToken">Admin token</label>
             </div>
             <div class="input-field col s12 m6">
-              <input id="adminDate" type="date" class="datepicker">
-              <label class="active" for="adminDate">Match Date</label>
+              <select id="adminMatch"></select>
+              <label>Match</label>
             </div>
             <div class="input-field col s12 m6">
               <input id="adminPoints" type="number">
@@ -104,7 +108,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <a href="#!" id="adminSetPoints" class="modal-close waves-effect waves-green btn red">Set Points</a>
+          <a href="#" id="adminSetPoints" class="modal-close waves-effect waves-green btn red">Set Points</a>
         </div>
       </div>
     </section>
@@ -112,7 +116,7 @@
     <section id="my-teams" class="view">
       <div class="card">
         <div class="card-content">
-          <span class="card-title">View & Compare Your Teams</span>
+          <span class="card-title">View &amp; Compare Your Teams</span>
           <div class="row">
             <div class="input-field col s12 m6">
               <input id="email2" type="email" class="validate" placeholder="you@example.com">
@@ -169,7 +173,7 @@
           <span class="card-title">Recent Submissions</span>
           <table class="highlight responsive-table">
             <thead>
-              <tr><th>#</th><th>Date</th><th>Points</th><th>Entry ID</th><th>View</th></tr>
+              <tr><th>#</th><th>Match</th><th>Points</th><th>Entry ID</th><th>View</th></tr>
             </thead>
             <tbody id="listBody"><tr><td colspan="5">—</td></tr></tbody>
           </table>
@@ -181,6 +185,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script>
+  // Use YOUR live Apps Script endpoint here
   const API = 'https://script.google.com/macros/s/AKfycbz_M2B-WY4aASsTOwryQXSHHFDanFFLc9LsJuHSf1KlWtXDt9tPN-5cryUZAy8OjeUq/exec';
 
   function activateView(hash){
@@ -192,23 +197,26 @@
   window.addEventListener('hashchange', ()=>activateView(location.hash));
 
   function notify(msg) { M.toast({html: msg}); }
+
   // SUBMIT VIEW
   const emailEl = document.getElementById('email');
-  const matchSelect = document.getElementById('matchSelect');
   const playersBox = document.getElementById('playersBox');
   const submitBtn = document.getElementById('submitBtn');
   const selCount = document.getElementById('selCount');
   const refreshPlayersBtn = document.getElementById('refreshPlayers');
- const matchesMap = new Map(); // id -> match object
- const matchSelectEl = document.getElementById('matchSelect');
- const adminMatchSelectEl = document.getElementById('adminMatch');
   const lbTable = document.getElementById('lbTable');
   const refreshLbBtn = document.getElementById('refreshLb');
   const adminTokenEl = document.getElementById('adminToken');
-  const adminMatchEl = document.getElementById('adminMatch');
   const adminPointsEl = document.getElementById('adminPoints');
   const adminPlayerEl = document.getElementById('adminPlayer');
   const adminSetBtn = document.getElementById('adminSetPoints');
+
+  // New: match selects
+  const matchSelectEl = document.getElementById('matchSelect');
+  const adminMatchEl = document.getElementById('adminMatch');
+
+  // Cache for player images so chips can show avatars as well
+  const playerImgMap = {};
 
   function selectedPlayers() {
     return Array.from(playersBox.querySelectorAll('input[type=checkbox]:checked')).map(x => x.value);
@@ -223,9 +231,10 @@
       submitBtn.classList.remove('disabled');
     }
   }
+
   function renderPlayers(list) {
     if (!Array.isArray(list) || list.length === 0) {
-      playersBox.innerHTML = '<span class="grey-text">No players found for this date.</span>';
+      playersBox.innerHTML = '<span class="grey-text">No players found for this match.</span>';
       updateSelectionUI();
       return;
     }
@@ -233,7 +242,10 @@
     list.forEach(p => {
       const label = document.createElement('label');
       label.className = 'chip-player';
-      label.innerHTML = `<label><input type="checkbox"/><span></span></label> <span>${p.name} <span class="grey-text">${p.team ? '('+p.team+')' : ''}</span></span>`;
+      const imgSrc = p.imageUrl || p.image || p.img || p.PlayerImageURL || p.photo || '';
+      if (p && p.name && imgSrc) { playerImgMap[p.name] = imgSrc; }
+      const imgTag = imgSrc ? `<img class="avatar" src="${imgSrc}" alt="${p.name||''}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.remove()">` : '<i class="material-icons grey-text">person</i>';
+      label.innerHTML = `<label><input type="checkbox"/><span></span></label> ${imgTag} <span>${p.name} <span class="grey-text">${p.team ? '('+p.team+')' : ''}</span></span>`;
       label.querySelector('input').value = p.name;
       frag.appendChild(label);
     });
@@ -242,13 +254,30 @@
     playersBox.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', updateSelectionUI));
     updateSelectionUI();
   }
+
+  async function fetchMatches(){
+    try{
+      const res = await fetch(`${API}?action=matches`);
+      const txt = await res.text();
+      let j; try { j = JSON.parse(txt); } catch(e){ notify('Response not JSON (matches)'); return; }
+      if(!j.ok){ notify(j.error || 'API error (matches)'); return; }
+      const list = Array.isArray(j.matches) ? j.matches : [];
+      const opts = ['<option value="">-- Select Match --</option>'];
+      list.forEach(m => { opts.push(`<option value="${m.id}">${m.label || m.match}</option>`); });
+      matchSelectEl.innerHTML = opts.join('');
+      if (adminMatchEl) { adminMatchEl.innerHTML = opts.join(''); }
+      M.FormSelect.init(matchSelectEl);
+      if (adminMatchEl) M.FormSelect.init(adminMatchEl);
+      if(list.length){ matchSelectEl.value = String(list[0].id); M.FormSelect.init(matchSelectEl); fetchPlayers(); }
+    }catch(err){ console.error('[matches] fetch failed:', err); notify('Network error while loading matches'); }
+  }
+
   async function fetchPlayers() {
     playersBox.textContent = 'Loading players…';
     selCount.textContent = '0';
     try {
-      
       const matchId = matchSelectEl.value;
- const url = `${API}?action=players&matchId=${encodeURIComponent(matchId)}`;
+      const url = `${API}?action=players&matchId=${encodeURIComponent(matchId)}`;
       const res = await fetch(url);
       const txt = await res.text();
       let j; try { j = JSON.parse(txt);} catch(e){
@@ -263,6 +292,7 @@
       console.error('[players] fetch failed:', err);
     }
   }
+
   async function loadLeaderboard(){
     lbTable.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
     try{
@@ -286,10 +316,9 @@
     }
   }
 
-  // SUBMIT via GET (avoids 302 body drop)
+  // SUBMIT via GET
   async function submitTeam() {
     const email = (emailEl.value||'').trim();
-    
     const players = selectedPlayers();
     if (!email || !matchSelectEl.value) { notify('Email & Match required'); return; }
     if (players.length !== 11) { notify('Pick exactly 11 players'); return; }
@@ -315,13 +344,13 @@
     }
   }
 
-  // ADMIN via GET (avoids 302 body drop)
+  // ADMIN via GET
   async function adminSetPoints(){
     const adminToken = adminTokenEl.value;
     const matchId = adminMatchEl.value || matchSelectEl.value;
     const points = Number(adminPointsEl.value);
     const playerName = adminPlayerEl.value;
-    if (!adminToken || !playerName || !date) { notify('Token, player & date required'); return; }
+    if (!adminToken || !playerName || !matchId) { notify('Token, player & match required'); return; }
 
     try{
       const qs = new URLSearchParams();
@@ -354,7 +383,19 @@
   let latestTeam = null; let allTeams = [];
   function setStoredEmail(v){ try { localStorage.setItem('ml_email', v || ''); } catch(_){} }
   function getStoredEmail(){ try { return localStorage.getItem('ml_email') || ''; } catch(_) { return ''; } }
-  function makeChip(player, cls){ const span = document.createElement('span'); span.className = 'chip-p ' + cls; span.textContent = player; return span; }
+
+  function makeChip(player, cls){
+    const span = document.createElement('span'); span.className = 'chip-p ' + cls;
+    const imgUrl = playerImgMap[player];
+    if (imgUrl){
+      const img = document.createElement('img');
+      img.className = 'avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src = imgUrl; img.onerror = function(){ this.remove(); };
+      span.appendChild(img);
+    }
+    const text = document.createElement('span'); text.textContent = player; span.appendChild(text);
+    return span;
+  }
+
   function renderTeamPlayers(container, players, compareSet, side) {
     container.innerHTML=''; const ownSet=new Set(players||[]);
     const onlyOwn = [...ownSet].filter(p=>!compareSet.has(p));
@@ -365,16 +406,19 @@
   }
   function overlapCount(a,b){ const s=new Set(a||[]); return (b||[]).reduce((acc,x)=>acc+(s.has(x)?1:0),0); }
   function setTeamMeta(el, team){ el.textContent = team ? `Match: ${team.matchLabel || team.match || '-'} • Points: ${team.points} • ID: ${team.entryId}` : '—'; }
-  function buildCompareOptions(teams){ const opts=['<option value="">-- Select --</option>']; teams.slice(1).forEach(t=>opts.push(`<option value="${t.entryId}">${t.date} (Pts ${t.points})</option>`)); compareSelect.innerHTML = opts.join(''); M.FormSelect.init(compareSelect); }
-  function renderList(teams){ if(!teams.length){ listBody.innerHTML='<tr><td colspan="5">No submissions yet.</td></tr>'; return;} listBody.innerHTML = teams.map((t,i)=>`<tr><td>${i+1}</td><td>${t.date}</td><td>${t.points}</td><td class="grey-text text-darken-1">${t.entryId}</td><td><a class="btn-flat waves-effect" onclick="selectRight('${t.entryId}')"><i class="material-icons left">compare</i>Compare</a></td></tr>`).join(''); }
+  function buildCompareOptions(teams){ const opts=['<option value="">-- Select --</option>']; teams.slice(1).forEach(t=>opts.push(`<option value="${t.entryId}">${t.matchLabel || '-'} (Pts ${t.points})</option>`)); compareSelect.innerHTML = opts.join(''); M.FormSelect.init(compareSelect); }
+  function renderList(teams){ if(!teams.length){ listBody.innerHTML='<tr><td colspan="5">No submissions yet.</td></tr>'; return;} listBody.innerHTML = teams.map((t,i)=>`<tr><td>${i+1}</td><td>${t.matchLabel || '-'}</td><td>${t.points}</td><td class="grey-text text-darken-1">${t.entryId}</td><td><a class="btn-flat waves-effect" onclick="selectRight('${t.entryId}')"><i class="material-icons left">compare</i>Compare</a></td></tr>`).join(''); }
   function selectRight(entryId){ const t = allTeams.find(x=>x.entryId===entryId); if(!t) return; const leftSet=new Set(latestTeam?latestTeam.players:[]); setTeamMeta(rightMeta,t); const o=overlapCount(latestTeam?latestTeam.players:[], t.players||[]); overlapMeta.textContent=`Common: ${o} / 11`; renderTeamPlayers(rightPlayersBox, t.players||[], leftSet, 'right'); compareSelect.value=entryId; M.FormSelect.init(compareSelect); }
-  async function loadMyTeams(){ const email=(email2El.value||'').trim().toLowerCase(); if(!email){ notify('Please enter your email'); return;} setStoredEmail(email); const limit=Number(limitEl.value||20); const url=`${API}?action=myteams&email=${encodeURIComponent(email)}&limit=${encodeURIComponent(limit)}`; try{ const res=await fetch(url); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON'); return;} if(!j.ok){ notify(j.error||'API error'); return;} latestTeam=j.latest||null; allTeams=Array.isArray(j.items)?j.items:[]; if(!latestTeam){ leftMeta.textContent='No submissions yet.'; leftPlayersBox.innerHTML=''; rightMeta.textContent='—'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; compareSelect.innerHTML=''; M.FormSelect.init(compareSelect); renderList([]); return; } setTeamMeta(leftMeta, latestTeam); renderTeamPlayers(leftPlayersBox, latestTeam.players||[], new Set(), 'left'); buildCompareOptions(allTeams); if(allTeams.length>1){ selectRight(allTeams[1].entryId); } else { rightMeta.textContent='No previous team to compare.'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; } renderList(allTeams); } catch(err){ console.error('[myteams] load failed:', err); notify('Network error while loading teams'); } }
+
+  async function loadMyTeams(){
+    const email=(email2El.value||'').trim().toLowerCase(); if(!email){ notify('Please enter your email'); return;}
+    setStoredEmail(email); const limit=Number(limitEl.value||20);
+    const url=`${API}?action=myteams&email=${encodeURIComponent(email)}&limit=${encodeURIComponent(limit)}`;
+    try{ const res=await fetch(url); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON'); return;} if(!j.ok){ notify(j.error||'API error'); return;} latestTeam=j.latest||null; allTeams=Array.isArray(j.items)?j.items:[]; if(!latestTeam){ leftMeta.textContent='No submissions yet.'; leftPlayersBox.innerHTML=''; rightMeta.textContent='—'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; compareSelect.innerHTML=''; M.FormSelect.init(compareSelect); renderList([]); return; } setTeamMeta(leftMeta, latestTeam); renderTeamPlayers(leftPlayersBox, latestTeam.players||[], new Set(), 'left'); buildCompareOptions(allTeams); if(allTeams.length>1){ selectRight(allTeams[1].entryId); } else { rightMeta.textContent='No previous team to compare.'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; } renderList(allTeams); } catch(err){ console.error('[myteams] load failed:', err); notify('Network error while loading teams'); }
+  }
 
   document.addEventListener('DOMContentLoaded', function(){
     M.AutoInit();
-    const dp = document.querySelectorAll('.datepicker');
-    
-
     const stored = (function(){ try { return localStorage.getItem('ml_email') || ''; } catch(_) { return ''; } })();
     if (stored) { emailEl.value = stored; document.getElementById('email2').value = stored; }
     M.updateTextFields();
@@ -399,7 +443,3 @@
   </script>
 </body>
 </html>
-
-
-
-
