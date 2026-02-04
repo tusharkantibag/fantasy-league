@@ -12,46 +12,62 @@
   <style>
     body { background:#f5f7fb; }
     nav .brand-logo { font-weight:800; }
+    .card-title .badge { font-size:.8rem; margin-left:.5rem; }
 
-    /* Updated layout: two team columns – vertical stacks */
-    .team-columns { margin-top: .75rem; }
-    .team-col { display: flex; flex-direction: column; gap: .7rem; }
+    /* ---------- Two team columns ---------- */
+    .team-columns { margin-top:.75rem; }
+    .team-col { display:flex; flex-direction:column; gap:.8rem; }
 
-    /* Player chip */
-    .chip-player {
-      display: flex; align-items: center; gap: .7rem;
-      padding: .6rem .8rem; background: #fff;
-      border: 1px solid #e0e0e0; border-radius: 12px;
+    /* ---------- Player CARD blocks ---------- */
+    .player-card {
+      background:#fff;
+      border-radius:12px;
+      padding:12px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      border:1px solid #e3e6ea;
+      transition: box-shadow .2s ease, transform .15s ease;
+    }
+    .player-card:hover {
+      box-shadow:0 4px 12px rgba(0,0,0,0.09);
+      transform: translateY(-2px);
     }
 
-    /* Larger avatars */
-    .avatar {
-      width: 60px; height: 60px;
-      border-radius: 50%; object-fit: cover;
-      border: 1px solid #e0e0e0; background:#fafafa;
-      flex: 0 0 auto;
+    .player-card .avatar {
+      width:72px;
+      height:72px;
+      border-radius:8px;    /* square-ish look */
+      object-fit:cover;
+      border:1px solid #e0e0e0;
+      background:#fafafa;
+      flex:0 0 auto;
     }
 
+    .player-info { flex:1; display:flex; flex-direction:column; }
+    .player-name { font-weight:600; font-size:1rem; }
+    .player-team { font-size:.9rem; color:#607d8b; }
+
+    .player-check { transform:scale(1.35); }
+
+    /* ---------- Sticky bottom actions ---------- */
     .sticky-actions {
       position: sticky; bottom: 0; background:#fff; padding:.75rem;
       border-top:1px solid #eee; display:flex; gap:.5rem; justify-content:flex-end;
     }
 
-    .card-title .badge { font-size:.8rem; margin-left:.5rem; }
+    .team-meta { font-size:.95rem; color:#546e7a; }
+    .sticky-head { position:sticky; top:0; background:white; z-index:2; border-bottom:1px solid #eee; }
 
-    /* Existing chips in Compare view */
+    section.view { display:none; }
+    section.view.active { display:block; }
+
+    /* Compare view pills (unchanged from your file) */
     .chip-p { display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .6rem; border-radius:16px; margin:0 .3rem .4rem 0; }
     .chip-common { background:#eceff1; color:#263238; }
     .chip-left-only { background:#e8f5e9; color:#1b5e20; }
     .chip-right-only { background:#e3f2fd; color:#0d47a1; }
-
-    .team-meta { font-size:.95rem; color:#546e7a; }
-    .sticky-head { position:sticky; top:0; background:white; z-index:2; border-bottom:1px solid #eee; }
-    section.view { display:none; }
-    section.view.active { display:block; }
-
-    /* Smaller avatars inside compare chips */
-    .chip-p img.avatar { width:24px; height:24px; margin-right:.35rem; vertical-align:middle; }
+    .chip-p img.avatar { width:24px; height:24px; margin-right:.35rem; vertical-align:middle; border-radius:50%; }
   </style>
 </head>
 <body>
@@ -67,8 +83,12 @@
 </nav>
 
 <main class="container" style="margin-top:1.25rem;">
+
+  <!-- =================== SUBMIT VIEW =================== -->
   <section id="submit" class="view active">
     <div class="row">
+
+      <!-- Left: Team submit -->
       <div class="col l7 s12">
         <div class="card">
           <div class="card-content">
@@ -89,7 +109,7 @@
 
             <label>Player Pool (for selected match)</label>
 
-            <!-- Two dynamic team columns -->
+            <!-- Two dynamic team columns (headings updated per match) -->
             <div class="row team-columns">
               <div class="col s12 m6">
                 <h6 id="teamLeftTitle"><b>Team A</b></h6>
@@ -111,7 +131,7 @@
         </div>
       </div>
 
-      <!-- Leaderboard column unchanged -->
+      <!-- Right: Leaderboard -->
       <div class="col l5 s12">
         <div class="card">
           <div class="card-content">
@@ -127,7 +147,7 @@
       </div>
     </div>
 
-    <!-- Admin modal unchanged (kept from your original) -->
+    <!-- Admin modal (kept from original) -->
     <div id="adminModal" class="modal">
       <div class="modal-content">
         <h5>Admin: Update Player Points</h5>
@@ -144,7 +164,7 @@
     </div>
   </section>
 
-  <!-- My Teams view kept as-is from your original -->
+  <!-- =================== MY TEAMS VIEW (unchanged) =================== -->
   <section id="my-teams" class="view">
     <div class="card">
       <div class="card-content">
@@ -238,6 +258,7 @@
   const refreshPlayersBtn = document.getElementById('refreshPlayers');
   const lbTable = document.getElementById('lbTable');
   const refreshLbBtn = document.getElementById('refreshLb');
+  const matchSelectEl = document.getElementById('matchSelect');
 
   // Admin
   const adminTokenEl = document.getElementById('adminToken');
@@ -246,22 +267,19 @@
   const adminSetBtn = document.getElementById('adminSetPoints');
   const adminMatchEl = document.getElementById('adminMatch');
 
-  // Match select
-  const matchSelectEl = document.getElementById('matchSelect');
-
   // NEW: two team containers + headings
   const playersLeftBox  = document.getElementById('playersLeft');
   const playersRightBox = document.getElementById('playersRight');
   const teamLeftTitleEl  = document.getElementById('teamLeftTitle');
   const teamRightTitleEl = document.getElementById('teamRightTitle');
 
-  // Cache for images
+  // Cache for player images (also used in Compare view)
   const playerImgMap = {};
 
-  // utility
   function selectedPlayers() {
-    return Array.from(document.querySelectorAll('#playersLeft input[type=checkbox]:checked, #playersRight input[type=checkbox]:checked'))
-      .map(x => x.value);
+    return Array.from(
+      document.querySelectorAll('#playersLeft input[type=checkbox]:checked, #playersRight input[type=checkbox]:checked')
+    ).map(x => x.value);
   }
   function updateSelectionUI() {
     const n = selectedPlayers().length;
@@ -274,96 +292,92 @@
     }
   }
 
-  // HELPER: get two team codes in deterministic order
+  // ---- Detect two teams robustly from player list (with match label fallback)
   function detectTeams(list, matchLabel) {
-    // Collect unique team codes from player objects
-    const codes = [];
-    const seen = new Set();
+    const counts = {};
     (list || []).forEach(p => {
-      const t = (p && p.team) ? String(p.team).trim() : '';
-      if (t && !seen.has(t)) { seen.add(t); codes.push(t); }
+      const t = (p && p.team ? String(p.team).trim() : '');
+      if (!t) return;
+      counts[t] = (counts[t] || 0) + 1;
     });
 
-    // If more than two appear (e.g., ENG/PAK/BAN placeholders), limit to the two most frequent
-    if (codes.length > 2) {
-      const count = {};
-      (list || []).forEach(p => {
-        const t = p.team || '';
-        if (!t) return;
-        count[t] = (count[t] || 0) + 1;
-      });
-      const topTwo = Object.keys(count).sort((a,b)=>count[b]-count[a]).slice(0,2);
-      return { left: topTwo[0], right: topTwo[1] || '' };
+    let codes = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+    if (codes.length >= 2) return { left: codes[0], right: codes[1] };
+
+    // If only one code found, try "AAA vs BBB" from label
+    const lbl = matchLabel || '';
+    const m = lbl.match(/([A-Z]{2,3})\s*vs\s*([A-Z]{2,3})/i);
+    if (m) {
+      const t1 = m[1].toUpperCase(), t2 = m[2].toUpperCase();
+      if (codes.length && codes[0].toUpperCase() === t2) return { left: t2, right: t1 };
+      return { left: t1, right: t2 };
     }
-
-    // If exactly two, use them
-    if (codes.length === 2) return { left: codes[0], right: codes[1] };
-
-    // If only one code detected, try to parse from match label "TEAM1 vs TEAM2"
-    if (codes.length === 1 && matchLabel) {
-      const m = String(matchLabel).match(/([A-Z]{2,3})\s*vs\s*([A-Z]{2,3})/i);
-      if (m) {
-        const t1 = m[1].toUpperCase(), t2 = m[2].toUpperCase();
-        // Keep detected code on the left for consistency
-        const detected = codes[0].toUpperCase();
-        return detected === t1 ? { left: t1, right: t2 } : { left: detected, right: t1 };
-      }
-    }
-
-    // Fallback labels
     return { left: codes[0] || 'Team A', right: codes[1] || 'Team B' };
   }
 
+  // ---- RENDER: card blocks in two team columns
   function renderPlayers(list, matchLabel) {
-    // Clear columns
     playersLeftBox.innerHTML = '';
     playersRightBox.innerHTML = '';
 
-    // Detect teams and set headings each time
     const teams = detectTeams(list, matchLabel);
-    teamLeftTitleEl.innerHTML = `<b>Team ${teams.left}</b>`;
+    teamLeftTitleEl.innerHTML  = `<b>Team ${teams.left}</b>`;
     teamRightTitleEl.innerHTML = `<b>Team ${teams.right}</b>`;
 
     if (!Array.isArray(list) || list.length === 0) {
       playersLeftBox.innerHTML = '<span class="grey-text">No players found for this match.</span>';
-      playersRightBox.innerHTML = '';
-      updateSelectionUI();
       return;
     }
 
-    // Build player chips and append to the correct column
     list.forEach(p => {
-      const label = document.createElement('label');
-      label.className = 'chip-player';
+      const card = document.createElement('div');
+      card.className = 'player-card';
 
       const imgSrc = p.imageUrl || p.image || p.img || p.PlayerImageURL || p.photo || '';
-      if (p && p.name && imgSrc) { playerImgMap[p.name] = imgSrc; }
+      if (p && p.name && imgSrc) playerImgMap[p.name] = imgSrc;
 
-      const imgTag = imgSrc
-        ? `<img class="avatar" src="${imgSrc}" alt="${p.name || ''}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.remove()">`
-        : `<i class="material-icons grey-text">person</i>`;
+      const imgEl = document.createElement(imgSrc ? 'img' : 'i');
+      if (imgSrc) {
+        imgEl.className = 'avatar';
+        imgEl.loading = 'lazy'; imgEl.decoding = 'async'; imgEl.referrerPolicy='no-referrer';
+        imgEl.src = imgSrc; imgEl.onerror = function(){ this.remove(); };
+      } else {
+        imgEl.className = 'material-icons grey-text';
+        imgEl.textContent = 'person';
+      }
 
-      label.innerHTML = `<label><input type="checkbox"/><span></span></label> ${imgTag} <span>${p.name} <span class="grey-text">(${p.team ? p.team : ''})</span></span>`;
+      const label = document.createElement('label');
+      label.className = 'player-check';
+      label.innerHTML = '<input type="checkbox"/><span></span>';
       label.querySelector('input').value = p.name;
+
+      const info = document.createElement('div');
+      info.className = 'player-info';
+      info.innerHTML = `<span class="player-name">${p.name}</span><span class="player-team">(${p.team || ''})</span>`;
+
+      // assemble
+      card.appendChild(label);
+      card.appendChild(imgEl);
+      card.appendChild(info);
 
       const teamCode = (p.team || '').toUpperCase();
       if (teamCode === String(teams.left).toUpperCase()) {
-        playersLeftBox.appendChild(label);
+        playersLeftBox.appendChild(card);
       } else if (teamCode === String(teams.right).toUpperCase()) {
-        playersRightBox.appendChild(label);
+        playersRightBox.appendChild(card);
       } else {
-        // If a player has another team code (rare), place to the smaller column to balance
-        (playersLeftBox.children.length <= playersRightBox.children.length ? playersLeftBox : playersRightBox).appendChild(label);
+        // unknown team code -> balance
+        (playersLeftBox.children.length <= playersRightBox.children.length ? playersLeftBox : playersRightBox).appendChild(card);
       }
     });
 
-    // Hook up selection listeners
     document.querySelectorAll('#playersLeft input[type=checkbox], #playersRight input[type=checkbox]')
       .forEach(cb => cb.addEventListener('change', updateSelectionUI));
 
     updateSelectionUI();
   }
 
+  // ---- API: matches
   async function fetchMatches(){
     try{
       const res = await fetch(`${API}?action=matches`);
@@ -387,8 +401,8 @@
     }catch(err){ console.error('[matches] fetch failed:', err); notify('Network error while loading matches'); }
   }
 
+  // ---- API: players for selected match
   async function fetchPlayers() {
-    // Visual placeholders
     playersLeftBox.innerHTML  = 'Loading players…';
     playersRightBox.innerHTML = '';
 
@@ -409,12 +423,11 @@
         playersRightBox.innerHTML = '';
         return;
       }
-      // Pass match label (for robust headings if team codes are ambiguous)
+
       const matchLabel = (function(){
         const opt = matchSelectEl.options[matchSelectEl.selectedIndex];
         return opt ? opt.text : '';
       })();
-
       renderPlayers(j.players || [], matchLabel);
     } catch(err){
       playersLeftBox.innerHTML = '<span class="red-text">Network error</span>';
@@ -423,6 +436,7 @@
     }
   }
 
+  // ---- Leaderboard
   async function loadLeaderboard(){
     lbTable.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
     try{
@@ -446,7 +460,7 @@
     }
   }
 
-  // SUBMIT via GET
+  // ---- Submit Team (GET as in your original)
   async function submitTeam() {
     const email = (emailEl.value || '').trim();
     const players = selectedPlayers();
@@ -472,7 +486,29 @@
     }
   }
 
-  // MY TEAMS (kept unchanged from your original)
+  // ---- Admin set points (unchanged)
+  async function adminSetPoints(){
+    const adminToken = adminTokenEl.value;
+    const matchId = adminMatchEl.value || matchSelectEl.value;
+    const points = Number(adminPointsEl.value);
+    const playerName = adminPlayerEl.value;
+    if (!adminToken || !playerName || !matchId) { notify('Token, player & match required'); return; }
+    try{
+      const qs = new URLSearchParams();
+      qs.set('action','setpoints');
+      qs.set('adminToken', adminToken);
+      qs.set('playerName', playerName);
+      qs.set('matchId', String(matchId));
+      qs.set('points', String(points));
+      const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
+      const raw = await res.text();
+      let j; try { j = JSON.parse(raw); } catch (e) { notify('Response not JSON (see console).'); return; }
+      if (j.ok) notify(`Points updated (rows: ${j.updated || 0})`);
+      else notify(j.error || 'Update failed');
+    } catch (e) { console.error('[admin] fetch failed:', e); notify('Network error while updating points'); }
+  }
+
+  // ---- My Teams view (same as your file)
   const email2El = document.getElementById('email2');
   const limitEl = document.getElementById('limit');
   const loadBtn = document.getElementById('loadBtn');
@@ -486,8 +522,6 @@
   let latestTeam = null; let allTeams = [];
 
   function setStoredEmail(v){ try { localStorage.setItem('ml_email', v || ''); } catch(_){} }
-  function getStoredEmail(){ try { return localStorage.getItem('ml_email') || ''; } catch(_) { return ''; } }
-
   function makeChip(player, cls){
     const span = document.createElement('span'); span.className = 'chip-p ' + cls;
     const imgUrl = playerImgMap[player];
@@ -535,38 +569,13 @@
       if (e.target.id==='matchSelect'){ updateSelectionUI(); }
     });
 
+    matchSelectEl.addEventListener('change', fetchPlayers);
     document.getElementById('submitBtn').addEventListener('click', submitTeam);
     document.getElementById('refreshPlayers').addEventListener('click', fetchPlayers);
     document.getElementById('refreshLb').addEventListener('click', loadLeaderboard);
     document.getElementById('adminSetPoints').addEventListener('click', adminSetPoints);
-
-    // Change players when match changes
-    matchSelectEl.addEventListener('change', fetchPlayers);
-
     document.getElementById('loadBtn').addEventListener('click', loadMyTeams);
   });
-
-  // Admin via GET (kept as in your original)
-  async function adminSetPoints(){
-    const adminToken = adminTokenEl.value;
-    const matchId = adminMatchEl.value || matchSelectEl.value;
-    const points = Number(adminPointsEl.value);
-    const playerName = adminPlayerEl.value;
-    if (!adminToken || !playerName || !matchId) { notify('Token, player & match required'); return; }
-    try{
-      const qs = new URLSearchParams();
-      qs.set('action','setpoints');
-      qs.set('adminToken', adminToken);
-      qs.set('playerName', playerName);
-      qs.set('matchId', String(matchId));
-      qs.set('points', String(points));
-      const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
-      const raw = await res.text();
-      let j; try { j = JSON.parse(raw); } catch (e) { notify('Response not JSON (see console).'); return; }
-      if (j.ok) notify(`Points updated (rows: ${j.updated || 0})`);
-      else notify(j.error || 'Update failed');
-    } catch (e) { console.error('[admin] fetch failed:', e); notify('Network error while updating points'); }
-  }
 
   // expose for compare table links
   window.selectRight = selectRight;
