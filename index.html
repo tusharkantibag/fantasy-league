@@ -4,16 +4,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sports Fever IPL Fantasy 2026</title>
+
   <!-- Materialize & Icons -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/1.0.0/css/materialize.min.css
-  https://fonts.googleapis.com/icon?family=Material+Icons
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
   <style>
     body { background:#f5f7fb; }
     nav .brand-logo { font-weight:800; }
     .card-title .badge { font-size:.8rem; margin-left:.5rem; }
+
     /* ---------- Two team columns ---------- */
     .team-columns { margin-top:.75rem; }
     .team-col { display:flex; flex-direction:column; gap:.8rem; }
+
     /* ---------- Player CARD blocks ---------- */
     .player-card {
       background:#fff;
@@ -29,125 +33,69 @@
       box-shadow:0 4px 12px rgba(0,0,0,0.09);
       transform: translateY(-2px);
     }
+
     .player-card .avatar {
       width:72px;
       height:72px;
-      border-radius:8px; /* square-ish look */
+      border-radius:8px;    /* square-ish look */
       object-fit:cover;
       border:1px solid #e0e0e0;
       background:#fafafa;
       flex:0 0 auto;
     }
+
     .player-info { flex:1; display:flex; flex-direction:column; }
     .player-name { font-weight:600; font-size:1rem; }
     .player-team { font-size:.9rem; color:#607d8b; }
+
     .player-check { transform:scale(1.35); }
+
     /* ---------- Sticky bottom actions ---------- */
     .sticky-actions {
       position: sticky; bottom: 0; background:#fff; padding:.75rem;
       border-top:1px solid #eee; display:flex; gap:.5rem; justify-content:flex-end;
     }
+
     .team-meta { font-size:.95rem; color:#546e7a; }
     .sticky-head { position:sticky; top:0; background:white; z-index:2; border-bottom:1px solid #eee; }
+
     section.view { display:none; }
     section.view.active { display:block; }
+
     /* Compare view pills (unchanged from your file) */
     .chip-p { display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .6rem; border-radius:16px; margin:0 .3rem .4rem 0; }
     .chip-common { background:#eceff1; color:#263238; }
     .chip-left-only { background:#e8f5e9; color:#1b5e20; }
     .chip-right-only { background:#e3f2fd; color:#0d47a1; }
     .chip-p img.avatar { width:24px; height:24px; margin-right:.35rem; vertical-align:middle; border-radius:50%; }
-
-    /* ===== Dream11-like pitch preview ===== */
-    .d11-modal-title { display:flex; align-items:center; gap:.5rem; }
-    .d11-pitch {
-      position: relative;
-      width: 100%;
-      max-width: 720px;
-      aspect-ratio: 16 / 9;
-      margin: .5rem auto 0;
-      border-radius: 16px;
-      overflow: hidden;
-      background: radial-gradient(ellipse at center, #2e7d32 0%, #1b5e20 60%, #144d1a 100%);
-      box-shadow: 0 6px 16px rgba(0,0,0,.15);
-    }
-    .d11-pitch::before {
-      /* wicket/pitch strip */
-      content: '';
-      position: absolute; left: 50%; top: 0; transform: translateX(-50%);
-      width: 14%; height: 100%;
-      background: repeating-linear-gradient(
-        to bottom,
-        #d7c29a 0, #d7c29a 14px,
-        #cfb88d 14px, #cfb88d 28px
-      );
-      opacity: .6; filter: blur(0.2px);
-    }
-    .d11-ring {
-      position:absolute; inset:8px;
-      border-radius:20px;
-      border:2px dashed rgba(255,255,255,.15);
-    }
-    .d11-row {
-      position: absolute; left: 6%; right: 6%;
-      display: flex; gap: 1.25rem; justify-content: center; align-items: center;
-    }
-    .d11-row[data-band="wk"]    { top: 6%;  }
-    .d11-row[data-band="bat"]   { top: 28%; }
-    .d11-row[data-band="ar"]    { top: 54%; }
-    .d11-row[data-band="bowl"]  { top: 78%; }
-
-    .d11-slot {
-      min-width: 88px; max-width: 140px; width: 9.5vw;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 12px;
-      padding: .4rem .45rem; color: #fff;
-      text-align: center; backdrop-filter: blur(1px);
-    }
-    .d11-slot .ph {
-      height: 46px; display:flex; align-items:center; justify-content:center;
-      border-radius: 10px; background: rgba(255,255,255,.10);
-      border: 1px dashed rgba(255,255,255,.25); color:#cfd8dc; font-weight:600; font-size:.9rem;
-    }
-    .d11-head { font-weight:700; font-size:.72rem; letter-spacing:.3px; opacity:.9; margin-bottom:.25rem; }
-    .d11-player {
-      display:flex; flex-direction:column; align-items:center; gap:.35rem;
-    }
-    .d11-avatar {
-      width: 46px; height: 46px; border-radius: 8px; object-fit: cover;
-      background:#fafafa; border:1px solid rgba(255,255,255,.25);
-    }
-    .d11-initials {
-      width: 46px; height: 46px; border-radius: 8px; display:flex; align-items:center; justify-content:center;
-      background: #26a69a; color:#fff; font-weight:800; font-size: .95rem; border:1px solid rgba(255,255,255,.25);
-    }
-    .d11-name { font-size: .78rem; line-height:1.05; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
-    .d11-team { font-size: .68rem; opacity:.85; }
-    .d11-count { font-size:.85rem; color:#cfd8dc; margin-left:auto; }
   </style>
 </head>
 <body>
+
 <nav class="blue">
   <div class="nav-wrapper container">
-    #submit<i class="material-icons">emoji_events</i> Sports Fever IPL Fantasy 2026</a>
+    <a href="#submit" class="brand-logo"><i class="material-icons">emoji_events</i> Sports Fever IPL Fantasy 2026</a>
     <ul class="right">
-      <li>#submit<i class="material-icons left">send</i>Submit</a></li>
-      <li><a href="#my-teams"material-icons left">view_week</i>My Teams</a></li>
+      <li><a href="#submit"><i class="material-icons left">send</i>Submit</a></li>
+      <li><a href="#my-teams"><i class="material-icons left">view_week</i>My Teams</a></li>
     </ul>
   </div>
 </nav>
+
 <main class="container" style="margin-top:1.25rem;">
+
   <!-- =================== SUBMIT VIEW =================== -->
   <section id="submit" class="view active">
     <div class="row">
+
       <!-- Left: Team submit -->
       <div class="col l7 s12">
         <div class="card">
           <div class="card-content">
-            <span class="card-title">Submit Team 
+            <span class="card-title">Submit Team
               <span class="new badge blue" id="selCount" data-badge-caption="/11 selected">0</span>
             </span>
+
             <div class="row">
               <div class="input-field col s12 m6">
                 <input id="email" type="email" class="validate" placeholder="you@example.com">
@@ -158,7 +106,9 @@
                 <label>Match</label>
               </div>
             </div>
+
             <label>Player Pool (for selected match)</label>
+
             <!-- Two dynamic team columns (headings updated per match) -->
             <div class="row team-columns">
               <div class="col s12 m6">
@@ -170,12 +120,12 @@
                 <div id="playersRight" class="team-col"></div>
               </div>
             </div>
+
             <p class="grey-text">Select exactly 11 players. List is filtered by the match.</p>
           </div>
+
           <div class="sticky-actions">
             <a id="refreshPlayers" class="btn-flat waves-effect"><i class="material-icons left">refresh</i>Reload</a>
-            <!-- NEW: Preview button -->
-            <a id="previewBtn" class="btn waves-effect grey darken-2"><i class="material-icons left">sports_cricket</i>Preview</a>
             <a id="submitBtn" class="btn waves-effect waves-light blue disabled"><i class="material-icons left">send</i>Submit Team</a>
           </div>
         </div>
@@ -209,7 +159,12 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="#" id="adminSetPoints" class="modal-close waves-effect waves-green btn= MY TEAMS VIEW (unchanged+preview buttons) =================== -->
+        <a href="#" id="adminSetPoints" class="modal-close waves-effect waves-green btn red">Set Points</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== MY TEAMS VIEW (unchanged) =================== -->
   <section id="my-teams" class="view">
     <div class="card">
       <div class="card-content">
@@ -237,9 +192,6 @@
           <div class="card-content">
             <div class="sticky-head" style="padding-bottom:.5rem;">
               <span class="card-title" style="margin-bottom:0;">Latest Team</span>
-              <a id="leftPreviewBtn" class="btn-flat waves-effect right tooltipped" data-tooltip="Preview on pitch">
-                <i class="material-icons">sports_cricket</i>
-              </a>
               <div class="team-meta" id="leftMeta">—</div>
             </div>
             <div id="leftPlayers" style="margin-top:.75rem;">Load to view…</div>
@@ -252,9 +204,6 @@
           <div class="card-content">
             <div class="sticky-head" style="padding-bottom:.5rem;">
               <span class="card-title" style="margin-bottom:0;">Compare With</span>
-              <a id="rightPreviewBtn" class="btn-flat waves-effect right tooltipped" data-tooltip="Preview on pitch">
-                <i class="material-icons">sports_cricket</i>
-              </a>
               <div class="row" style="margin-bottom:0;">
                 <div class="input-field col s12 m8">
                   <select id="compareSelect"></select>
@@ -287,10 +236,12 @@
 </main>
 
 <!-- Materialize JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/rialize.min.js</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
 <script>
   // Use YOUR live Apps Script endpoint here
   const API = 'https://script.google.com/macros/s/AKfycbz_M2B-WY4aASsTOwryQXSHHFDanFFLc9LsJuHSf1KlWtXDt9tPN-5cryUZAy8OjeUq/exec';
+
   function activateView(hash){
     const target = (hash || location.hash || '#submit').replace('#','');
     document.querySelectorAll('section.view').forEach(s=>s.classList.remove('active'));
@@ -299,6 +250,7 @@
   }
   window.addEventListener('hashchange', () => activateView(location.hash));
   function notify(msg) { M.toast({html: msg}); }
+
   // SUBMIT VIEW
   const emailEl = document.getElementById('email');
   const submitBtn = document.getElementById('submitBtn');
@@ -307,17 +259,20 @@
   const lbTable = document.getElementById('lbTable');
   const refreshLbBtn = document.getElementById('refreshLb');
   const matchSelectEl = document.getElementById('matchSelect');
+
   // Admin
   const adminTokenEl = document.getElementById('adminToken');
   const adminPointsEl = document.getElementById('adminPoints');
   const adminPlayerEl = document.getElementById('adminPlayer');
   const adminSetBtn = document.getElementById('adminSetPoints');
   const adminMatchEl = document.getElementById('adminMatch');
+
   // NEW: two team containers + headings
-  const playersLeftBox = document.getElementById('playersLeft');
+  const playersLeftBox  = document.getElementById('playersLeft');
   const playersRightBox = document.getElementById('playersRight');
-  const teamLeftTitleEl = document.getElementById('teamLeftTitle');
+  const teamLeftTitleEl  = document.getElementById('teamLeftTitle');
   const teamRightTitleEl = document.getElementById('teamRightTitle');
+
   // Cache for player images (also used in Compare view)
   const playerImgMap = {};
 
@@ -345,8 +300,10 @@
       if (!t) return;
       counts[t] = (counts[t] || 0) + 1;
     });
+
     let codes = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
     if (codes.length >= 2) return { left: codes[0], right: codes[1] };
+
     // If only one code found, try "AAA vs BBB" from label
     const lbl = matchLabel || '';
     const m = lbl.match(/([A-Z]{2,3})\s*vs\s*([A-Z]{2,3})/i);
@@ -362,8 +319,9 @@
   function renderPlayers(list, matchLabel) {
     playersLeftBox.innerHTML = '';
     playersRightBox.innerHTML = '';
+
     const teams = detectTeams(list, matchLabel);
-    teamLeftTitleEl.innerHTML = `<b>Team ${teams.left}</b>`;
+    teamLeftTitleEl.innerHTML  = `<b>Team ${teams.left}</b>`;
     teamRightTitleEl.innerHTML = `<b>Team ${teams.right}</b>`;
 
     if (!Array.isArray(list) || list.length === 0) {
@@ -374,8 +332,10 @@
     list.forEach(p => {
       const card = document.createElement('div');
       card.className = 'player-card';
+
       const imgSrc = p.imageUrl || p.image || p.img || p.PlayerImageURL || p.photo || '';
       if (p && p.name && imgSrc) playerImgMap[p.name] = imgSrc;
+
       const imgEl = document.createElement(imgSrc ? 'img' : 'i');
       if (imgSrc) {
         imgEl.className = 'avatar';
@@ -385,17 +345,21 @@
         imgEl.className = 'material-icons grey-text';
         imgEl.textContent = 'person';
       }
+
       const label = document.createElement('label');
       label.className = 'player-check';
       label.innerHTML = '<input type="checkbox"/><span></span>';
       label.querySelector('input').value = p.name;
+
       const info = document.createElement('div');
       info.className = 'player-info';
       info.innerHTML = `<span class="player-name">${p.name}</span><span class="player-team">(${p.team || ''})</span>`;
+
       // assemble
       card.appendChild(label);
       card.appendChild(imgEl);
       card.appendChild(info);
+
       const teamCode = (p.team || '').toUpperCase();
       if (teamCode === String(teams.left).toUpperCase()) {
         playersLeftBox.appendChild(card);
@@ -409,6 +373,7 @@
 
     document.querySelectorAll('#playersLeft input[type=checkbox], #playersRight input[type=checkbox]')
       .forEach(cb => cb.addEventListener('change', updateSelectionUI));
+
     updateSelectionUI();
   }
 
@@ -419,6 +384,7 @@
       const txt = await res.text();
       let j; try { j = JSON.parse(txt); } catch(e){ notify('Response not JSON (matches)'); return; }
       if(!j.ok){ notify(j.error || 'API error (matches)'); return; }
+
       const list = Array.isArray(j.matches) ? j.matches : [];
       const opts = ['<option value="">-- Select Match --</option>'];
       list.forEach(m => { opts.push(`<option value="${m.id}">${m.label || m.match}</option>`); });
@@ -426,6 +392,7 @@
       if (adminMatchEl) adminMatchEl.innerHTML = opts.join('');
       M.FormSelect.init(matchSelectEl);
       if (adminMatchEl) M.FormSelect.init(adminMatchEl);
+
       if(list.length){
         matchSelectEl.value = String(list[0].id);
         M.FormSelect.init(matchSelectEl);
@@ -436,8 +403,9 @@
 
   // ---- API: players for selected match
   async function fetchPlayers() {
-    playersLeftBox.innerHTML = 'Loading players…';
+    playersLeftBox.innerHTML  = 'Loading players…';
     playersRightBox.innerHTML = '';
+
     selCount.textContent = '0';
     try {
       const matchId = matchSelectEl.value;
@@ -455,6 +423,7 @@
         playersRightBox.innerHTML = '';
         return;
       }
+
       const matchLabel = (function(){
         const opt = matchSelectEl.options[matchSelectEl.selectedIndex];
         return opt ? opt.text : '';
@@ -474,7 +443,7 @@
       const res = await fetch(`${API}?action=leaderboard`);
       const txt = await res.text();
       let j; try { j = JSON.parse(txt); } catch (e) {
-        lbTable.innerHTML = '<tr><td colspan="3" class="red-text">Response not JSON</td></tr>';
+        lbTable.innerHTML = `<tr><td colspan="3" class="red-text">Response not JSON</td></tr>`;
         console.error('[leaderboard] non-JSON:', res.status, txt);
         return;
       }
@@ -574,10 +543,9 @@
   }
   function overlapCount(a,b){ const s=new Set(a || []); return (b || []).reduce((acc,x)=>acc+(s.has(x)?1:0),0); }
   function setTeamMeta(el, team){ el.textContent = team ? `Match: ${team.matchLabel || team.match || '-'} • Points: ${team.points} • ID: ${team.entryId}` : '—'; }
-  function buildCompareOptions(teams){ const opts=['<option value="">-- Select --</option>']; teams.slice(1).forEach(t=>opts.push(`<option value="${t.entryId}">${t.matchLabel || '-'} (Pts ${t.points})</option>`)); compareSelect.innerHTML = opts.join(''); M.FormSelect.init(compareSelect); }
+  function buildCompareOptions(teams){ const opts=['<option value="">-- Select --</option>']; teams.slice(1).forEach(t=>opts.push(`<option value="${t.entryId}">${t.matchLabel || '-' } (Pts ${t.points})</option>`)); compareSelect.innerHTML = opts.join(''); M.FormSelect.init(compareSelect); }
   function renderList(teams){ if(!teams.length){ listBody.innerHTML='<tr><td colspan="5">No submissions yet.</td></tr>'; return;} listBody.innerHTML = teams.map((t,i)=>`<tr><td>${i+1}</td><td>${t.matchLabel || '-'}</td><td>${t.points}</td><td class="grey-text text-darken-1">${t.entryId}</td><td><a class="btn-flat waves-effect" onclick="selectRight('${t.entryId}')"><i class="material-icons left">compare</i>Compare</a></td></tr>`).join(''); }
   function selectRight(entryId){ const t = allTeams.find(x=>x.entryId===entryId); if(!t) return; const leftSet=new Set(latestTeam?latestTeam.players:[]); setTeamMeta(rightMeta,t); const o=overlapCount(latestTeam?latestTeam.players:[], t.players || []); overlapMeta.textContent=`Common: ${o} / 11`; renderTeamPlayers(rightPlayersBox, t.players || [], leftSet, 'right'); compareSelect.value=entryId; M.FormSelect.init(compareSelect); }
-
   async function loadMyTeams(){
     const email=(email2El.value || '').trim().toLowerCase(); if(!email){ notify('Please enter your email'); return;}
     setStoredEmail(email); const limit=Number(limitEl.value || 20);
@@ -590,13 +558,14 @@
     const stored = (function(){ try { return localStorage.getItem('ml_email') || ''; } catch(_) { return ''; } })();
     if (stored) { emailEl.value = stored; document.getElementById('email2').value = stored; }
     M.updateTextFields();
+
     fetchMatches();
     loadLeaderboard();
     activateView(location.hash || '#submit');
 
     document.addEventListener('input', (e)=>{
-      if (e.target.id==='email'){ try{ localStorage.setItem('ml_email', e.target.value || ''); }catch(_){ } updateSelectionUI(); }
-      if (e.target.id==='email2'){ try{ localStorage.setItem('ml_email', e.target.value || ''); }catch(_){ } }
+      if (e.target.id==='email'){ try{ localStorage.setItem('ml_email', e.target.value || ''); }catch(_){} updateSelectionUI(); }
+      if (e.target.id==='email2'){ try{ localStorage.setItem('ml_email', e.target.value || ''); }catch(_){} }
       if (e.target.id==='matchSelect'){ updateSelectionUI(); }
     });
 
@@ -610,217 +579,10 @@
 
   // expose for compare table links
   window.selectRight = selectRight;
-
-  /* ===== Dream11-like preview logic ===== */
-
-  /* 1) Role & team caches (filled as players list renders) */
-  const playerRoleMap = {};   // name -> 'WK'|'BAT'|'AR'|'BOWL'
-  const playerTeamMap = {};   // name -> team code (e.g., 'MI', 'CSK')
-
-  function normalizeRole(raw) {
-    if (!raw) return null;
-    const r = String(raw).toLowerCase();
-    if (r.includes('wk')) return 'WK';
-    if (r.includes('keeper')) return 'WK';
-    if (r.includes('bat')) return 'BAT';
-    if (r.includes('bowl')) return 'BOWL';
-    if (r.includes('all') || r.includes('ar')) return 'AR';
-    return null;
-  }
-
-  // Patch into renderPlayers: try to sniff roles/teams
-  const _renderPlayers_original = renderPlayers;
-  renderPlayers = function(list, matchLabel) {
-    try {
-      (list || []).forEach(p => {
-        if (!p || !p.name) return;
-        const roleRaw = p.role || p.type || p.playingRole || p.Role || p.playerRole;
-        const role = normalizeRole(roleRaw) || null;
-        if (role) playerRoleMap[p.name] = role;
-        const t = (p.team || p.Team || p.t || '').toString().trim();
-        if (t) playerTeamMap[p.name] = t.toUpperCase();
-        const imgSrc = p.imageUrl || p.image || p.img || p.PlayerImageURL || p.photo || '';
-        if (imgSrc) playerImgMap[p.name] = imgSrc;
-      });
-    } catch(_) {}
-    return _renderPlayers_original(list, matchLabel);
-  };
-
-  // DOM refs for modal pitch bands
-  const d11Title = document.getElementById('d11Title');
-  const d11Count = document.getElementById('d11Count');
-  const d11Hint  = document.getElementById('d11Hint');
-  const rows = {
-    WK:   document.getElementById('d11RowWK'),
-    BAT:  document.getElementById('d11RowBAT'),
-    AR:   document.getElementById('d11RowAR'),
-    BOWL: document.getElementById('d11RowBOWL')
-  };
-
-  function groupByRole(players) {
-    const by = { WK:[], BAT:[], AR:[], BOWL:[] };
-    (players || []).forEach(name => {
-      const role = playerRoleMap[name] || null;
-      if (!role) return by.BAT.push(name); // neutral default to BAT row
-      by[role].push(name);
-    });
-    return by;
-  }
-  function distributeNoRoles(players) {
-    const copy = [...(players || [])];
-    const take = (n) => copy.splice(0, n);
-    return {
-      WK:   take(1),
-      BAT:  take(4),
-      AR:   take(2),
-      BOWL: take(4)
-    };
-  }
-
-  function initials(name) {
-    const parts = String(name || '').trim().split(/\s+/);
-    return (parts[0]?.[0] || '') + (parts[1]?.[0] || '');
-  }
-
-  function makeInitialsEl(txt) {
-    const d = document.createElement('div');
-    d.className = 'd11-initials';
-    d.textContent = (txt || '—').toUpperCase();
-    return d;
-  }
-
-  function makeSlot(name, role) {
-    const slot = document.createElement('div');
-    slot.className = 'd11-slot';
-    const head = document.createElement('div');
-    head.className = 'd11-head';
-    head.textContent = role;
-    const box = document.createElement('div');
-    box.className = 'd11-player';
-    if (name) {
-      const imgUrl = playerImgMap[name] || '';
-      let avatar;
-      if (imgUrl) {
-        avatar = document.createElement('img');
-        avatar.className = 'd11-avatar';
-        avatar.src = imgUrl;
-        avatar.loading = 'lazy';
-        avatar.decoding = 'async';
-        avatar.referrerPolicy = 'no-referrer';
-        avatar.onerror = function(){ this.replaceWith(makeInitialsEl(initials(name))); };
-      } else {
-        avatar = makeInitialsEl(initials(name));
-      }
-      const nm = document.createElement('div');
-      nm.className = 'd11-name';
-      nm.title = name;
-      nm.textContent = name;
-      const tm = document.createElement('div');
-      tm.className = 'd11-team';
-      tm.textContent = playerTeamMap[name] ? `(${playerTeamMap[name]})` : '';
-      box.appendChild(avatar);
-      box.appendChild(nm);
-      box.appendChild(tm);
-    } else {
-      const ph = document.createElement('div');
-      ph.className = 'ph';
-      ph.textContent = '—';
-      box.appendChild(ph);
-    }
-    slot.appendChild(head);
-    slot.appendChild(box);
-    return slot;
-  }
-
-  function clearRows() { Object.values(rows).forEach(r => r.innerHTML = ''); }
-  function renderBand(role, names, slotsWanted) {
-    const r = rows[role];
-    const have = names.length;
-    const total = Math.max(have, slotsWanted);
-    for (let i = 0; i < total; i++) {
-      const name = i < have ? names[i] : null;
-      r.appendChild(makeSlot(name, role));
-    }
-  }
-
-  function openPreview(title, playersArray) {
-    const players = (playersArray || []).slice(0, 11);
-    d11Title.textContent = title || 'Team Preview';
-    d11Count.textContent = `${players.length} / 11`;
-
-    clearRows();
-    const knownRoleCount = players.reduce((a,n) => a + (playerRoleMap[n] ? 1 : 0), 0);
-    const grouped = (knownRoleCount >= 4) ? groupByRole(players) : distributeNoRoles(players);
-
-    renderBand('WK',   grouped.WK,   1);
-    renderBand('BAT',  grouped.BAT,  4);
-    renderBand('AR',   grouped.AR,   2);
-    renderBand('BOWL', grouped.BOWL, 4);
-
-    d11Hint.textContent = players.length < 11
-      ? 'Tip: Select exactly 11 players to finalize your team layout.'
-      : 'Looks good! You can still tweak your picks before submission.';
-
-    const modalEl = document.getElementById('teamPreviewModal');
-    const modal = M.Modal.getInstance(modalEl) || M.Modal.init(modalEl);
-    modal.open();
-  }
-
-  // Wire up buttons
-  document.getElementById('previewBtn')?.addEventListener('click', () => {
-    const picks = selectedPlayers();
-    openPreview('Selected Team (Preview)', picks);
-  });
-
-  let _currentRightPlayers = [];
-  const _selectRight_original = window.selectRight;
-  window.selectRight = function(entryId) {
-    _selectRight_original(entryId);
-    const t = (allTeams || []).find(x => x.entryId === entryId);
-    _currentRightPlayers = t && Array.isArray(t.players) ? t.players : [];
-  };
-
-  document.getElementById('leftPreviewBtn')?.addEventListener('click', () => {
-    const picks = (latestTeam && Array.isArray(latestTeam.players)) ? latestTeam.players : [];
-    openPreview('Latest Team (Submitted)', picks);
-  });
-  document.getElementById('rightPreviewBtn')?.addEventListener('click', () => {
-    const picks = _currentRightPlayers || [];
-    openPreview('Compare With (Submitted)', picks);
-  });
-
-  // Optional: color cue on preview button
-  (function attachAutoPreview(){
-    const origUpdate = updateSelectionUI;
-    updateSelectionUI = function() {
-      origUpdate();
-      const n = selectedPlayers().length;
-      document.getElementById('previewBtn')?.classList.toggle('grey', n !== 11);
-    };
-  })();
 </script>
-
-<!-- Dream11-like Preview Modal -->
-<div id="teamPreviewModal" class="modal modal-fixed-footer">
-  <div class="modal-content">
-    <div class="d11-modal-title">
-      <h5 id="d11Title" style="margin:0;">Team Preview</h5>
-      <span id="d11Count" class="d11-count">0 / 11</span>
-    </div>
-    <div class="d11-pitch">
-      <div class="d11-ring"></div>
-      <div class="d11-row" data-band="wk" id="d11RowWK"></div>
-      <div class="d11-row" data-band="bat" id="d11RowBAT"></div>
-      <div class="d11-row" data-band="ar" id="d11RowAR"></div>
-      <div class="d11-row" data-band="bowl" id="d11RowBOWL"></div>
-    </div>
-    <p class="grey-text" id="d11Hint" style="margin-top:.75rem;"></p>
-  </div>
-  <div class="modal-footer">
-    <a class="modal-close btn waves-effect">Close</a>
-  </div>
-</div>
 
 </body>
 </html>
-``
+
+
+
