@@ -438,24 +438,24 @@
 
   // ---- Leaderboard
   async function loadLeaderboard(){
-    lbTable.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
+    lbTable.innerHTML = '<tr><td colspan="3">Loading…</td></tr>';
     try{
       const res = await fetch(`${API}?action=leaderboard`);
       const txt = await res.text();
       let j; try { j = JSON.parse(txt); } catch (e) {
-        lbTable.innerHTML = `<tr><td colspan="4" class="red-text">Response not JSON</td></tr>`;
+        lbTable.innerHTML = `<tr><td colspan="3" class="red-text">Response not JSON</td></tr>`;
         console.error('[leaderboard] non-JSON:', res.status, txt);
         return;
       }
       if (!j.ok){
-        lbTable.innerHTML = `<tr><td colspan="4" class="red-text">${j.error || 'API error'}</td></tr>`;
+        lbTable.innerHTML = `<tr><td colspan="3" class="red-text">${j.error || 'API error'}</td></tr>`;
         return;
       }
       lbTable.innerHTML = (j.leaderboard || []).map((r,i)=>
-        `<tr><td>${i+1}</td><td>${r.name || ''}</td><td>${r.email}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`
-      ).join('') || '<tr><td colspan="4" class="grey-text">No data yet.</td></tr>';
+        `<tr><td>${i+1}</td><td>${r.name || ''}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`
+      ).join('') || '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>';
     }catch(e){
-      lbTable.innerHTML = '<tr><td colspan="4" class="red-text">Failed</td></tr>';
+      lbTable.innerHTML = '<tr><td colspan="3" class="red-text">Failed</td></tr>';
       console.error('[leaderboard] fetch failed:', e);
     }
   }
@@ -583,5 +583,6 @@
 
 </body>
 </html>
+
 
 
