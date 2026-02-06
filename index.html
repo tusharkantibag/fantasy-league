@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.4</title>
+  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.5</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -15,7 +15,7 @@
     .tabs .indicator { background-color:#1976d2; }
 
     /* Single-column player list */
-    .player-list { display:flex; flex-direction:column; gap:10px; }
+    .player-list { display:flex; flex-direction:column; gap:10px; max-height:70vh; overflow:auto; }
     .player-card { background:#fff; border-radius:12px; padding:10px; display:flex; align-items:center; gap:12px; border:1px solid #e3e6ea; }
     .player-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.08); }
     .avatar { width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #e0e0e0; background:#fafafa; flex:0 0 auto; }
@@ -48,13 +48,16 @@
     .preview-card { background:#fff; border-radius:12px; border:1px solid #e3e6ea; }
     .preview-header { display:flex; align-items:center; justify-content:space-between; }
     .pill { display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; border-radius:12px; background:#eceff1; font-size:.78rem; color:#37474f; }
-    .preview-list { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.6rem; }
-    .chip-p { display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .55rem; border-radius:16px; background:#f1f3f5; color:#263238; }
-    .chip-p img.avatar { width:22px; height:22px; border-radius:50%; border:1px solid #e0e0e0; }
-    .chip-role-WK { background:#e3f2fd; color:#0d47a1; }
-    .chip-role-BAT { background:#e8f5e9; color:#1b5e20; }
-    .chip-role-AR { background:#f3e5f5; color:#4a148c; }
-    .chip-role-BOWL { background:#fff8e1; color:#e65100; }
+
+    /* Card-style My XI grid */
+    .preview-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap:10px; margin-top:.6rem; }
+    .mini-card { background:#fafcff; border:1px solid #dde5ee; border-radius:12px; padding:10px; display:flex; gap:10px; align-items:center; position:relative; }
+    .mini-card .thumb { width:44px; height:44px; border-radius:8px; object-fit:cover; border:1px solid #e0e0e0; background:#fff; }
+    .mini-card .meta { display:flex; flex-direction:column; line-height:1.15; }
+    .mini-card .name { font-weight:600; font-size:.95rem; }
+    .mini-card .sub { font-size:.8rem; color:#607d8b; }
+    .mini-card .role-tag { position:absolute; top:8px; right:10px; font-size:.7rem; padding:.12rem .4rem; border-radius:10px; background:#eceff1; color:#37474f; }
+    .mini-card .remove { position:absolute; bottom:8px; right:6px; }
 
     .helper { font-size:.85rem; color:#607d8b; }
     .error-text { color:#b71c1c; font-weight:600; }
@@ -137,7 +140,7 @@
           </div>
         </div>
 
-        <!-- RIGHT: Preview panel (rest of the screen) -->
+        <!-- RIGHT: Card-style My XI Preview -->
         <div class="col s12 l7">
           <div class="card preview-card">
             <div class="card-content">
@@ -155,8 +158,7 @@
                 <span class="pill" id="pillTeams">Teams: —</span>
               </div>
 
-              <div id="previewList" class="preview-list">No players selected yet.</div>
-
+              <div id="previewGrid" class="preview-grid"></div>
               <div id="validationMsg" class="helper" style="margin-top:.6rem;"></div>
             </div>
           </div>
@@ -205,7 +207,7 @@
     const pillBOWL=document.getElementById('pillBOWL');
     const pillTeams=document.getElementById('pillTeams');
 
-    const previewList=document.getElementById('previewList');
+    const previewGrid=document.getElementById('previewGrid');
     const clearAllBtn=document.getElementById('clearAll');
 
     const lbTable=document.getElementById('lbTable');
@@ -249,23 +251,24 @@
       const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—';
       pillTeams.textContent = `Teams: ${teamsStr}`;
 
-      // Build chips
-      previewList.innerHTML='';
-      if(!names.length){ previewList.textContent='No players selected yet.'; return; }
+      // Build mini-cards
+      previewGrid.innerHTML='';
+      if(!names.length){ previewGrid.innerHTML='<span class="helper">No players selected yet.</span>'; return; }
       names.forEach(n=>{
-        const p=allPlayers.find(x=>x.name===n) || {name:n, team:'', role:''};
-        const chip=document.createElement('span');
-        const role=formatRole(p.role||'');
-        chip.className='chip-p ' + (role? ('chip-role-'+role): '');
+        const p=allPlayers.find(x=>x.name===n) || {name:n, team:'', role:'', imageUrl:''};
+        const card=document.createElement('div'); card.className='mini-card';
         const img = document.createElement(p.imageUrl? 'img':'i');
-        if(p.imageUrl){ img.className='avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); } }
-        else { img.className='material-icons grey-text'; img.textContent='person'; img.style.fontSize='18px'; }
-        chip.appendChild(img);
-        const txt=document.createElement('span'); txt.textContent=`${p.name} (${role||'—'})`;
-        chip.appendChild(txt);
-        const rem=document.createElement('a'); rem.href='#'; rem.className='btn-flat'; rem.style.padding='0 .25rem'; rem.innerHTML='<i class="material-icons" style="font-size:18px;">close</i>'; rem.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
-        chip.appendChild(rem);
-        previewList.appendChild(chip);
+        if(p.imageUrl){ img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); } }
+        else { img.className='material-icons grey-text'; img.textContent='person'; img.style.fontSize='28px'; }
+        const meta=document.createElement('div'); meta.className='meta';
+        const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name;
+        const sb=document.createElement('div'); sb.className='sub'; sb.textContent=(p.team||'') + (p.role? ' • '+formatRole(p.role): '');
+        meta.appendChild(nm); meta.appendChild(sb);
+        const roleTag=document.createElement('span'); roleTag.className='role-tag'; roleTag.textContent=formatRole(p.role||'') || '—';
+        const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>';
+        btn.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
+        card.appendChild(img); card.appendChild(meta); card.appendChild(roleTag); card.appendChild(btn);
+        previewGrid.appendChild(card);
       });
 
       // Validation messaging (client-side hints)
@@ -294,7 +297,6 @@
       selCount.textContent=n;
       const ch=countChanges(lastTeamPlayers, names);
       updateBadges(ch);
-      // Cap check for disabling
       const cap=capStatus(names); const withinCap = cap.overTeams.length===0;
       if(!emailEl.value||!matchSelectEl.value||n!==11||(userUsed+ch)>userBudget||!withinCap) submitBtn.classList.add('disabled'); else submitBtn.classList.remove('disabled');
       renderPreview();
@@ -340,7 +342,7 @@
 
     async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class="red-text">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class="red-text">${j.error||'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; buildFilters(allPlayers); renderPlayers(); }catch(e){ playersList.innerHTML='<span class="red-text">Network error</span>'; } }
 
-    async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify(j.error||'Stats error'); return; } userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team.`; }catch(e){} }
+    async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; } userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team.`; }catch(e){} }
 
     async function loadLeaderboard(){ lbTable.innerHTML='<tr><td colspan="3">Loading…</td></tr>'; try{ const res=await fetch(`${API}?action=leaderboard`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Response not JSON</td></tr>'; return; } if(!j.ok){ lbTable.innerHTML = `<tr><td colspan="3" class="red-text">${j.error||'API error'}</td></tr>`; return; } lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>`<tr><td>${i+1}</td><td>${r.name||''}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`).join('') || '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>'; }catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Failed</td></tr>'; } }
 
@@ -356,16 +358,8 @@
       await fetchUserStats();
       await loadLeaderboard();
 
-      // Tab change hook: refresh leaderboard when switching to it
-      tabs.addEventListener('click', (e)=>{
-        const a = e.target.closest('a'); if(!a) return; if(a.getAttribute('href')==="#leaderboard") loadLeaderboard();
-      });
-
-      document.addEventListener('input', (e)=>{
-        if(e.target.id==='email'){ try{localStorage.setItem('ml_email', e.target.value||'');}catch(_){ } fetchUserStats().then(()=>updateSelectionUI()); }
-        if(e.target.id==='searchInput') renderPlayers();
-      });
-
+      tabs.addEventListener('click', (e)=>{ const a=e.target.closest('a'); if(!a) return; if(a.getAttribute('href')==="#leaderboard") loadLeaderboard(); });
+      document.addEventListener('input', (e)=>{ if(e.target.id==='email'){ try{localStorage.setItem('ml_email', e.target.value||'');}catch(_){ } fetchUserStats().then(()=>updateSelectionUI()); } if(e.target.id==='searchInput') renderPlayers(); });
       teamFilter.addEventListener('change', renderPlayers);
       roleFilter.addEventListener('change', renderPlayers);
       matchSelectEl.addEventListener('change', updateSelectionUI);
