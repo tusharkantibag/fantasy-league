@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.6.3</title>
+  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.6.5</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -14,6 +14,7 @@
     .tabs .tab a.active { color:#0d47a1; }
     .tabs .indicator { background-color:#1976d2; }
 
+    /* Left: single-column player list */
     .player-list { display:flex; flex-direction:column; gap:10px; max-height:70vh; overflow:auto; }
     .player-card { background:#fff; border-radius:12px; padding:10px; display:flex; align-items:center; gap:12px; border:1px solid #e3e6ea; }
     .player-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.08); }
@@ -41,17 +42,17 @@
 
     .cap-line { font-size:.9rem; color:#37474f; margin:.25rem 0 .5rem 0; }
 
-    /* Role rules (no amber state) */
+    /* Role rules (green OK, red BAD only) */
     .rule-row { display:flex; flex-wrap:wrap; gap:.5rem; margin:.35rem 0 0 0; align-items:center; }
     .rule-title { font-weight:700; color:#37474f; margin-right:.3rem; }
     .rule-chip { display:inline-flex; align-items:center; gap:.35rem; padding:.22rem .55rem; border-radius:16px; border:1px solid #e0e0e0; font-size:.84rem; background:#fafafa; color:#37474f; }
     .rule-chip.ok { background:#e8f5e9; color:#1b5e20; border-color:#c8e6c9; }
     .rule-chip.bad { background:#ffebee; color:#b71c1c; border-color:#ffcdd2; }
 
+    /* Right: square preview cards */
     .preview-card { background:#fff; border-radius:12px; border:1px solid #e3e6ea; }
     .preview-header { display:flex; align-items:center; justify-content:space-between; }
     .pill { display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; border-radius:12px; background:#eceff1; font-size:.78rem; color:#37474f; }
-
     .preview-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:12px; margin-top:.6rem; }
     .square-card { background:#fafcff; border:1px solid #dde5ee; border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; position:relative; }
     .square-card .pic { width:100%; aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#fff; border:1px solid #e0e0e0; display:flex; align-items:center; justify-content:center; }
@@ -84,9 +85,11 @@
 
     <section id="submit" class="col s12">
       <div class="row">
+        <!-- LEFT -->
         <div class="col s12 l5">
           <div class="card"><div class="card-content">
             <span class="card-title">Submit Team <span class="new badge blue" id="selCount" data-badge-caption="/11 selected">0</span></span>
+
             <div class="row">
               <div class="input-field col s12 m6">
                 <input id="email" type="email" class="validate" placeholder="you@example.com">
@@ -104,9 +107,10 @@
               <span class="badge-inline"><i class="material-icons">battery_std</i> Remaining: <b id="remaining">100</b></span>
               <span class="badge-inline"><i class="material-icons">flag</i> Budget: <b id="budget">100</b></span>
             </div>
+
             <div id="capLine" class="cap-line">Team cap: max — per team.</div>
 
-            <!-- Role rules row (dynamic; no amber; no reload button) -->
+            <!-- Role rules (dynamic) -->
             <div class="rule-row" id="roleRulesRow" style="display:none;">
               <span class="rule-title">Role rules:</span>
               <span class="rule-chip" id="ruleWK">WK: —</span>
@@ -143,6 +147,7 @@
           </div></div>
         </div>
 
+        <!-- RIGHT -->
         <div class="col s12 l7">
           <div class="card preview-card"><div class="card-content">
             <div class="preview-header">
@@ -177,6 +182,7 @@
     function notify(msg){ M.toast({html: msg}); }
     function formatRole(r){ if(!r) return ''; r=String(r).trim().toUpperCase(); if(r==='WICKETKEEPER') return 'WK'; if(r==='BATSMAN'||r==='BATTER') return 'BAT'; if(r==='ALL-ROUNDER'||r==='ALLROUNDER'||r==='ALL_ROUNDER') return 'AR'; if(r==='BOWLER') return 'BOWL'; return r; }
 
+    // DOM
     const emailEl=document.getElementById('email');
     const matchSelectEl=document.getElementById('matchSelect');
     const selCount=document.getElementById('selCount');
@@ -204,27 +210,29 @@
 
     const lbTable=document.getElementById('lbTable');
 
+    // State
     let allPlayers=[]; let lastTeamPlayers=[]; let userBudget=100, userUsed=0, maxFromTeam=7;
+    // role constraints come from Settings via backend userstats
     let constraints={WK:{min:1,max:2}, BAT:{min:3,max:6}, AR:{min:1,max:4}, BOWL:{min:3,max:6}};
 
+    // Helpers
     function selected(){ return Array.from(document.querySelectorAll('#playersList input[type=checkbox]:checked')).map(x=>x.value); }
     function countChanges(prev, curr){ const s=new Set(prev||[]); let overlap=0; (curr||[]).forEach(p=>{ if(s.has(p)) overlap++; }); return 11-overlap; }
     function teamCountsOf(list){ const c={}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name); const t=String((p&&p.team)||''); if(t) c[t]=(c[t]||0)+1; }); return c; }
     function capStatus(list){ const c=teamCountsOf(list); const over = Object.keys(c).filter(t=>c[t]>maxFromTeam); return {counts:c, overTeams:over}; }
 
-    function updateBadges(chg){ const remain=Math.max(0, userBudget-(userUsed+chg)); document.getElementById('todayChanges').textContent=String(chg); document.getElementById('usedSoFar').textContent=String(userUsed+chg); document.getElementById('remaining').textContent=String(remain); document.getElementById('budget').textContent=String(userBudget); const panel=document.getElementById('budgetPanel'); panel.querySelectorAll('.badge-inline').forEach(b=>{ b.classList.remove('badge-ok','badge-warn','badge-alert'); if(remain<0) b.classList.add('badge-alert'); else if(remain<=10) b.classList.add('badge-warn'); else b.classList.add('badge-ok'); }); }
+    function updateBadges(chg){ const remain=Math.max(0, userBudget-(userUsed+chg)); document.getElementById('todayChanges').textContent=String(chg); document.getElementById('usedSoFar').textContent=String(userUsed+chg); document.getElementById('remaining').textContent=String(remain); document.getElementById('budget').textContent=String(userBudget); const panel=document.getElementById('budgetPanel'); panel.querySelectorAll('.badge-inline').forEach(b=>{ b.classList.remove('badge-ok','badge-warn','badge-alert'); if(remain<0) b.addEventListener; if(remain<0) b.classList.add('badge-alert'); else if(remain<=10) b.classList.add('badge-warn'); else b.classList.add('badge-ok'); }); }
 
     function roleCounts(list){ const c={WK:0,BAT:0,AR:0,BOWL:0}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name); const r=formatRole((p&&p.role)||''); if(c[r]!==undefined) c[r]++; }); return c; }
 
-    function paintRuleChips(){ const rc=roleCounts(selected()); const paint=(el,key)=>{ el.classList.remove('ok','bad'); const v=constraints[key]; if(!v){ return; } const n=rc[key]||0; if(n<v.min || n>v.max) el.classList.add('bad'); else el.classList.add('ok'); }; paint(ruleWK,'WK'); paint(ruleBAT,'BAT'); paint(ruleAR,'AR'); paint(ruleBOWL,'BOWL'); }
+    function refreshRuleChips(){ if(!constraints||!constraints.WK){ ruleRow.style.display='none'; return; } ruleRow.style.display='flex'; const counts=roleCounts(selected()); const setChip=(el,key,label)=>{ const v=constraints[key]||{min:0,max:0}; const n=counts[key]||0; el.classList.remove('ok','bad'); el.textContent=`${label}: ${n} (min ${v.min}, max ${v.max})`; if(n<v.min||n>v.max) el.classList.add('bad'); else el.classList.add('ok'); }; setChip(ruleWK,'WK','WK'); setChip(ruleBAT,'BAT','BAT'); setChip(ruleAR,'AR','AR'); setChip(ruleBOWL,'BOWL','BOWL'); }
 
-    function renderRoleRules(){ if(!constraints||!constraints.WK) { ruleRow.style.display='none'; return; } ruleRow.style.display='flex'; const fmt=(k,l)=>{ const v=constraints[k]||{min:'—',max:'—'}; return `${l}: ${v.min} (min ${v.min}, max ${v.max})`; }; ruleWK.textContent = fmt('WK','WK'); ruleBAT.textContent = fmt('BAT','BAT'); ruleAR.textContent = fmt('AR','AR'); ruleBOWL.textContent = fmt('BOWL','BOWL'); paintRuleChips(); }
-
-    function renderPreview(){ const names=selected(); const rc=roleCounts(names); pillWK.textContent=`WK: ${rc.WK}`; pillBAT.textContent=`BAT: ${rc.BAT}`; pillAR.textContent=`AR: ${rc.AR}`; pillBOWL.textContent=`BOWL: ${rc.BOWL}`; const tc=teamCountsOf(names); const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—'; pillTeams.textContent = `Teams: ${teamsStr}`; previewGrid.innerHTML=''; if(!names.length){ previewGrid.innerHTML='<span class="helper">No players selected yet.</span>'; paintRuleChips(); return; } names.forEach(n=>{ const p=allPlayers.find(x=>x.name===n) || {name:n, team:'', role:'', imageUrl:''}; const card=document.createElement('div'); card.className='square-card'; const pic=document.createElement('div'); pic.className='pic'; if(p.imageUrl){ const img=document.createElement('img'); img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); pic.innerHTML='<i class="material-icons">person</i>'; }; pic.appendChild(img); } else { const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon); } const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name; const tm=document.createElement('div'); tm.className='team'; tm.textContent=p.team||''; const rl=document.createElement('div'); rl.className='role'; rl.textContent=formatRole(p.role||'')||'—'; const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>'; btn.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); }); card.appendChild(btn); card.appendChild(pic); card.appendChild(nm); card.appendChild(tm); card.appendChild(rl); previewGrid.appendChild(card); }); const msg=document.getElementById('validationMsg'); const changes=countChanges(lastTeamPlayers, names); const cap=capStatus(names); const withinCap = cap.overTeams.length===0; let hints=[]; if(userBudget - (userUsed + changes) < 0) hints.push('Not enough changes remaining'); if(!withinCap) hints.push('Team cap exceeded: ' + cap.overTeams.join(', ')); msg.className = hints.length? 'helper error-text' : 'helper ok-text'; msg.textContent = hints.length? hints.join(' • ') : 'Looks good!'; paintRuleChips(); }
+    function renderPreview(){ const names=selected(); const rc=roleCounts(names); pillWK.textContent=`WK: ${rc.WK}`; pillBAT.textContent=`BAT: ${rc.BAT}`; pillAR.textContent=`AR: ${rc.AR}`; pillBOWL.textContent=`BOWL: ${rc.BOWL}`; const tc=teamCountsOf(names); const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—'; pillTeams.textContent = `Teams: ${teamsStr}`; previewGrid.innerHTML=''; if(!names.length){ previewGrid.innerHTML='<span class="helper">No players selected yet.</span>'; refreshRuleChips(); return; } names.forEach(n=>{ const p=allPlayers.find(x=>x.name===n) || {name:n, team:'', role:'', imageUrl:''}; const card=document.createElement('div'); card.className='square-card'; const pic=document.createElement('div'); pic.className='pic'; if(p.imageUrl){ const img=document.createElement('img'); img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); pic.innerHTML='<i class="material-icons">person</i>'; }; pic.appendChild(img); } else { const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon); } const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name; const tm=document.createElement('div'); tm.className='team'; tm.textContent=p.team||''; const rl=document.createElement('div'); rl.className='role'; rl.textContent=formatRole(p.role||'')||'—'; const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>'; btn.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); }); card.appendChild(btn); card.appendChild(pic); card.appendChild(nm); card.appendChild(tm); card.appendChild(rl); previewGrid.appendChild(card); }); const msg=document.getElementById('validationMsg'); const changes=countChanges(lastTeamPlayers, names); const cap=capStatus(names); const withinCap = cap.overTeams.length===0; let hints=[]; if(userBudget - (userUsed + changes) < 0) hints.push('Not enough changes remaining'); if(!withinCap) hints.push('Team cap exceeded: ' + cap.overTeams.join(', ')); msg.className = hints.length? 'helper error-text' : 'helper ok-text'; msg.textContent = hints.length? hints.join(' • ') : 'Looks good!'; refreshRuleChips(); }
 
     function togglePlayer(name, on){ const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb)); if(map.has(name)){ map.get(name).checked = !!on; } updateSelectionUI(); }
 
-    function updateSelectionUI(){ const names=selected(); const n=names.length; selCount.setAttribute('data-badge-caption','/11 selected'); selCount.textContent=n; const ch=countChanges(lastTeamPlayers, names); updateBadges(ch); const cap=capStatus(names); const withinCap = cap.overTeams.length===0; if(!emailEl.value||!matchSelectEl.value||n!==11||(userUsed+ch)>userBudget||!withinCap) submitBtn.classList.add('disabled'); else submitBtn.classList.remove('disabled'); renderPreview(); }
+    function updateSelectionUI(){ const names=selected(); const n=names.length; selCount.setAttribute('data-badge-caption','/11 selected'); selCount.textContent=n; const ch=countChanges(lastTeamPlayers, names); updateBadges(ch); // repaint preview -> chips
+      renderPreview(); const anyBad = document.querySelectorAll('#roleRulesRow .rule-chip.bad').length > 0; const cap=capStatus(names); const withinCap = cap.overTeams.length===0; if(!emailEl.value||!matchSelectEl.value||n!==11||(userUsed+ch)>userBudget||!withinCap||anyBad) submitBtn.classList.add('disabled'); else submitBtn.classList.remove('disabled'); }
 
     function buildFilters(list){ const teams=Array.from(new Set(list.map(p=>String(p.team||'').toUpperCase()).filter(Boolean))).sort(); teamFilter.innerHTML='<option value="ALL" selected>All teams</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join(''); M.FormSelect.init(teamFilter); M.FormSelect.init(roleFilter); }
 
@@ -234,7 +242,7 @@
 
     async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class="red-text">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class="red-text">${j.error||'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; buildFilters(allPlayers); renderPlayers(); }catch(e){ playersList.innerHTML='<span class="red-text">Network error</span>'; } }
 
-    async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; } userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team.`; renderRoleRules(); }catch(e){} }
+    async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; } userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team.`; refreshRuleChips(); }catch(e){} }
 
     async function loadLeaderboard(){ lbTable.innerHTML='<tr><td colspan="3">Loading…</td></tr>'; try{ const res=await fetch(`${API}?action=leaderboard`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Response not JSON</td></tr>'; return; } if(!j.ok){ lbTable.innerHTML = `<tr><td colspan="3" class="red-text">${j.error||'API error'}</td></tr>`; return; } lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>`<tr><td>${i+1}</td><td>${r.name||''}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`).join('') || '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>'; }catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Failed</td></tr>'; } }
 
