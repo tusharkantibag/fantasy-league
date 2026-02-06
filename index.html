@@ -32,7 +32,6 @@
     .chip-right-only { background:#e3f2fd; color:#0d47a1; }
     .chip-p img.avatar { width:24px; height:24px; margin-right:.35rem; vertical-align:middle; border-radius:50%; }
 
-    /* Change budget panel */
     .budget { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
     .badge-inline { display:inline-flex; align-items:center; gap:.35rem; padding:.3rem .6rem; border-radius:14px; background:#eceff1; color:#263238; font-size:.85rem; }
     .badge-inline .material-icons { font-size:18px; }
@@ -40,7 +39,6 @@
     .badge-warn { background:#fff8e1; color:#e65100; }
     .badge-alert { background:#ffebee; color:#b71c1c; }
 
-    /* Role composition panel */
     .composition { display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
     .comp-box { background:#fff; border:1px solid #e0e0e0; border-radius:10px; padding:.35rem .6rem; font-size:.85rem; }
     .comp-bad { background:#ffebee; color:#b71c1c; border-color:#ffcdd2; }
@@ -58,7 +56,6 @@
   </div>
 </nav>
 <main class="container" style="margin-top:1.25rem;">
-  <!-- =================== SUBMIT VIEW =================== -->
   <section id="submit" class="view active">
     <div class="row">
       <div class="col l7 s12">
@@ -78,7 +75,6 @@
               </div>
             </div>
 
-            <!-- Budget summary -->
             <div class="budget" id="budgetPanel" style="margin-bottom:.5rem;">
               <span class="badge-inline" id="badgeToday"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b> changes</span>
               <span class="badge-inline" id="badgeUsed"><i class="material-icons">timelapse</i> Used: <b id="usedSoFar">0</b></span>
@@ -86,7 +82,6 @@
               <span class="badge-inline" id="badgeBudget"><i class="material-icons">flag</i> Budget: <b id="budget">100</b></span>
             </div>
 
-            <!-- Composition rules -->
             <div class="composition" id="compositionPanel" style="margin-bottom:.5rem;">
               <span><b>Role rules</b>:</span>
               <span class="comp-box" id="ruleWK">WK: —</span>
@@ -128,25 +123,8 @@
         </div>
       </div>
     </div>
-
-    <!-- Admin modal -->
-    <div id="adminModal" class="modal">
-      <div class="modal-content">
-        <h5>Admin: Update Player Points</h5>
-        <div class="row">
-          <div class="input-field col s12"><input id="adminToken" type="password"><label for="adminToken">Admin token</label></div>
-          <div class="input-field col s12 m6"><select id="adminMatch"></select><label>Match</label></div>
-          <div class="input-field col s12 m6"><input id="adminPoints" type="number"><label for="adminPoints">Points</label></div>
-          <div class="input-field col s12"><input id="adminPlayer" type="text"><label for="adminPlayer">Player Name</label></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="#" id="adminSetPoints" class="modal-close waves-effect waves-green btn red">Set Points</a>
-      </div>
-    </div>
   </section>
 
-  <!-- =================== MY TEAMS VIEW =================== -->
   <section id="my-teams" class="view">
     <div class="card">
       <div class="card-content">
@@ -227,12 +205,9 @@
   window.addEventListener('hashchange', ()=> activateView(location.hash));
   function notify(msg) { M.toast({html: msg}); }
 
-  // SUBMIT VIEW
   const emailEl = document.getElementById('email');
   const submitBtn = document.getElementById('submitBtn');
   const selCount = document.getElementById('selCount');
-  const lbTable = document.getElementById('lbTable');
-  const refreshLbBtn = document.getElementById('refreshLb');
   const matchSelectEl = document.getElementById('matchSelect');
   const playersLeftBox = document.getElementById('playersLeft');
   const playersRightBox = document.getElementById('playersRight');
@@ -253,7 +228,15 @@
   const playerImgMap = {}; const playerRoleMap = {};
   let lastTeamPlayers = []; let userBudget = 100, userUsed = 0, userRemaining = 100;
 
-  function formatRole(r){ if(!r) return '—'; r = String(r).trim().toUpperCase(); if(r==='WICKETKEEPER') return 'WK'; if(r==='BATSMAN' || r==='BATTER') return 'BAT'; if(r.startsWith('ALL')) return 'AR'; if(r==='BOWLER') return 'BOWL'; return r; }
+  function formatRole(r){
+    if(!r) return '';
+    r = String(r).trim().toUpperCase();
+    if(r==='WICKETKEEPER') return 'WK';
+    if(r==='BATSMAN' || r==='BATTER') return 'BAT';
+    if(r==='ALL-ROUNDER' || r==='ALLROUNDER' || r==='ALL_ROUNDER') return 'AR';
+    if(r==='BOWLER') return 'BOWL';
+    return r; // already WK/BAT/AR/BOWL
+  }
 
   function selectedPlayers(){
     return Array.from(document.querySelectorAll('#playersLeft input[type=checkbox]:checked, #playersRight input[type=checkbox]:checked')).map(x => x.value);
@@ -261,14 +244,13 @@
 
   function countChanges(prevArr, currArr){ const size=11; const s=new Set(prevArr||[]); let overlap=0; (currArr||[]).forEach(p=>{ if(s.has(p)) overlap++; }); return size-overlap; }
 
-  function countRoles(list){ const c={WK:0,BAT:0,AR:0,BOWL:0,UNKNOWN:0}; (list||[]).forEach(p=>{ const r = formatRole(playerRoleMap[p]||''); if(c[r]===undefined) c.UNKNOWN++; else c[r]++; }); return c; }
+  function countRoles(list){ const c={WK:0,BAT:0,AR:0,BOWL:0,UNKNOWN:0}; (list||[]).forEach(p=>{ const r = (playerRoleMap[p]||''); const rr = formatRole(r); if(['WK','BAT','AR','BOWL'].includes(rr)) c[rr]++; else c.UNKNOWN++; }); return c; }
 
   function updateRuleBadges(counts){
     const setBox=(el, label, val, min, max)=>{
       el.textContent = `${label}: ${val} (min ${min}, max ${max})`;
       el.classList.remove('comp-ok','comp-warn','comp-bad');
-      if(val<min || val>max) el.classList.add('comp-bad');
-      else el.classList.add('comp-ok');
+      if(val<min || val>max) el.classList.add('comp-bad'); else el.classList.add('comp-ok');
     };
     setBox(ruleWK, 'WK', counts.WK, constraints.WK.min, constraints.WK.max);
     setBox(ruleBAT, 'BAT', counts.BAT, constraints.BAT.min, constraints.BAT.max);
@@ -317,11 +299,20 @@
     return {left:codes[0]||'Team A', right:codes[1]||'Team B'};
   }
 
+  function deriveRoleFromAny(p){
+    // Accept multiple possible property names from API
+    const raw = p.role || p.Role || p.playerRole || p.roleName || '';
+    return formatRole(raw);
+  }
+
   function renderPlayers(list, matchLabel){
     playersLeftBox.innerHTML = ''; playersRightBox.innerHTML = '';
     const teams = detectTeams(list, matchLabel); teamLeftTitleEl.innerHTML = `<b>Team ${teams.left}</b>`; teamRightTitleEl.innerHTML = `<b>Team ${teams.right}</b>`;
     if (!Array.isArray(list) || list.length === 0){ playersLeftBox.innerHTML = '<span class="grey-text">No players found for this match.</span>'; return; }
-    list.forEach(p=>{ playerRoleMap[p.name] = p.role || ''; });
+
+    // Cache normalized role for each player
+    list.forEach(p=>{ const r = deriveRoleFromAny(p); if (r) playerRoleMap[p.name] = r; });
+
     list.forEach(p => {
       const card = document.createElement('div'); card.className = 'player-card';
       const imgSrc = p.imageUrl || p.image || p.img || p.PlayerImageURL || p.photo || '';
@@ -332,7 +323,7 @@
       const label = document.createElement('label'); label.className = 'player-check'; label.innerHTML = '<input type="checkbox"/><span></span>';
       label.querySelector('input').value = p.name;
       const info = document.createElement('div'); info.className = 'player-info';
-      const roleShort = formatRole(p.role||'');
+      const roleShort = playerRoleMap[p.name] || deriveRoleFromAny(p) || '—';
       info.innerHTML = `<span class="player-name">${p.name}<span class="role-chip">${roleShort}</span></span><span class="player-team">(${p.team||''})</span>`;
       card.appendChild(label); card.appendChild(imgEl); card.appendChild(info);
       const teamCode = (p.team||'').toUpperCase();
@@ -340,6 +331,7 @@
       else if (teamCode === String(teams.right).toUpperCase()) playersRightBox.appendChild(card);
       else (playersLeftBox.children.length <= playersRightBox.children.length ? playersLeftBox : playersRightBox).appendChild(card);
     });
+
     document.querySelectorAll('#playersLeft input[type=checkbox], #playersRight input[type=checkbox]').forEach(cb => cb.addEventListener('change', updateSelectionUI));
     preselectLastTeam(); updateSelectionUI();
   }
@@ -437,7 +429,7 @@
     document.getElementById('loadBtn').addEventListener('click', loadMyTeams);
   });
 
-  // ---- My Teams (same as earlier) ----
+  // My Teams view (unchanged from v2)
   const email2El = document.getElementById('email2');
   const limitEl = document.getElementById('limit');
   const leftMeta = document.getElementById('leftMeta');
