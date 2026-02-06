@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.5</title>
+  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.6</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -49,15 +49,16 @@
     .preview-header { display:flex; align-items:center; justify-content:space-between; }
     .pill { display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; border-radius:12px; background:#eceff1; font-size:.78rem; color:#37474f; }
 
-    /* Card-style My XI grid */
-    .preview-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap:10px; margin-top:.6rem; }
-    .mini-card { background:#fafcff; border:1px solid #dde5ee; border-radius:12px; padding:10px; display:flex; gap:10px; align-items:center; position:relative; }
-    .mini-card .thumb { width:44px; height:44px; border-radius:8px; object-fit:cover; border:1px solid #e0e0e0; background:#fff; }
-    .mini-card .meta { display:flex; flex-direction:column; line-height:1.15; }
-    .mini-card .name { font-weight:600; font-size:.95rem; }
-    .mini-card .sub { font-size:.8rem; color:#607d8b; }
-    .mini-card .role-tag { position:absolute; top:8px; right:10px; font-size:.7rem; padding:.12rem .4rem; border-radius:10px; background:#eceff1; color:#37474f; }
-    .mini-card .remove { position:absolute; bottom:8px; right:6px; }
+    /* SQUARE card My XI grid */
+    .preview-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:12px; margin-top:.6rem; }
+    .square-card { background:#fafcff; border:1px solid #dde5ee; border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; position:relative; }
+    .square-card .pic { width:100%; aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#fff; border:1px solid #e0e0e0; display:flex; align-items:center; justify-content:center; }
+    .square-card .pic img { width:100%; height:100%; object-fit:cover; }
+    .square-card .pic i { font-size:42px; color:#90a4ae; }
+    .square-card .name { margin-top:.5rem; font-weight:700; font-size:.95rem; text-align:center; }
+    .square-card .team { font-size:.8rem; color:#607d8b; text-align:center; margin-top:.15rem; }
+    .square-card .role { font-size:.78rem; text-align:center; margin-top:.2rem; padding:.12rem .5rem; border-radius:12px; background:#eceff1; color:#37474f; display:inline-block; }
+    .square-card .remove { position:absolute; top:8px; right:8px; }
 
     .helper { font-size:.85rem; color:#607d8b; }
     .error-text { color:#b71c1c; font-weight:600; }
@@ -140,7 +141,7 @@
           </div>
         </div>
 
-        <!-- RIGHT: Card-style My XI Preview -->
+        <!-- RIGHT: Square-card My XI Preview -->
         <div class="col s12 l7">
           <div class="card preview-card">
             <div class="card-content">
@@ -251,23 +252,21 @@
       const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—';
       pillTeams.textContent = `Teams: ${teamsStr}`;
 
-      // Build mini-cards
+      // Build SQUARE cards
       previewGrid.innerHTML='';
       if(!names.length){ previewGrid.innerHTML='<span class="helper">No players selected yet.</span>'; return; }
       names.forEach(n=>{
         const p=allPlayers.find(x=>x.name===n) || {name:n, team:'', role:'', imageUrl:''};
-        const card=document.createElement('div'); card.className='mini-card';
-        const img = document.createElement(p.imageUrl? 'img':'i');
-        if(p.imageUrl){ img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); } }
-        else { img.className='material-icons grey-text'; img.textContent='person'; img.style.fontSize='28px'; }
-        const meta=document.createElement('div'); meta.className='meta';
+        const card=document.createElement('div'); card.className='square-card';
+        const pic=document.createElement('div'); pic.className='pic';
+        if(p.imageUrl){ const img=document.createElement('img'); img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); pic.innerHTML='<i class="material-icons">person</i>'; }; pic.appendChild(img); }
+        else { const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon); }
         const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name;
-        const sb=document.createElement('div'); sb.className='sub'; sb.textContent=(p.team||'') + (p.role? ' • '+formatRole(p.role): '');
-        meta.appendChild(nm); meta.appendChild(sb);
-        const roleTag=document.createElement('span'); roleTag.className='role-tag'; roleTag.textContent=formatRole(p.role||'') || '—';
+        const tm=document.createElement('div'); tm.className='team'; tm.textContent=p.team||'';
+        const rl=document.createElement('div'); rl.className='role'; rl.textContent=formatRole(p.role||'')||'—';
         const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>';
         btn.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
-        card.appendChild(img); card.appendChild(meta); card.appendChild(roleTag); card.appendChild(btn);
+        card.appendChild(btn); card.appendChild(pic); card.appendChild(nm); card.appendChild(tm); card.appendChild(rl);
         previewGrid.appendChild(card);
       });
 
