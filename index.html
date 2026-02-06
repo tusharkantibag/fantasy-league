@@ -19,7 +19,6 @@
     .player-info { flex:1; display:flex; flex-direction:column; }
     .player-name { font-weight:600; font-size:1rem; }
     .player-team { font-size:.9rem; color:#607d8b; }
-    .player-role { font-size:.85rem; color:#37474f; font-weight:600; }
     .role-chip { font-size:.75rem; padding:.15rem .5rem; border-radius:12px; background:#eceff1; color:#263238; margin-left:.5rem; }
     .player-check { transform:scale(1.35); }
     .sticky-actions { position: sticky; bottom: 0; background:#fff; padding:.75rem; border-top:1px solid #eee; display:flex; flex-wrap:wrap; gap:.75rem; justify-content:space-between; align-items:center; }
@@ -45,7 +44,6 @@
     .composition { display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
     .comp-box { background:#fff; border:1px solid #e0e0e0; border-radius:10px; padding:.35rem .6rem; font-size:.85rem; }
     .comp-bad { background:#ffebee; color:#b71c1c; border-color:#ffcdd2; }
-    .comp-warn { background:#fffde7; color:#e65100; border-color:#ffe082; }
     .comp-ok { background:#e8f5e9; color:#1b5e20; border-color:#c8e6c9; }
   </style>
 </head>
@@ -218,7 +216,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script>
-  const API = 'https://script.google.com/macros/s/AKfycbzEfzWp2MZbTn8eQl_4-3rTcqSoQ9a7_ikDEOX1--E3yLWajnsI_jmduMX07soCu7CB/exec';
+  const API = 'https://script.google.com/macros/s/AKfycbz_M2B-WY4aASsTOwryQXSHHFDanFFLc9LsJuHSf1KlWtXDt9tPN-5cryUZAy8OjeUq/exec';
 
   function activateView(hash){
     const target = (hash || location.hash || '#submit').replace('#','');
@@ -270,7 +268,6 @@
       el.textContent = `${label}: ${val} (min ${min}, max ${max})`;
       el.classList.remove('comp-ok','comp-warn','comp-bad');
       if(val<min || val>max) el.classList.add('comp-bad');
-      else if(val===min || val===max) el.classList.add('comp-warn');
       else el.classList.add('comp-ok');
     };
     setBox(ruleWK, 'WK', counts.WK, constraints.WK.min, constraints.WK.max);
@@ -324,7 +321,6 @@
     playersLeftBox.innerHTML = ''; playersRightBox.innerHTML = '';
     const teams = detectTeams(list, matchLabel); teamLeftTitleEl.innerHTML = `<b>Team ${teams.left}</b>`; teamRightTitleEl.innerHTML = `<b>Team ${teams.right}</b>`;
     if (!Array.isArray(list) || list.length === 0){ playersLeftBox.innerHTML = '<span class="grey-text">No players found for this match.</span>'; return; }
-    playerRoleMap.clear; // just in case
     list.forEach(p=>{ playerRoleMap[p.name] = p.role || ''; });
     list.forEach(p => {
       const card = document.createElement('div'); card.className = 'player-card';
@@ -359,19 +355,18 @@
       matchSelectEl.innerHTML = opts.join('');
       M.FormSelect.init(matchSelectEl);
       if(list.length){ matchSelectEl.value = String(list[0].id); M.FormSelect.init(matchSelectEl); fetchPlayers(); }
-    }catch(err){ console.error('[matches] fetch failed:', err); notify('Network error while loading matches'); }
+    }catch(err){ notify('Network error while loading matches'); }
   }
 
   async function fetchPlayers(){
-    const playersLeft = document.getElementById('playersLeft'); playersLeft.innerHTML = 'Loading players…'; document.getElementById('playersRight').innerHTML=''; selCount.textContent='0';
+    const left = document.getElementById('playersLeft'); left.innerHTML='Loading players…'; document.getElementById('playersRight').innerHTML=''; selCount.textContent='0';
     try{
       const matchId = matchSelectEl.value; const url = `${API}?action=players&matchId=${encodeURIComponent(matchId)}`;
-      const res = await fetch(url); const txt = await res.text();
-      let j; try { j = JSON.parse(txt);} catch(e){ playersLeft.innerHTML = '<span class="red-text">Response not JSON.</span>'; document.getElementById('playersRight').innerHTML = ''; return; }
-      if (!j.ok){ playersLeft.innerHTML = `<span class="red-text">${j.error || 'API error'}</span>`; document.getElementById('playersRight').innerHTML = ''; return; }
+      const res = await fetch(url); const txt = await res.text(); let j; try{ j = JSON.parse(txt);}catch(e){ left.innerHTML='<span class="red-text">Response not JSON.</span>'; return; }
+      if(!j.ok){ left.innerHTML = `<span class="red-text">${j.error || 'API error'}</span>`; return; }
       const matchLabel = (function(){ const opt = matchSelectEl.options[matchSelectEl.selectedIndex]; return opt ? opt.text : ''; })();
-      renderPlayers(j.players || [], matchLabel);
-    }catch(err){ playersLeft.innerHTML = '<span class="red-text">Network error</span>'; document.getElementById('playersRight').innerHTML = ''; }
+      renderPlayers(j.players||[], matchLabel);
+    }catch(err){ left.innerHTML='<span class="red-text">Network error</span>'; }
   }
 
   async function fetchUserStats(){
@@ -383,11 +378,10 @@
       userBudget = Number(j.budget || 100); userUsed = Number(j.used || 0); userRemaining = Number(j.remaining || Math.max(0, userBudget - userUsed));
       lastTeamPlayers = Array.isArray(j.lastTeam)? j.lastTeam : [];
       if (j.constraints) constraints = j.constraints;
-      // Show rule ranges
-      ruleWK.textContent = `WK: — (min ${constraints.WK.min}, max ${constraints.WK.max})`;
+      ruleWK.textContent  = `WK: — (min ${constraints.WK.min}, max ${constraints.WK.max})`;
       ruleBAT.textContent = `BAT: — (min ${constraints.BAT.min}, max ${constraints.BAT.max})`;
-      ruleAR.textContent = `AR: — (min ${constraints.AR.min}, max ${constraints.AR.max})`;
-      ruleBOWL.textContent = `BOWL: — (min ${constraints.BOWL.min}, max ${constraints.BOWL.max})`;
+      ruleAR.textContent  = `AR: — (min ${constraints.AR.min}, max ${constraints.AR.max})`;
+      ruleBOWL.textContent= `BOWL: — (min ${constraints.BOWL.min}, max ${constraints.BOWL.max})`;
       updateBadges(0);
     }catch(e){ }
   }
@@ -421,8 +415,8 @@
   }
 
   async function loadLeaderboard(){
-    const lbTable = document.getElementById('lbTable'); lbTable.innerHTML='<tr><td colspan="3">Loading…</td></tr>';
-    try{ const res=await fetch(`${API}?action=leaderboard`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Response not JSON</td></tr>'; return; } if(!j.ok){ lbTable.innerHTML = `<tr><td colspan="3" class="red-text">${j.error || 'API error'}</td></tr>`; return; } lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>`<tr><td>${i+1}</td><td>${r.name || ''}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`).join('') || '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>'; }catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Failed</td></tr>'; }
+    const table = document.getElementById('lbTable'); table.innerHTML='<tr><td colspan="3">Loading…</td></tr>';
+    try{ const res=await fetch(`${API}?action=leaderboard`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ table.innerHTML='<tr><td colspan="3" class="red-text">Response not JSON</td></tr>'; return; } if(!j.ok){ table.innerHTML = `<tr><td colspan="3" class="red-text">${j.error || 'API error'}</td></tr>`; return; } table.innerHTML = (j.leaderboard||[]).map((r,i)=>`<tr><td>${i+1}</td><td>${r.name || ''}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`).join('') || '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>'; }catch(e){ table.innerHTML='<tr><td colspan="3" class="red-text">Failed</td></tr>'; }
   }
 
   document.addEventListener('DOMContentLoaded', function(){
@@ -443,7 +437,7 @@
     document.getElementById('loadBtn').addEventListener('click', loadMyTeams);
   });
 
-  // My Teams (kept same as previous revision)
+  // ---- My Teams (same as earlier) ----
   const email2El = document.getElementById('email2');
   const limitEl = document.getElementById('limit');
   const leftMeta = document.getElementById('leftMeta');
@@ -453,15 +447,29 @@
   const rightPlayersBox = document.getElementById('rightPlayers');
   const compareSelect = document.getElementById('compareSelect');
   const listBody = document.getElementById('listBody');
-  const playerImgMap2 = playerImgMap;
+
   function setStoredEmail(v){ try { localStorage.setItem('ml_email', v || ''); } catch(_){} }
-  function makeChip(player, cls){ const span = document.createElement('span'); span.className = 'chip-p ' + cls; const imgUrl = playerImgMap2[player]; if (imgUrl){ const img = document.createElement('img'); img.className = 'avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src = imgUrl; img.onerror = function(){ this.remove(); }; span.appendChild(img); } const text = document.createElement('span'); text.textContent = player; span.appendChild(text); return span; }
+  function makeChip(player, cls){ const span = document.createElement('span'); span.className = 'chip-p ' + cls; const imgUrl = playerImgMap[player]; if (imgUrl){ const img = document.createElement('img'); img.className = 'avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src = imgUrl; img.onerror = function(){ this.remove(); }; span.appendChild(img); } const text = document.createElement('span'); text.textContent = player; span.appendChild(text); return span; }
   function renderTeamPlayers(container, players, compareSet, side){ container.innerHTML=''; const ownSet=new Set(players||[]); const onlyOwn = [...ownSet].filter(p=>!compareSet.has(p)); const common = [...ownSet].filter(p=>compareSet.has(p)); common.forEach(p=>container.appendChild(makeChip(p,'chip-common'))); if (side==='left') onlyOwn.forEach(p=>container.appendChild(makeChip(p,'chip-left-only'))); else onlyOwn.forEach(p=>container.appendChild(makeChip(p,'chip-right-only'))); }
   function overlapCount(a,b){ const s=new Set(a||[]); return (b||[]).reduce((acc,x)=>acc+(s.has(x)?1:0),0); }
   function setTeamMeta(el, team){ el.textContent = team ? `Match: ${team.matchLabel || '-'} • Points: ${team.points} • Changes: ${team.changesUsed ?? '-'} • ID: ${team.entryId}` : '—'; }
   function buildCompareOptions(teams){ const opts=['<option value="">-- Select --</option>']; teams.slice(1).forEach(t=>opts.push(`<option value="${t.entryId}">${t.matchLabel || '-'} (Pts ${t.points}, Chg ${t.changesUsed ?? '-'})</option>`)); compareSelect.innerHTML = opts.join(''); M.FormSelect.init(compareSelect); }
-  async function loadMyTeams(){ const email=(email2El.value || '').trim().toLowerCase(); if(!email){ notify('Please enter your email'); return; } setStoredEmail(email); const limit=Number(limitEl.value || 20); const url=`${API}?action=myteams&email=${encodeURIComponent(email)}&limit=${encodeURIComponent(limit)}`; try{ const res=await fetch(url); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON'); return;} if(!j.ok){ notify(j.error || 'API error'); return;} const latest=j.latest || null; const all=Array.isArray(j.items)?j.items:[]; if(!latest){ leftMeta.textContent='No submissions yet.'; leftPlayersBox.innerHTML=''; rightMeta.textContent='—'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; compareSelect.innerHTML=''; M.FormSelect.init(compareSelect); listBody.innerHTML='<tr><td colspan="6">No submissions yet.</td></tr>'; return; } function renderList(teams){ listBody.innerHTML = teams.map((t,i)=>`<tr><td>${i+1}</td><td>${t.matchLabel || '-'}</td><td>${t.points}</td><td>${t.changesUsed ?? '-'}</td><td class="grey-text text-darken-1">${t.entryId}</td><td><a class="btn-flat waves-effect" onclick="selectRight('${t.entryId}')"><i class="material-icons left">compare</i>Compare</a></td></tr>`).join(''); } setTeamMeta(leftMeta, latest); renderTeamPlayers(leftPlayersBox, latest.players||[], new Set(), 'left'); const teams = all; function selectRight(entryId){ const t = teams.find(x=>x.entryId===entryId); if(!t) return; const leftSet=new Set(latest?latest.players:[]); setTeamMeta(rightMeta,t); const o=overlapCount(latest?latest.players:[], t.players||[]); overlapMeta.textContent=`Common: ${o} / 11`; renderTeamPlayers(rightPlayersBox, t.players||[], leftSet, 'right'); compareSelect.value=entryId; M.FormSelect.init(compareSelect);} window.selectRight = selectRight; const opts=['<option value="">-- Select --</option>']; teams.slice(1).forEach(t=>opts.push(`<option value="${t.entryId}">${t.matchLabel || '-'} (Pts ${t.points}, Chg ${t.changesUsed ?? '-'})</option>`)); compareSelect.innerHTML = opts.join(''); M.FormSelect.init(compareSelect); if(teams.length>1){ selectRight(teams[1].entryId); } else { rightMeta.textContent='No previous team to compare.'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; } renderList(teams); } catch(err){ notify('Network error while loading teams'); } }
-  document.getElementById('loadBtn').addEventListener('click', loadMyTeams);
+  function selectRight(entryId){ const allTeams = window._allTeams || []; const t = allTeams.find(x=>x.entryId===entryId); if(!t) return; const leftSet=new Set((window._latestTeam||{}).players||[]); setTeamMeta(rightMeta,t); const o=overlapCount((window._latestTeam||{}).players||[], t.players||[]); overlapMeta.textContent=`Common: ${o} / 11`; renderTeamPlayers(rightPlayersBox, t.players||[], leftSet, 'right'); compareSelect.value=entryId; M.FormSelect.init(compareSelect); }
+  window.selectRight = selectRight;
+
+  async function loadMyTeams(){
+    const email=(email2El.value || '').trim().toLowerCase(); if(!email){ notify('Please enter your email'); return; }
+    setStoredEmail(email); const limit=Number(limitEl.value || 20);
+    const url=`${API}?action=myteams&email=${encodeURIComponent(email)}&limit=${encodeURIComponent(limit)}`;
+    try{ const res=await fetch(url); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON'); return;} if(!j.ok){ notify(j.error || 'API error'); return;}
+      const latest=j.latest || null; const items=Array.isArray(j.items)?j.items:[]; window._latestTeam=latest; window._allTeams=items;
+      if(!latest){ leftMeta.textContent='No submissions yet.'; leftPlayersBox.innerHTML=''; rightMeta.textContent='—'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; compareSelect.innerHTML=''; M.FormSelect.init(compareSelect); listBody.innerHTML='<tr><td colspan="6">No submissions yet.</td></tr>'; return; }
+      setTeamMeta(leftMeta, latest); renderTeamPlayers(leftPlayersBox, latest.players||[], new Set(), 'left');
+      buildCompareOptions(items);
+      if(items.length>1){ selectRight(items[1].entryId); } else { rightMeta.textContent='No previous team to compare.'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; }
+      listBody.innerHTML = items.map((t,i)=>`<tr><td>${i+1}</td><td>${t.matchLabel || '-'}</td><td>${t.points}</td><td>${t.changesUsed ?? '-'}</td><td class="grey-text text-darken-1">${t.entryId}</td><td><a class="btn-flat waves-effect" onclick="selectRight('${t.entryId}')"><i class="material-icons left">compare</i>Compare</a></td></tr>`).join('');
+    } catch(err){ notify('Network error while loading teams'); }
+  }
 </script>
 </body>
 </html>
