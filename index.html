@@ -1,77 +1,55 @@
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sports Fever IPL Fantasy 2026</title>
-
-  <!-- Materialize & Icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-
   <style>
     body { background:#f5f7fb; }
     nav .brand-logo { font-weight:800; }
     .card-title .badge { font-size:.8rem; margin-left:.5rem; }
-
-    /* ---------- Two team columns ---------- */
     .team-columns { margin-top:.75rem; }
     .team-col { display:flex; flex-direction:column; gap:.8rem; }
-
-    /* ---------- Player CARD blocks ---------- */
-    .player-card {
-      background:#fff;
-      border-radius:12px;
-      padding:12px;
-      display:flex;
-      align-items:center;
-      gap:14px;
-      border:1px solid #e3e6ea;
-      transition: box-shadow .2s ease, transform .15s ease;
-    }
-    .player-card:hover {
-      box-shadow:0 4px 12px rgba(0,0,0,0.09);
-      transform: translateY(-2px);
-    }
-
-    .player-card .avatar {
-      width:72px;
-      height:72px;
-      border-radius:8px;    /* square-ish look */
-      object-fit:cover;
-      border:1px solid #e0e0e0;
-      background:#fafafa;
-      flex:0 0 auto;
-    }
-
+    .player-card { background:#fff; border-radius:12px; padding:12px; display:flex; align-items:center; gap:14px; border:1px solid #e3e6ea; transition: box-shadow .2s ease, transform .15s ease; }
+    .player-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.09); transform: translateY(-2px); }
+    .player-card .avatar { width:64px; height:64px; border-radius:8px; object-fit:cover; border:1px solid #e0e0e0; background:#fafafa; flex:0 0 auto; }
     .player-info { flex:1; display:flex; flex-direction:column; }
     .player-name { font-weight:600; font-size:1rem; }
     .player-team { font-size:.9rem; color:#607d8b; }
-
+    .player-role { font-size:.85rem; color:#37474f; font-weight:600; }
+    .role-chip { font-size:.75rem; padding:.15rem .5rem; border-radius:12px; background:#eceff1; color:#263238; margin-left:.5rem; }
     .player-check { transform:scale(1.35); }
-
-    /* ---------- Sticky bottom actions ---------- */
-    .sticky-actions {
-      position: sticky; bottom: 0; background:#fff; padding:.75rem;
-      border-top:1px solid #eee; display:flex; gap:.5rem; justify-content:flex-end;
-    }
-
+    .sticky-actions { position: sticky; bottom: 0; background:#fff; padding:.75rem; border-top:1px solid #eee; display:flex; flex-wrap:wrap; gap:.75rem; justify-content:space-between; align-items:center; }
     .team-meta { font-size:.95rem; color:#546e7a; }
     .sticky-head { position:sticky; top:0; background:white; z-index:2; border-bottom:1px solid #eee; }
-
     section.view { display:none; }
     section.view.active { display:block; }
-
-    /* Compare view pills (unchanged from your file) */
     .chip-p { display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .6rem; border-radius:16px; margin:0 .3rem .4rem 0; }
     .chip-common { background:#eceff1; color:#263238; }
     .chip-left-only { background:#e8f5e9; color:#1b5e20; }
     .chip-right-only { background:#e3f2fd; color:#0d47a1; }
     .chip-p img.avatar { width:24px; height:24px; margin-right:.35rem; vertical-align:middle; border-radius:50%; }
+
+    /* Change budget panel */
+    .budget { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
+    .badge-inline { display:inline-flex; align-items:center; gap:.35rem; padding:.3rem .6rem; border-radius:14px; background:#eceff1; color:#263238; font-size:.85rem; }
+    .badge-inline .material-icons { font-size:18px; }
+    .badge-ok { background:#e8f5e9; color:#1b5e20; }
+    .badge-warn { background:#fff8e1; color:#e65100; }
+    .badge-alert { background:#ffebee; color:#b71c1c; }
+
+    /* Role composition panel */
+    .composition { display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
+    .comp-box { background:#fff; border:1px solid #e0e0e0; border-radius:10px; padding:.35rem .6rem; font-size:.85rem; }
+    .comp-bad { background:#ffebee; color:#b71c1c; border-color:#ffcdd2; }
+    .comp-warn { background:#fffde7; color:#e65100; border-color:#ffe082; }
+    .comp-ok { background:#e8f5e9; color:#1b5e20; border-color:#c8e6c9; }
   </style>
 </head>
 <body>
-
 <nav class="blue">
   <div class="nav-wrapper container">
     <a href="#submit" class="brand-logo"><i class="material-icons">emoji_events</i> Sports Fever IPL Fantasy 2026</a>
@@ -81,21 +59,16 @@
     </ul>
   </div>
 </nav>
-
 <main class="container" style="margin-top:1.25rem;">
-
   <!-- =================== SUBMIT VIEW =================== -->
   <section id="submit" class="view active">
     <div class="row">
-
-      <!-- Left: Team submit -->
       <div class="col l7 s12">
         <div class="card">
           <div class="card-content">
             <span class="card-title">Submit Team
               <span class="new badge blue" id="selCount" data-badge-caption="/11 selected">0</span>
             </span>
-
             <div class="row">
               <div class="input-field col s12 m6">
                 <input id="email" type="email" class="validate" placeholder="you@example.com">
@@ -107,9 +80,24 @@
               </div>
             </div>
 
-            <label>Player Pool (for selected match)</label>
+            <!-- Budget summary -->
+            <div class="budget" id="budgetPanel" style="margin-bottom:.5rem;">
+              <span class="badge-inline" id="badgeToday"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b> changes</span>
+              <span class="badge-inline" id="badgeUsed"><i class="material-icons">timelapse</i> Used: <b id="usedSoFar">0</b></span>
+              <span class="badge-inline" id="badgeRemain"><i class="material-icons">battery_std</i> Remaining: <b id="remaining">100</b></span>
+              <span class="badge-inline" id="badgeBudget"><i class="material-icons">flag</i> Budget: <b id="budget">100</b></span>
+            </div>
 
-            <!-- Two dynamic team columns (headings updated per match) -->
+            <!-- Composition rules -->
+            <div class="composition" id="compositionPanel" style="margin-bottom:.5rem;">
+              <span><b>Role rules</b>:</span>
+              <span class="comp-box" id="ruleWK">WK: —</span>
+              <span class="comp-box" id="ruleBAT">BAT: —</span>
+              <span class="comp-box" id="ruleAR">AR: —</span>
+              <span class="comp-box" id="ruleBOWL">BOWL: —</span>
+            </div>
+
+            <label>Player Pool (for selected match)</label>
             <div class="row team-columns">
               <div class="col s12 m6">
                 <h6 id="teamLeftTitle"><b>Team A</b></h6>
@@ -120,18 +108,14 @@
                 <div id="playersRight" class="team-col"></div>
               </div>
             </div>
-
-            <p class="grey-text">Select exactly 11 players. List is filtered by the match.</p>
+            <p class="grey-text">We preselect your last XI. Change only what you need—change budget and role rules are enforced.</p>
           </div>
-
           <div class="sticky-actions">
             <a id="refreshPlayers" class="btn-flat waves-effect"><i class="material-icons left">refresh</i>Reload</a>
             <a id="submitBtn" class="btn waves-effect waves-light blue disabled"><i class="material-icons left">send</i>Submit Team</a>
           </div>
         </div>
       </div>
-
-      <!-- Right: Leaderboard -->
       <div class="col l5 s12">
         <div class="card">
           <div class="card-content">
@@ -147,7 +131,7 @@
       </div>
     </div>
 
-    <!-- Admin modal (kept from original) -->
+    <!-- Admin modal -->
     <div id="adminModal" class="modal">
       <div class="modal-content">
         <h5>Admin: Update Player Points</h5>
@@ -164,7 +148,7 @@
     </div>
   </section>
 
-  <!-- =================== MY TEAMS VIEW (unchanged) =================== -->
+  <!-- =================== MY TEAMS VIEW =================== -->
   <section id="my-teams" class="view">
     <div class="card">
       <div class="card-content">
@@ -176,7 +160,7 @@
             <span class="helper-text">We’ll remember it on this device.</span>
           </div>
           <div class="input-field col s12 m3">
-            <input id="limit" type="number" min="1" max="100" value="2">
+            <input id="limit" type="number" min="1" max="100" value="5">
             <label class="active" for="limit">How many recent teams?</label>
           </div>
           <div class="input-field col s12 m3">
@@ -185,7 +169,6 @@
         </div>
       </div>
     </div>
-
     <div class="row">
       <div class="col l6 s12">
         <div class="card">
@@ -198,7 +181,6 @@
           </div>
         </div>
       </div>
-
       <div class="col l6 s12">
         <div class="card">
           <div class="card-content">
@@ -220,27 +202,23 @@
         </div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-content">
         <span class="card-title">Recent Submissions</span>
         <table class="highlight responsive-table">
           <thead>
-            <tr><th>#</th><th>Match</th><th>Points</th><th>Entry ID</th><th>View</th></tr>
+            <tr><th>#</th><th>Match</th><th>Points</th><th>Changes</th><th>Entry ID</th><th>View</th></tr>
           </thead>
-          <tbody id="listBody"><tr><td colspan="5">—</td></tr></tbody>
+          <tbody id="listBody"><tr><td colspan="6">—</td></tr></tbody>
         </table>
       </div>
     </div>
   </section>
 </main>
 
-<!-- Materialize JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
 <script>
-  // Use YOUR live Apps Script endpoint here
-  const API = 'https://script.google.com/macros/s/AKfycbz_M2B-WY4aASsTOwryQXSHHFDanFFLc9LsJuHSf1KlWtXDt9tPN-5cryUZAy8OjeUq/exec';
+  const API = 'https://script.google.com/macros/s/AKfycbzEfzWp2MZbTn8eQl_4-3rTcqSoQ9a7_ikDEOX1--E3yLWajnsI_jmduMX07soCu7CB/exec';
 
   function activateView(hash){
     const target = (hash || location.hash || '#submit').replace('#','');
@@ -248,309 +226,203 @@
     const el = document.getElementById(target) || document.getElementById('submit');
     el.classList.add('active');
   }
-  window.addEventListener('hashchange', () => activateView(location.hash));
+  window.addEventListener('hashchange', ()=> activateView(location.hash));
   function notify(msg) { M.toast({html: msg}); }
 
   // SUBMIT VIEW
   const emailEl = document.getElementById('email');
   const submitBtn = document.getElementById('submitBtn');
   const selCount = document.getElementById('selCount');
-  const refreshPlayersBtn = document.getElementById('refreshPlayers');
   const lbTable = document.getElementById('lbTable');
   const refreshLbBtn = document.getElementById('refreshLb');
   const matchSelectEl = document.getElementById('matchSelect');
-
-  // Admin
-  const adminTokenEl = document.getElementById('adminToken');
-  const adminPointsEl = document.getElementById('adminPoints');
-  const adminPlayerEl = document.getElementById('adminPlayer');
-  const adminSetBtn = document.getElementById('adminSetPoints');
-  const adminMatchEl = document.getElementById('adminMatch');
-
-  // NEW: two team containers + headings
-  const playersLeftBox  = document.getElementById('playersLeft');
+  const playersLeftBox = document.getElementById('playersLeft');
   const playersRightBox = document.getElementById('playersRight');
-  const teamLeftTitleEl  = document.getElementById('teamLeftTitle');
+  const teamLeftTitleEl = document.getElementById('teamLeftTitle');
   const teamRightTitleEl = document.getElementById('teamRightTitle');
 
-  // Cache for player images (also used in Compare view)
-  const playerImgMap = {};
+  const badgeToday = document.getElementById('todayChanges');
+  const badgeUsed = document.getElementById('usedSoFar');
+  const badgeRemain = document.getElementById('remaining');
+  const badgeBudget = document.getElementById('budget');
 
-  function selectedPlayers() {
-    return Array.from(
-      document.querySelectorAll('#playersLeft input[type=checkbox]:checked, #playersRight input[type=checkbox]:checked')
-    ).map(x => x.value);
+  const ruleWK = document.getElementById('ruleWK');
+  const ruleBAT = document.getElementById('ruleBAT');
+  const ruleAR = document.getElementById('ruleAR');
+  const ruleBOWL = document.getElementById('ruleBOWL');
+
+  let constraints = { WK:{min:1,max:2}, BAT:{min:3,max:6}, AR:{min:1,max:4}, BOWL:{min:3,max:6} };
+  const playerImgMap = {}; const playerRoleMap = {};
+  let lastTeamPlayers = []; let userBudget = 100, userUsed = 0, userRemaining = 100;
+
+  function formatRole(r){ if(!r) return '—'; r = String(r).trim().toUpperCase(); if(r==='WICKETKEEPER') return 'WK'; if(r==='BATSMAN' || r==='BATTER') return 'BAT'; if(r.startsWith('ALL')) return 'AR'; if(r==='BOWLER') return 'BOWL'; return r; }
+
+  function selectedPlayers(){
+    return Array.from(document.querySelectorAll('#playersLeft input[type=checkbox]:checked, #playersRight input[type=checkbox]:checked')).map(x => x.value);
   }
-  function updateSelectionUI() {
-    const n = selectedPlayers().length;
+
+  function countChanges(prevArr, currArr){ const size=11; const s=new Set(prevArr||[]); let overlap=0; (currArr||[]).forEach(p=>{ if(s.has(p)) overlap++; }); return size-overlap; }
+
+  function countRoles(list){ const c={WK:0,BAT:0,AR:0,BOWL:0,UNKNOWN:0}; (list||[]).forEach(p=>{ const r = formatRole(playerRoleMap[p]||''); if(c[r]===undefined) c.UNKNOWN++; else c[r]++; }); return c; }
+
+  function updateRuleBadges(counts){
+    const setBox=(el, label, val, min, max)=>{
+      el.textContent = `${label}: ${val} (min ${min}, max ${max})`;
+      el.classList.remove('comp-ok','comp-warn','comp-bad');
+      if(val<min || val>max) el.classList.add('comp-bad');
+      else if(val===min || val===max) el.classList.add('comp-warn');
+      else el.classList.add('comp-ok');
+    };
+    setBox(ruleWK, 'WK', counts.WK, constraints.WK.min, constraints.WK.max);
+    setBox(ruleBAT, 'BAT', counts.BAT, constraints.BAT.min, constraints.BAT.max);
+    setBox(ruleAR, 'AR', counts.AR, constraints.AR.min, constraints.AR.max);
+    setBox(ruleBOWL, 'BOWL', counts.BOWL, constraints.BOWL.min, constraints.BOWL.max);
+  }
+
+  function updateBadges(changesToday){
+    badgeToday.textContent = String(changesToday);
+    badgeUsed.textContent = String(userUsed + changesToday);
+    badgeRemain.textContent = String(Math.max(0, userBudget - (userUsed + changesToday)));
+    badgeBudget.textContent = String(userBudget);
+    const remain = userBudget - (userUsed + changesToday);
+    const container = document.getElementById('budgetPanel');
+    container.querySelectorAll('.badge-inline').forEach(tag=>{
+      tag.classList.remove('badge-ok','badge-warn','badge-alert');
+      if(remain < 0) tag.classList.add('badge-alert');
+      else if(remain <= 10) tag.classList.add('badge-warn');
+      else tag.classList.add('badge-ok');
+    });
+  }
+
+  function updateSelectionUI(){
+    const chosen = selectedPlayers();
+    const n = chosen.length;
     selCount.setAttribute('data-badge-caption','/11 selected');
     selCount.textContent = n;
-    if (!emailEl.value || !matchSelectEl.value || n !== 11) {
+    const changes = countChanges(lastTeamPlayers, chosen);
+    updateBadges(changes);
+    const rc = countRoles(chosen);
+    updateRuleBadges(rc);
+    const roleValid = rc.WK>=constraints.WK.min && rc.WK<=constraints.WK.max && rc.BAT>=constraints.BAT.min && rc.BAT<=constraints.BAT.max && rc.AR>=constraints.AR.min && rc.AR<=constraints.AR.max && rc.BOWL>=constraints.BOWL.min && rc.BOWL<=constraints.BOWL.max;
+    if (!emailEl.value || !matchSelectEl.value || n !== 11 || (userUsed + changes) > userBudget || !roleValid) {
       submitBtn.classList.add('disabled');
     } else {
       submitBtn.classList.remove('disabled');
     }
   }
 
-  // ---- Detect two teams robustly from player list (with match label fallback)
-  function detectTeams(list, matchLabel) {
-    const counts = {};
-    (list || []).forEach(p => {
-      const t = (p && p.team ? String(p.team).trim() : '');
-      if (!t) return;
-      counts[t] = (counts[t] || 0) + 1;
-    });
-
-    let codes = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
-    if (codes.length >= 2) return { left: codes[0], right: codes[1] };
-
-    // If only one code found, try "AAA vs BBB" from label
-    const lbl = matchLabel || '';
-    const m = lbl.match(/([A-Z]{2,3})\s*vs\s*([A-Z]{2,3})/i);
-    if (m) {
-      const t1 = m[1].toUpperCase(), t2 = m[2].toUpperCase();
-      if (codes.length && codes[0].toUpperCase() === t2) return { left: t2, right: t1 };
-      return { left: t1, right: t2 };
-    }
-    return { left: codes[0] || 'Team A', right: codes[1] || 'Team B' };
+  function detectTeams(list, matchLabel){
+    const counts = {}; (list||[]).forEach(p=>{ const t=(p&&p.team? String(p.team).trim(): ''); if(!t) return; counts[t]=(counts[t]||0)+1; });
+    const codes = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+    if(codes.length>=2) return {left:codes[0], right:codes[1]};
+    const lbl = matchLabel||''; const m = lbl.match(/([A-Z]{2,3})\s*vs\s*([A-Z]{2,3})/i);
+    if(m){ return {left:m[1].toUpperCase(), right:m[2].toUpperCase()}; }
+    return {left:codes[0]||'Team A', right:codes[1]||'Team B'};
   }
 
-  // ---- RENDER: card blocks in two team columns
-  function renderPlayers(list, matchLabel) {
-    playersLeftBox.innerHTML = '';
-    playersRightBox.innerHTML = '';
-
-    const teams = detectTeams(list, matchLabel);
-    teamLeftTitleEl.innerHTML  = `<b>Team ${teams.left}</b>`;
-    teamRightTitleEl.innerHTML = `<b>Team ${teams.right}</b>`;
-
-    if (!Array.isArray(list) || list.length === 0) {
-      playersLeftBox.innerHTML = '<span class="grey-text">No players found for this match.</span>';
-      return;
-    }
-
+  function renderPlayers(list, matchLabel){
+    playersLeftBox.innerHTML = ''; playersRightBox.innerHTML = '';
+    const teams = detectTeams(list, matchLabel); teamLeftTitleEl.innerHTML = `<b>Team ${teams.left}</b>`; teamRightTitleEl.innerHTML = `<b>Team ${teams.right}</b>`;
+    if (!Array.isArray(list) || list.length === 0){ playersLeftBox.innerHTML = '<span class="grey-text">No players found for this match.</span>'; return; }
+    playerRoleMap.clear; // just in case
+    list.forEach(p=>{ playerRoleMap[p.name] = p.role || ''; });
     list.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'player-card';
-
+      const card = document.createElement('div'); card.className = 'player-card';
       const imgSrc = p.imageUrl || p.image || p.img || p.PlayerImageURL || p.photo || '';
       if (p && p.name && imgSrc) playerImgMap[p.name] = imgSrc;
-
       const imgEl = document.createElement(imgSrc ? 'img' : 'i');
-      if (imgSrc) {
-        imgEl.className = 'avatar';
-        imgEl.loading = 'lazy'; imgEl.decoding = 'async'; imgEl.referrerPolicy='no-referrer';
-        imgEl.src = imgSrc; imgEl.onerror = function(){ this.remove(); };
-      } else {
-        imgEl.className = 'material-icons grey-text';
-        imgEl.textContent = 'person';
-      }
-
-      const label = document.createElement('label');
-      label.className = 'player-check';
-      label.innerHTML = '<input type="checkbox"/><span></span>';
+      if (imgSrc){ imgEl.className = 'avatar'; imgEl.loading='lazy'; imgEl.decoding='async'; imgEl.referrerPolicy='no-referrer'; imgEl.src = imgSrc; imgEl.onerror = function(){ this.remove(); } }
+      else { imgEl.className = 'material-icons grey-text'; imgEl.textContent = 'person'; }
+      const label = document.createElement('label'); label.className = 'player-check'; label.innerHTML = '<input type="checkbox"/><span></span>';
       label.querySelector('input').value = p.name;
-
-      const info = document.createElement('div');
-      info.className = 'player-info';
-      info.innerHTML = `<span class="player-name">${p.name}</span><span class="player-team">(${p.team || ''})</span>`;
-
-      // assemble
-      card.appendChild(label);
-      card.appendChild(imgEl);
-      card.appendChild(info);
-
-      const teamCode = (p.team || '').toUpperCase();
-      if (teamCode === String(teams.left).toUpperCase()) {
-        playersLeftBox.appendChild(card);
-      } else if (teamCode === String(teams.right).toUpperCase()) {
-        playersRightBox.appendChild(card);
-      } else {
-        // unknown team code -> balance
-        (playersLeftBox.children.length <= playersRightBox.children.length ? playersLeftBox : playersRightBox).appendChild(card);
-      }
+      const info = document.createElement('div'); info.className = 'player-info';
+      const roleShort = formatRole(p.role||'');
+      info.innerHTML = `<span class="player-name">${p.name}<span class="role-chip">${roleShort}</span></span><span class="player-team">(${p.team||''})</span>`;
+      card.appendChild(label); card.appendChild(imgEl); card.appendChild(info);
+      const teamCode = (p.team||'').toUpperCase();
+      if (teamCode === String(teams.left).toUpperCase()) playersLeftBox.appendChild(card);
+      else if (teamCode === String(teams.right).toUpperCase()) playersRightBox.appendChild(card);
+      else (playersLeftBox.children.length <= playersRightBox.children.length ? playersLeftBox : playersRightBox).appendChild(card);
     });
-
-    document.querySelectorAll('#playersLeft input[type=checkbox], #playersRight input[type=checkbox]')
-      .forEach(cb => cb.addEventListener('change', updateSelectionUI));
-
-    updateSelectionUI();
+    document.querySelectorAll('#playersLeft input[type=checkbox], #playersRight input[type=checkbox]').forEach(cb => cb.addEventListener('change', updateSelectionUI));
+    preselectLastTeam(); updateSelectionUI();
   }
 
-  // ---- API: matches
   async function fetchMatches(){
     try{
-      const res = await fetch(`${API}?action=matches`);
-      const txt = await res.text();
+      const res = await fetch(`${API}?action=matches`); const txt = await res.text();
       let j; try { j = JSON.parse(txt); } catch(e){ notify('Response not JSON (matches)'); return; }
       if(!j.ok){ notify(j.error || 'API error (matches)'); return; }
-
       const list = Array.isArray(j.matches) ? j.matches : [];
       const opts = ['<option value="">-- Select Match --</option>'];
       list.forEach(m => { opts.push(`<option value="${m.id}">${m.label || m.match}</option>`); });
       matchSelectEl.innerHTML = opts.join('');
-      if (adminMatchEl) adminMatchEl.innerHTML = opts.join('');
       M.FormSelect.init(matchSelectEl);
-      if (adminMatchEl) M.FormSelect.init(adminMatchEl);
-
-      if(list.length){
-        matchSelectEl.value = String(list[0].id);
-        M.FormSelect.init(matchSelectEl);
-        fetchPlayers();
-      }
+      if(list.length){ matchSelectEl.value = String(list[0].id); M.FormSelect.init(matchSelectEl); fetchPlayers(); }
     }catch(err){ console.error('[matches] fetch failed:', err); notify('Network error while loading matches'); }
   }
 
-  // ---- API: players for selected match
-  async function fetchPlayers() {
-    playersLeftBox.innerHTML  = 'Loading players…';
-    playersRightBox.innerHTML = '';
-
-    selCount.textContent = '0';
-    try {
-      const matchId = matchSelectEl.value;
-      const url = `${API}?action=players&matchId=${encodeURIComponent(matchId)}`;
-      const res = await fetch(url);
-      const txt = await res.text();
-      let j; try { j = JSON.parse(txt);} catch(e){
-        playersLeftBox.innerHTML = '<span class="red-text">Response not JSON (deploy?).</span>';
-        playersRightBox.innerHTML = '';
-        console.error('[players] non-JSON:', res.status, txt);
-        return;
-      }
-      if (!j.ok) {
-        playersLeftBox.innerHTML = `<span class="red-text">${j.error || 'API error'}</span>`;
-        playersRightBox.innerHTML = '';
-        return;
-      }
-
-      const matchLabel = (function(){
-        const opt = matchSelectEl.options[matchSelectEl.selectedIndex];
-        return opt ? opt.text : '';
-      })();
-      renderPlayers(j.players || [], matchLabel);
-    } catch(err){
-      playersLeftBox.innerHTML = '<span class="red-text">Network error</span>';
-      playersRightBox.innerHTML = '';
-      console.error('[players] fetch failed:', err);
-    }
-  }
-
-  // ---- Leaderboard
-  async function loadLeaderboard(){
-    lbTable.innerHTML = '<tr><td colspan="3">Loading…</td></tr>';
+  async function fetchPlayers(){
+    const playersLeft = document.getElementById('playersLeft'); playersLeft.innerHTML = 'Loading players…'; document.getElementById('playersRight').innerHTML=''; selCount.textContent='0';
     try{
-      const res = await fetch(`${API}?action=leaderboard`);
-      const txt = await res.text();
-      let j; try { j = JSON.parse(txt); } catch (e) {
-        lbTable.innerHTML = `<tr><td colspan="3" class="red-text">Response not JSON</td></tr>`;
-        console.error('[leaderboard] non-JSON:', res.status, txt);
-        return;
-      }
-      if (!j.ok){
-        lbTable.innerHTML = `<tr><td colspan="3" class="red-text">${j.error || 'API error'}</td></tr>`;
-        return;
-      }
-      lbTable.innerHTML = (j.leaderboard || []).map((r,i)=>
-        `<tr><td>${i+1}</td><td>${r.name || ''}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`
-      ).join('') || '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>';
-    }catch(e){
-      lbTable.innerHTML = '<tr><td colspan="3" class="red-text">Failed</td></tr>';
-      console.error('[leaderboard] fetch failed:', e);
-    }
+      const matchId = matchSelectEl.value; const url = `${API}?action=players&matchId=${encodeURIComponent(matchId)}`;
+      const res = await fetch(url); const txt = await res.text();
+      let j; try { j = JSON.parse(txt);} catch(e){ playersLeft.innerHTML = '<span class="red-text">Response not JSON.</span>'; document.getElementById('playersRight').innerHTML = ''; return; }
+      if (!j.ok){ playersLeft.innerHTML = `<span class="red-text">${j.error || 'API error'}</span>`; document.getElementById('playersRight').innerHTML = ''; return; }
+      const matchLabel = (function(){ const opt = matchSelectEl.options[matchSelectEl.selectedIndex]; return opt ? opt.text : ''; })();
+      renderPlayers(j.players || [], matchLabel);
+    }catch(err){ playersLeft.innerHTML = '<span class="red-text">Network error</span>'; document.getElementById('playersRight').innerHTML = ''; }
   }
 
-  // ---- Submit Team (GET as in your original)
-  async function submitTeam() {
+  async function fetchUserStats(){
+    const email = (emailEl.value || '').trim().toLowerCase(); if(!email) return;
+    try{
+      const res = await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`);
+      const txt = await res.text(); let j; try{ j = JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; }
+      if(!j.ok){ notify(j.error || 'Stats error'); return; }
+      userBudget = Number(j.budget || 100); userUsed = Number(j.used || 0); userRemaining = Number(j.remaining || Math.max(0, userBudget - userUsed));
+      lastTeamPlayers = Array.isArray(j.lastTeam)? j.lastTeam : [];
+      if (j.constraints) constraints = j.constraints;
+      // Show rule ranges
+      ruleWK.textContent = `WK: — (min ${constraints.WK.min}, max ${constraints.WK.max})`;
+      ruleBAT.textContent = `BAT: — (min ${constraints.BAT.min}, max ${constraints.BAT.max})`;
+      ruleAR.textContent = `AR: — (min ${constraints.AR.min}, max ${constraints.AR.max})`;
+      ruleBOWL.textContent = `BOWL: — (min ${constraints.BOWL.min}, max ${constraints.BOWL.max})`;
+      updateBadges(0);
+    }catch(e){ }
+  }
+
+  function preselectLastTeam(){
+    const map = new Map();
+    document.querySelectorAll('#playersLeft input[type=checkbox], #playersRight input[type=checkbox]').forEach(cb => { map.set(cb.value, cb); });
+    let count = 0; (lastTeamPlayers || []).forEach(p => { if(map.has(p) && count < 11){ map.get(p).checked = true; count++; } });
+  }
+
+  async function submitTeam(){
     const email = (emailEl.value || '').trim();
     const players = selectedPlayers();
-    if (!email || !matchSelectEl.value) { notify('Email & Match required'); return; }
-    if (players.length !== 11) { notify('Pick exactly 11 players'); return; }
+    if (!email || !matchSelectEl.value){ notify('Email & Match required'); return; }
+    if (players.length !== 11){ notify('Pick exactly 11 players'); return; }
     submitBtn.classList.add('disabled');
     try{
-      const qs = new URLSearchParams();
-      qs.set('action','submitteam');
-      qs.set('email', email);
-      qs.set('matchId', matchSelectEl.value);
-      qs.set('players', JSON.stringify(players));
-      const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
-      const raw = await res.text();
-      let j; try { j = JSON.parse(raw); } catch (e) { notify('Response not JSON (see console).'); return; }
-      if (j.ok) { notify('Submitted! Refresh leaderboard.'); document.querySelectorAll('#playersLeft input[type=checkbox], #playersRight input[type=checkbox]').forEach(c=>c.checked=false); updateSelectionUI(); }
-      else { notify(j.error || 'Submission failed'); }
-    } catch (e) {
-      console.error('[submit] fetch failed:', e);
-      notify('Network error while submitting (see console).');
-    } finally {
-      submitBtn.classList.remove('disabled');
-    }
+      const qs = new URLSearchParams(); qs.set('action','submitteam'); qs.set('email', email); qs.set('matchId', matchSelectEl.value); qs.set('players', JSON.stringify(players));
+      const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' }); const raw = await res.text(); let j; try { j = JSON.parse(raw); } catch (e) { notify('Response not JSON.'); return; }
+      if (j.ok){ notify('Submitted!'); await fetchUserStats(); lastTeamPlayers = players.slice(); updateSelectionUI(); }
+      else {
+        if (j.code === 'INSUFFICIENT_CHANGES') notify(`Not enough changes. Need ${j.needed}, remaining ${j.remaining}.`);
+        else if (j.code === 'ROLE_INVALID') {
+          const d = j.details||{}; if (d.issues && d.issues.length) notify('Role rule errors: ' + d.issues.join(', '));
+          else if (d.missing && d.missing.length) notify('Role missing for: ' + d.missing.join(', '));
+          else notify(j.error||'Role constraints failed');
+        } else notify(j.error || 'Submission failed');
+      }
+    }catch(e){ notify('Network error while submitting'); }
+    finally{ submitBtn.classList.remove('disabled'); }
   }
 
-  // ---- Admin set points (unchanged)
-  async function adminSetPoints(){
-    const adminToken = adminTokenEl.value;
-    const matchId = adminMatchEl.value || matchSelectEl.value;
-    const points = Number(adminPointsEl.value);
-    const playerName = adminPlayerEl.value;
-    if (!adminToken || !playerName || !matchId) { notify('Token, player & match required'); return; }
-    try{
-      const qs = new URLSearchParams();
-      qs.set('action','setpoints');
-      qs.set('adminToken', adminToken);
-      qs.set('playerName', playerName);
-      qs.set('matchId', String(matchId));
-      qs.set('points', String(points));
-      const res = await fetch(`${API}?${qs.toString()}`, { method:'GET' });
-      const raw = await res.text();
-      let j; try { j = JSON.parse(raw); } catch (e) { notify('Response not JSON (see console).'); return; }
-      if (j.ok) notify(`Points updated (rows: ${j.updated || 0})`);
-      else notify(j.error || 'Update failed');
-    } catch (e) { console.error('[admin] fetch failed:', e); notify('Network error while updating points'); }
-  }
-
-  // ---- My Teams view (same as your file)
-  const email2El = document.getElementById('email2');
-  const limitEl = document.getElementById('limit');
-  const loadBtn = document.getElementById('loadBtn');
-  const leftMeta = document.getElementById('leftMeta');
-  const rightMeta = document.getElementById('rightMeta');
-  const overlapMeta = document.getElementById('overlapMeta');
-  const leftPlayersBox = document.getElementById('leftPlayers');
-  const rightPlayersBox = document.getElementById('rightPlayers');
-  const compareSelect = document.getElementById('compareSelect');
-  const listBody = document.getElementById('listBody');
-  let latestTeam = null; let allTeams = [];
-
-  function setStoredEmail(v){ try { localStorage.setItem('ml_email', v || ''); } catch(_){} }
-  function makeChip(player, cls){
-    const span = document.createElement('span'); span.className = 'chip-p ' + cls;
-    const imgUrl = playerImgMap[player];
-    if (imgUrl){
-      const img = document.createElement('img');
-      img.className = 'avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src = imgUrl; img.onerror = function(){ this.remove(); };
-      span.appendChild(img);
-    }
-    const text = document.createElement('span'); text.textContent = player; span.appendChild(text);
-    return span;
-  }
-  function renderTeamPlayers(container, players, compareSet, side) {
-    container.innerHTML=''; const ownSet=new Set(players || []);
-    const onlyOwn = [...ownSet].filter(p=>!compareSet.has(p));
-    const common = [...ownSet].filter(p=>compareSet.has(p));
-    common.forEach(p=>container.appendChild(makeChip(p,'chip-common')));
-    if (side==='left') onlyOwn.forEach(p=>container.appendChild(makeChip(p,'chip-left-only')));
-    else onlyOwn.forEach(p=>container.appendChild(makeChip(p,'chip-right-only')));
-  }
-  function overlapCount(a,b){ const s=new Set(a || []); return (b || []).reduce((acc,x)=>acc+(s.has(x)?1:0),0); }
-  function setTeamMeta(el, team){ el.textContent = team ? `Match: ${team.matchLabel || team.match || '-'} • Points: ${team.points} • ID: ${team.entryId}` : '—'; }
-  function buildCompareOptions(teams){ const opts=['<option value="">-- Select --</option>']; teams.slice(1).forEach(t=>opts.push(`<option value="${t.entryId}">${t.matchLabel || '-' } (Pts ${t.points})</option>`)); compareSelect.innerHTML = opts.join(''); M.FormSelect.init(compareSelect); }
-  function renderList(teams){ if(!teams.length){ listBody.innerHTML='<tr><td colspan="5">No submissions yet.</td></tr>'; return;} listBody.innerHTML = teams.map((t,i)=>`<tr><td>${i+1}</td><td>${t.matchLabel || '-'}</td><td>${t.points}</td><td class="grey-text text-darken-1">${t.entryId}</td><td><a class="btn-flat waves-effect" onclick="selectRight('${t.entryId}')"><i class="material-icons left">compare</i>Compare</a></td></tr>`).join(''); }
-  function selectRight(entryId){ const t = allTeams.find(x=>x.entryId===entryId); if(!t) return; const leftSet=new Set(latestTeam?latestTeam.players:[]); setTeamMeta(rightMeta,t); const o=overlapCount(latestTeam?latestTeam.players:[], t.players || []); overlapMeta.textContent=`Common: ${o} / 11`; renderTeamPlayers(rightPlayersBox, t.players || [], leftSet, 'right'); compareSelect.value=entryId; M.FormSelect.init(compareSelect); }
-  async function loadMyTeams(){
-    const email=(email2El.value || '').trim().toLowerCase(); if(!email){ notify('Please enter your email'); return;}
-    setStoredEmail(email); const limit=Number(limitEl.value || 20);
-    const url=`${API}?action=myteams&email=${encodeURIComponent(email)}&limit=${encodeURIComponent(limit)}`;
-    try{ const res=await fetch(url); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON'); return;} if(!j.ok){ notify(j.error || 'API error'); return;} latestTeam=j.latest || null; allTeams=Array.isArray(j.items)?j.items:[]; if(!latestTeam){ leftMeta.textContent='No submissions yet.'; leftPlayersBox.innerHTML=''; rightMeta.textContent='—'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; compareSelect.innerHTML=''; M.FormSelect.init(compareSelect); renderList([]); return; } setTeamMeta(leftMeta, latestTeam); renderTeamPlayers(leftPlayersBox, latestTeam.players || [], new Set(), 'left'); buildCompareOptions(allTeams); if(allTeams.length>1){ selectRight(allTeams[1].entryId); } else { rightMeta.textContent='No previous team to compare.'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; } renderList(allTeams); } catch(err){ console.error('[myteams] load failed:', err); notify('Network error while loading teams'); }
+  async function loadLeaderboard(){
+    const lbTable = document.getElementById('lbTable'); lbTable.innerHTML='<tr><td colspan="3">Loading…</td></tr>';
+    try{ const res=await fetch(`${API}?action=leaderboard`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Response not JSON</td></tr>'; return; } if(!j.ok){ lbTable.innerHTML = `<tr><td colspan="3" class="red-text">${j.error || 'API error'}</td></tr>`; return; } lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>`<tr><td>${i+1}</td><td>${r.name || ''}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`).join('') || '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>'; }catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Failed</td></tr>'; }
   }
 
   document.addEventListener('DOMContentLoaded', function(){
@@ -558,31 +430,38 @@
     const stored = (function(){ try { return localStorage.getItem('ml_email') || ''; } catch(_) { return ''; } })();
     if (stored) { emailEl.value = stored; document.getElementById('email2').value = stored; }
     M.updateTextFields();
-
-    fetchMatches();
-    loadLeaderboard();
-    activateView(location.hash || '#submit');
-
+    fetchMatches(); loadLeaderboard(); activateView(location.hash || '#submit');
     document.addEventListener('input', (e)=>{
-      if (e.target.id==='email'){ try{ localStorage.setItem('ml_email', e.target.value || ''); }catch(_){} updateSelectionUI(); }
-      if (e.target.id==='email2'){ try{ localStorage.setItem('ml_email', e.target.value || ''); }catch(_){} }
+      if (e.target.id==='email'){ try{ localStorage.setItem('ml_email', e.target.value || ''); }catch(_){ } fetchUserStats().then(()=>updateSelectionUI()); }
+      if (e.target.id==='email2'){ try{ localStorage.setItem('ml_email', e.target.value || ''); }catch(_){ } }
       if (e.target.id==='matchSelect'){ updateSelectionUI(); }
     });
-
-    matchSelectEl.addEventListener('change', fetchPlayers);
+    matchSelectEl.addEventListener('change', async ()=>{ await fetchPlayers(); await fetchUserStats(); updateSelectionUI(); });
     document.getElementById('submitBtn').addEventListener('click', submitTeam);
     document.getElementById('refreshPlayers').addEventListener('click', fetchPlayers);
     document.getElementById('refreshLb').addEventListener('click', loadLeaderboard);
-    document.getElementById('adminSetPoints').addEventListener('click', adminSetPoints);
     document.getElementById('loadBtn').addEventListener('click', loadMyTeams);
   });
 
-  // expose for compare table links
-  window.selectRight = selectRight;
+  // My Teams (kept same as previous revision)
+  const email2El = document.getElementById('email2');
+  const limitEl = document.getElementById('limit');
+  const leftMeta = document.getElementById('leftMeta');
+  const rightMeta = document.getElementById('rightMeta');
+  const overlapMeta = document.getElementById('overlapMeta');
+  const leftPlayersBox = document.getElementById('leftPlayers');
+  const rightPlayersBox = document.getElementById('rightPlayers');
+  const compareSelect = document.getElementById('compareSelect');
+  const listBody = document.getElementById('listBody');
+  const playerImgMap2 = playerImgMap;
+  function setStoredEmail(v){ try { localStorage.setItem('ml_email', v || ''); } catch(_){} }
+  function makeChip(player, cls){ const span = document.createElement('span'); span.className = 'chip-p ' + cls; const imgUrl = playerImgMap2[player]; if (imgUrl){ const img = document.createElement('img'); img.className = 'avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src = imgUrl; img.onerror = function(){ this.remove(); }; span.appendChild(img); } const text = document.createElement('span'); text.textContent = player; span.appendChild(text); return span; }
+  function renderTeamPlayers(container, players, compareSet, side){ container.innerHTML=''; const ownSet=new Set(players||[]); const onlyOwn = [...ownSet].filter(p=>!compareSet.has(p)); const common = [...ownSet].filter(p=>compareSet.has(p)); common.forEach(p=>container.appendChild(makeChip(p,'chip-common'))); if (side==='left') onlyOwn.forEach(p=>container.appendChild(makeChip(p,'chip-left-only'))); else onlyOwn.forEach(p=>container.appendChild(makeChip(p,'chip-right-only'))); }
+  function overlapCount(a,b){ const s=new Set(a||[]); return (b||[]).reduce((acc,x)=>acc+(s.has(x)?1:0),0); }
+  function setTeamMeta(el, team){ el.textContent = team ? `Match: ${team.matchLabel || '-'} • Points: ${team.points} • Changes: ${team.changesUsed ?? '-'} • ID: ${team.entryId}` : '—'; }
+  function buildCompareOptions(teams){ const opts=['<option value="">-- Select --</option>']; teams.slice(1).forEach(t=>opts.push(`<option value="${t.entryId}">${t.matchLabel || '-'} (Pts ${t.points}, Chg ${t.changesUsed ?? '-'})</option>`)); compareSelect.innerHTML = opts.join(''); M.FormSelect.init(compareSelect); }
+  async function loadMyTeams(){ const email=(email2El.value || '').trim().toLowerCase(); if(!email){ notify('Please enter your email'); return; } setStoredEmail(email); const limit=Number(limitEl.value || 20); const url=`${API}?action=myteams&email=${encodeURIComponent(email)}&limit=${encodeURIComponent(limit)}`; try{ const res=await fetch(url); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON'); return;} if(!j.ok){ notify(j.error || 'API error'); return;} const latest=j.latest || null; const all=Array.isArray(j.items)?j.items:[]; if(!latest){ leftMeta.textContent='No submissions yet.'; leftPlayersBox.innerHTML=''; rightMeta.textContent='—'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; compareSelect.innerHTML=''; M.FormSelect.init(compareSelect); listBody.innerHTML='<tr><td colspan="6">No submissions yet.</td></tr>'; return; } function renderList(teams){ listBody.innerHTML = teams.map((t,i)=>`<tr><td>${i+1}</td><td>${t.matchLabel || '-'}</td><td>${t.points}</td><td>${t.changesUsed ?? '-'}</td><td class="grey-text text-darken-1">${t.entryId}</td><td><a class="btn-flat waves-effect" onclick="selectRight('${t.entryId}')"><i class="material-icons left">compare</i>Compare</a></td></tr>`).join(''); } setTeamMeta(leftMeta, latest); renderTeamPlayers(leftPlayersBox, latest.players||[], new Set(), 'left'); const teams = all; function selectRight(entryId){ const t = teams.find(x=>x.entryId===entryId); if(!t) return; const leftSet=new Set(latest?latest.players:[]); setTeamMeta(rightMeta,t); const o=overlapCount(latest?latest.players:[], t.players||[]); overlapMeta.textContent=`Common: ${o} / 11`; renderTeamPlayers(rightPlayersBox, t.players||[], leftSet, 'right'); compareSelect.value=entryId; M.FormSelect.init(compareSelect);} window.selectRight = selectRight; const opts=['<option value="">-- Select --</option>']; teams.slice(1).forEach(t=>opts.push(`<option value="${t.entryId}">${t.matchLabel || '-'} (Pts ${t.points}, Chg ${t.changesUsed ?? '-'})</option>`)); compareSelect.innerHTML = opts.join(''); M.FormSelect.init(compareSelect); if(teams.length>1){ selectRight(teams[1].entryId); } else { rightMeta.textContent='No previous team to compare.'; rightPlayersBox.innerHTML=''; overlapMeta.textContent='—'; } renderList(teams); } catch(err){ notify('Network error while loading teams'); } }
+  document.getElementById('loadBtn').addEventListener('click', loadMyTeams);
 </script>
-
 </body>
 </html>
-
-
-
