@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.3</title>
+  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.4</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -14,17 +14,18 @@
     .tabs .tab a.active { color:#0d47a1; }
     .tabs .indicator { background-color:#1976d2; }
 
-    .player-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:12px; }
-    .player-card { background:#fff; border-radius:12px; padding:12px; display:flex; align-items:center; gap:14px; border:1px solid #e3e6ea; transition: box-shadow .2s ease, transform .15s ease; }
-    .player-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.09); transform: translateY(-2px); }
-    .avatar { width:64px; height:64px; border-radius:8px; object-fit:cover; border:1px solid #e0e0e0; background:#fafafa; flex:0 0 auto; }
+    /* Single-column player list */
+    .player-list { display:flex; flex-direction:column; gap:10px; }
+    .player-card { background:#fff; border-radius:12px; padding:10px; display:flex; align-items:center; gap:12px; border:1px solid #e3e6ea; }
+    .player-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+    .avatar { width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #e0e0e0; background:#fafafa; flex:0 0 auto; }
     .player-info { flex:1; display:flex; flex-direction:column; }
-    .player-name { font-weight:600; font-size:1rem; }
-    .player-meta { font-size:.85rem; color:#546e7a; display:flex; gap:.5rem; align-items:center; }
-    .role-chip { font-size:.75rem; padding:.15rem .5rem; border-radius:12px; background:#eceff1; color:#263238; margin-left:.5rem; }
-    .team-chip { font-size:.72rem; padding:.12rem .45rem; border-radius:10px; background:#e3f2fd; color:#0d47a1; }
+    .player-name { font-weight:600; font-size:.98rem; }
+    .player-meta { font-size:.83rem; color:#546e7a; display:flex; gap:.5rem; align-items:center; }
+    .role-chip { font-size:.72rem; padding:.1rem .45rem; border-radius:12px; background:#eceff1; color:#263238; margin-left:.4rem; }
+    .team-chip { font-size:.7rem; padding:.08rem .4rem; border-radius:10px; background:#e3f2fd; color:#0d47a1; }
+    .player-check { transform:scale(1.25); }
 
-    .player-check { transform:scale(1.35); }
     .sticky-actions { position: sticky; bottom: 0; background:#fff; padding:.75rem; border-top:1px solid #eee; display:flex; flex-wrap:wrap; gap:.75rem; justify-content:space-between; align-items:center; }
 
     .budget { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
@@ -42,6 +43,22 @@
     .cap-line { font-size:.9rem; color:#37474f; margin:.25rem 0 .5rem 0; }
     .cap-bad { color:#b71c1c; font-weight:600; }
     .cap-ok { color:#1b5e20; font-weight:600; }
+
+    /* Preview panel */
+    .preview-card { background:#fff; border-radius:12px; border:1px solid #e3e6ea; }
+    .preview-header { display:flex; align-items:center; justify-content:space-between; }
+    .pill { display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; border-radius:12px; background:#eceff1; font-size:.78rem; color:#37474f; }
+    .preview-list { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.6rem; }
+    .chip-p { display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .55rem; border-radius:16px; background:#f1f3f5; color:#263238; }
+    .chip-p img.avatar { width:22px; height:22px; border-radius:50%; border:1px solid #e0e0e0; }
+    .chip-role-WK { background:#e3f2fd; color:#0d47a1; }
+    .chip-role-BAT { background:#e8f5e9; color:#1b5e20; }
+    .chip-role-AR { background:#f3e5f5; color:#4a148c; }
+    .chip-role-BOWL { background:#fff8e1; color:#e65100; }
+
+    .helper { font-size:.85rem; color:#607d8b; }
+    .error-text { color:#b71c1c; font-weight:600; }
+    .ok-text { color:#1b5e20; font-weight:600; }
   </style>
 </head>
 <body>
@@ -64,55 +81,85 @@
 
     <!-- ======= SUBMIT TAB ======= -->
     <section id="submit" class="col s12">
-      <div class="card">
-        <div class="card-content">
-          <span class="card-title">Submit Team
-            <span class="new badge blue" id="selCount" data-badge-caption="/11 selected">0</span>
-          </span>
-          <div class="row">
-            <div class="input-field col s12 m6">
-              <input id="email" type="email" class="validate" placeholder="you@example.com">
-              <label class="active" for="email">Your Email</label>
+      <div class="row">
+        <!-- LEFT: Controls + Player single-column list -->
+        <div class="col s12 l5">
+          <div class="card">
+            <div class="card-content">
+              <span class="card-title">Submit Team
+                <span class="new badge blue" id="selCount" data-badge-caption="/11 selected">0</span>
+              </span>
+              <div class="row">
+                <div class="input-field col s12 m6">
+                  <input id="email" type="email" class="validate" placeholder="you@example.com">
+                  <label class="active" for="email">Your Email</label>
+                </div>
+                <div class="input-field col s12 m6">
+                  <select id="matchSelect"></select>
+                  <label>Submit for Match</label>
+                </div>
+              </div>
+
+              <div class="budget" id="budgetPanel" style="margin-bottom:.25rem;">
+                <span class="badge-inline" id="badgeToday"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b> changes</span>
+                <span class="badge-inline" id="badgeUsed"><i class="material-icons">timelapse</i> Used: <b id="usedSoFar">0</b></span>
+                <span class="badge-inline" id="badgeRemain"><i class="material-icons">battery_std</i> Remaining: <b id="remaining">100</b></span>
+                <span class="badge-inline" id="badgeBudget"><i class="material-icons">flag</i> Budget: <b id="budget">100</b></span>
+              </div>
+              <div id="capLine" class="cap-line">Team cap: max — per team.</div>
+
+              <div class="filters">
+                <span class="filter-chip"><i class="material-icons">groups</i>
+                  <select id="teamFilter"><option value="ALL" selected>All teams</option></select>
+                </span>
+                <span class="filter-chip"><i class="material-icons">person</i>
+                  <select id="roleFilter">
+                    <option value="ALL" selected>All roles</option>
+                    <option value="WK">WK</option>
+                    <option value="BAT">BAT</option>
+                    <option value="AR">AR</option>
+                    <option value="BOWL">BOWL</option>
+                  </select>
+                </span>
+                <div class="input-field search-box" style="margin:0;">
+                  <i class="material-icons prefix">search</i>
+                  <input id="searchInput" type="text" placeholder="Search player..." />
+                </div>
+              </div>
+
+              <div id="playersList" class="player-list"></div>
+              <p class="helper">Tip: Use filters/search to narrow; select exactly 11 players.</p>
             </div>
-            <div class="input-field col s12 m6">
-              <select id="matchSelect"></select>
-              <label>Submit for Match</label>
+            <div class="sticky-actions">
+              <a id="refreshPlayers" class="btn-flat waves-effect"><i class="material-icons left">refresh</i>Reload</a>
+              <a id="submitBtn" class="btn waves-effect waves-light blue disabled"><i class="material-icons left">send</i>Submit Team</a>
             </div>
           </div>
-
-          <div class="budget" id="budgetPanel" style="margin-bottom:.25rem;">
-            <span class="badge-inline" id="badgeToday"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b> changes</span>
-            <span class="badge-inline" id="badgeUsed"><i class="material-icons">timelapse</i> Used: <b id="usedSoFar">0</b></span>
-            <span class="badge-inline" id="badgeRemain"><i class="material-icons">battery_std</i> Remaining: <b id="remaining">100</b></span>
-            <span class="badge-inline" id="badgeBudget"><i class="material-icons">flag</i> Budget: <b id="budget">100</b></span>
-          </div>
-          <div id="capLine" class="cap-line">Team cap: max — per team.</div>
-
-          <div class="filters">
-            <span class="filter-chip"><i class="material-icons">groups</i>
-              <select id="teamFilter"><option value="ALL" selected>All teams</option></select>
-            </span>
-            <span class="filter-chip"><i class="material-icons">person</i>
-              <select id="roleFilter">
-                <option value="ALL" selected>All roles</option>
-                <option value="WK">WK</option>
-                <option value="BAT">BAT</option>
-                <option value="AR">AR</option>
-                <option value="BOWL">BOWL</option>
-              </select>
-            </span>
-            <div class="input-field search-box" style="margin:0;">
-              <i class="material-icons prefix">search</i>
-              <input id="searchInput" type="text" placeholder="Search player..." />
-            </div>
-          </div>
-
-          <div id="playersGrid" class="player-grid"></div>
-          <p class="grey-text" style="margin-top:.5rem;">Select exactly 11 players from the full tournament pool. Submission records against the selected match.</p>
         </div>
-        <div class="sticky-actions">
-          <a id="refreshPlayers" class="btn-flat waves-effect"><i class="material-icons left">refresh</i>Reload</a>
-          <a id="submitBtn" class="btn waves-effect waves-light blue disabled"><i class="material-icons left">send</i>Submit Team</a>
+
+        <!-- RIGHT: Preview panel (rest of the screen) -->
+        <div class="col s12 l7">
+          <div class="card preview-card">
+            <div class="card-content">
+              <div class="preview-header">
+                <span class="card-title">My XI Preview</span>
+                <a id="clearAll" class="btn-flat"><i class="material-icons left">backspace</i>Clear All</a>
+              </div>
+
+              <!-- live counts row -->
+              <div style="display:flex; flex-wrap:wrap; gap:.5rem; margin:.25rem 0 .5rem 0;">
+                <span class="pill" id="pillWK">WK: 0</span>
+                <span class="pill" id="pillBAT">BAT: 0</span>
+                <span class="pill" id="pillAR">AR: 0</span>
+                <span class="pill" id="pillBOWL">BOWL: 0</span>
+                <span class="pill" id="pillTeams">Teams: —</span>
+              </div>
+
+              <div id="previewList" class="preview-list">No players selected yet.</div>
+
+              <div id="validationMsg" class="helper" style="margin-top:.6rem;"></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -141,37 +188,163 @@
     function notify(msg){ M.toast({html: msg}); }
     function formatRole(r){ if(!r) return ''; r=String(r).trim().toUpperCase(); if(r==='WICKETKEEPER') return 'WK'; if(r==='BATSMAN'||r==='BATTER') return 'BAT'; if(r==='ALL-ROUNDER'||r==='ALLROUNDER'||r==='ALL_ROUNDER') return 'AR'; if(r==='BOWLER') return 'BOWL'; return r; }
 
+    // Elements
     const emailEl=document.getElementById('email');
     const matchSelectEl=document.getElementById('matchSelect');
     const selCount=document.getElementById('selCount');
-    const playersGrid=document.getElementById('playersGrid');
+    const playersList=document.getElementById('playersList');
     const teamFilter=document.getElementById('teamFilter');
     const roleFilter=document.getElementById('roleFilter');
     const searchInput=document.getElementById('searchInput');
     const submitBtn=document.getElementById('submitBtn');
     const capLine=document.getElementById('capLine');
+
+    const pillWK=document.getElementById('pillWK');
+    const pillBAT=document.getElementById('pillBAT');
+    const pillAR=document.getElementById('pillAR');
+    const pillBOWL=document.getElementById('pillBOWL');
+    const pillTeams=document.getElementById('pillTeams');
+
+    const previewList=document.getElementById('previewList');
+    const clearAllBtn=document.getElementById('clearAll');
+
     const lbTable=document.getElementById('lbTable');
     const refreshLbBtn=document.getElementById('refreshLb');
 
+    // State
     let allPlayers=[]; let lastTeamPlayers=[]; let userBudget=100, userUsed=0, maxFromTeam=7;
 
-    function selected(){ return Array.from(document.querySelectorAll('#playersGrid input[type=checkbox]:checked')).map(x=>x.value); }
+    // Helpers
+    function selected(){ return Array.from(document.querySelectorAll('#playersList input[type=checkbox]:checked')).map(x=>x.value); }
     function countChanges(prev, curr){ const s=new Set(prev||[]); let overlap=0; (curr||[]).forEach(p=>{ if(s.has(p)) overlap++; }); return 11-overlap; }
-    function teamCounts(list){ const c={}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name); const t=String((p&&p.team)||''); if(t) c[t]=(c[t]||0)+1; }); return c; }
-    function capStatus(list){ const c=teamCounts(list); const over = Object.keys(c).filter(t=>c[t]>maxFromTeam); return {counts:c, overTeams:over}; }
-    function updateBadges(chg){ const remain=Math.max(0, userBudget-(userUsed+chg)); document.getElementById('todayChanges').textContent=String(chg); document.getElementById('usedSoFar').textContent=String(userUsed+chg); document.getElementById('remaining').textContent=String(remain); document.getElementById('budget').textContent=String(userBudget); const panel=document.getElementById('budgetPanel'); panel.querySelectorAll('.badge-inline').forEach(b=>{ b.classList.remove('badge-ok','badge-warn','badge-alert'); if(remain<0) b.classList.add('badge-alert'); else if(remain<=10) b.classList.add('badge-warn'); else b.classList.add('badge-ok');}); }
-    function updateCapLine(){ capLine.textContent = `Team cap: max ${maxFromTeam} per team.`; }
-    function updateSelectionUI(){ const names=selected(); const n=names.length; selCount.setAttribute('data-badge-caption','/11 selected'); selCount.textContent=n; const ch=countChanges(lastTeamPlayers, names); updateBadges(ch); const cap=capStatus(names); const withinCap = cap.overTeams.length===0; capLine.classList.remove('cap-ok','cap-bad'); capLine.classList.add(withinCap? 'cap-ok':'cap-bad'); if(!emailEl.value||!matchSelectEl.value||n!==11||(userUsed+ch)>userBudget||!withinCap) submitBtn.classList.add('disabled'); else submitBtn.classList.remove('disabled'); }
+    function teamCountsOf(list){ const c={}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name); const t=String((p&&p.team)||''); if(t) c[t]=(c[t]||0)+1; }); return c; }
+    function capStatus(list){ const c=teamCountsOf(list); const over = Object.keys(c).filter(t=>c[t]>maxFromTeam); return {counts:c, overTeams:over}; }
 
-    function buildFilters(list){ const teams=Array.from(new Set(list.map(p=>String(p.team||'').toUpperCase()).filter(Boolean))).sort(); teamFilter.innerHTML='<option value="ALL" selected>All teams</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join(''); M.FormSelect.init(teamFilter); M.FormSelect.init(roleFilter); }
-    function render(){ const t=teamFilter.value||'ALL'; const r=roleFilter.value||'ALL'; const q=(searchInput.value||'').trim().toLowerCase(); const filtered=allPlayers.filter(p=>{ const tOk=(t==='ALL')||String(p.team||'').toUpperCase()===t; const rOk=(r==='ALL')||formatRole(p.role||'')===r; const qOk=!q||String(p.name||'').toLowerCase().includes(q); return tOk&&rOk&&qOk; }); playersGrid.innerHTML=''; filtered.forEach(p=>{ const card=document.createElement('div'); card.className='player-card'; const img=document.createElement(p.imageUrl? 'img':'i'); if(p.imageUrl){ img.className='avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); } } else { img.className='material-icons grey-text'; img.textContent='person'; } const label=document.createElement('label'); label.className='player-check'; label.innerHTML='<input type="checkbox"/><span></span>'; label.querySelector('input').value=p.name; const info=document.createElement('div'); info.className='player-info'; info.innerHTML=`<span class="player-name">${p.name}<span class="role-chip">${formatRole(p.role||'')||'—'}</span></span><span class="player-meta"><span class="team-chip">${p.team||''}</span></span>`; card.appendChild(label); card.appendChild(img); card.appendChild(info); playersGrid.appendChild(card); }); document.querySelectorAll('#playersGrid input[type=checkbox]').forEach(cb=>cb.addEventListener('change', updateSelectionUI)); const map=new Map(); document.querySelectorAll('#playersGrid input[type=checkbox]').forEach(cb=>map.set(cb.value,cb)); let c=0; (lastTeamPlayers||[]).forEach(p=>{ if(map.has(p)&&c<11){ map.get(p).checked=true; c++; }}); updateSelectionUI(); }
+    function updateBadges(chg){
+      const remain=Math.max(0, userBudget-(userUsed+chg));
+      document.getElementById('todayChanges').textContent=String(chg);
+      document.getElementById('usedSoFar').textContent=String(userUsed+chg);
+      document.getElementById('remaining').textContent=String(remain);
+      document.getElementById('budget').textContent=String(userBudget);
+      const panel=document.getElementById('budgetPanel');
+      panel.querySelectorAll('.badge-inline').forEach(b=>{
+        b.classList.remove('badge-ok','badge-warn','badge-alert');
+        if(remain<0) b.classList.add('badge-alert');
+        else if(remain<=10) b.classList.add('badge-warn');
+        else b.classList.add('badge-ok');
+      });
+    }
+
+    function roleCounts(list){ const c={WK:0,BAT:0,AR:0,BOWL:0}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name); const r=formatRole((p&&p.role)||''); if(c[r]!==undefined) c[r]++; }); return c; }
+
+    function renderPreview(){
+      const names=selected();
+      // Update pills
+      const rc=roleCounts(names);
+      pillWK.textContent=`WK: ${rc.WK}`;
+      pillBAT.textContent=`BAT: ${rc.BAT}`;
+      pillAR.textContent=`AR: ${rc.AR}`;
+      pillBOWL.textContent=`BOWL: ${rc.BOWL}`;
+      const tc=teamCountsOf(names);
+      const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—';
+      pillTeams.textContent = `Teams: ${teamsStr}`;
+
+      // Build chips
+      previewList.innerHTML='';
+      if(!names.length){ previewList.textContent='No players selected yet.'; return; }
+      names.forEach(n=>{
+        const p=allPlayers.find(x=>x.name===n) || {name:n, team:'', role:''};
+        const chip=document.createElement('span');
+        const role=formatRole(p.role||'');
+        chip.className='chip-p ' + (role? ('chip-role-'+role): '');
+        const img = document.createElement(p.imageUrl? 'img':'i');
+        if(p.imageUrl){ img.className='avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); } }
+        else { img.className='material-icons grey-text'; img.textContent='person'; img.style.fontSize='18px'; }
+        chip.appendChild(img);
+        const txt=document.createElement('span'); txt.textContent=`${p.name} (${role||'—'})`;
+        chip.appendChild(txt);
+        const rem=document.createElement('a'); rem.href='#'; rem.className='btn-flat'; rem.style.padding='0 .25rem'; rem.innerHTML='<i class="material-icons" style="font-size:18px;">close</i>'; rem.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
+        chip.appendChild(rem);
+        previewList.appendChild(chip);
+      });
+
+      // Validation messaging (client-side hints)
+      const msg=document.getElementById('validationMsg');
+      const changes=countChanges(lastTeamPlayers, names);
+      const cap=capStatus(names);
+      const withinCap = cap.overTeams.length===0;
+      let hints=[];
+      if(userBudget - (userUsed + changes) < 0) hints.push('Not enough changes remaining');
+      if(!withinCap) hints.push('Team cap exceeded: ' + cap.overTeams.join(', '));
+      msg.className = hints.length? 'helper error-text' : 'helper ok-text';
+      msg.textContent = hints.length? hints.join(' • ') : 'Looks good!';
+    }
+
+    function togglePlayer(name, on){
+      const map=new Map();
+      document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb));
+      if(map.has(name)){ map.get(name).checked = !!on; }
+      updateSelectionUI();
+    }
+
+    function updateSelectionUI(){
+      const names=selected();
+      const n=names.length;
+      selCount.setAttribute('data-badge-caption','/11 selected');
+      selCount.textContent=n;
+      const ch=countChanges(lastTeamPlayers, names);
+      updateBadges(ch);
+      // Cap check for disabling
+      const cap=capStatus(names); const withinCap = cap.overTeams.length===0;
+      if(!emailEl.value||!matchSelectEl.value||n!==11||(userUsed+ch)>userBudget||!withinCap) submitBtn.classList.add('disabled'); else submitBtn.classList.remove('disabled');
+      renderPreview();
+    }
+
+    function buildFilters(list){
+      const teams=Array.from(new Set(list.map(p=>String(p.team||'').toUpperCase()).filter(Boolean))).sort();
+      teamFilter.innerHTML='<option value="ALL" selected>All teams</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join('');
+      M.FormSelect.init(teamFilter); M.FormSelect.init(roleFilter);
+    }
+
+    function renderPlayers(){
+      const t=teamFilter.value||'ALL'; const r=roleFilter.value||'ALL'; const q=(searchInput.value||'').trim().toLowerCase();
+      const filtered=allPlayers.filter(p=>{
+        const tOk=(t==='ALL')||String(p.team||'').toUpperCase()===t;
+        const rOk=(r==='ALL')||formatRole(p.role||'')===r;
+        const qOk=!q||String(p.name||'').toLowerCase().includes(q);
+        return tOk&&rOk&&qOk;
+      });
+      playersList.innerHTML='';
+      filtered.forEach(p=>{
+        const card=document.createElement('div'); card.className='player-card';
+        const img=document.createElement(p.imageUrl? 'img':'i');
+        if(p.imageUrl){ img.className='avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); } }
+        else { img.className='material-icons grey-text'; img.textContent='person'; }
+        const label=document.createElement('label'); label.className='player-check'; label.innerHTML='<input type="checkbox"/><span></span>';
+        label.querySelector('input').value=p.name;
+        const info=document.createElement('div'); info.className='player-info';
+        const roleShort = formatRole(p.role||'') || '—';
+        info.innerHTML = `<span class="player-name">${p.name}<span class="role-chip">${roleShort}</span></span>`+
+                         `<span class="player-meta"><span class="team-chip">${p.team||''}</span></span>`;
+        card.appendChild(label); card.appendChild(img); card.appendChild(info);
+        playersList.appendChild(card);
+      });
+      document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.addEventListener('change', updateSelectionUI));
+      // Preselect last XI if available
+      const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value,cb));
+      let c=0; (lastTeamPlayers||[]).forEach(n=>{ if(map.has(n)&&c<11){ map.get(n).checked=true; c++; }});
+      updateSelectionUI();
+    }
 
     async function fetchMatches(){ try{ const res=await fetch(`${API}?action=matches`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON (matches)'); return; } if(!j.ok){ notify(j.error||'API error (matches)'); return; } const list=Array.isArray(j.matches)? j.matches:[]; const opts=['<option value="">-- Select Match --</option>']; list.forEach(m=>opts.push(`<option value="${m.id}">${m.label||m.match}</option>`)); matchSelectEl.innerHTML=opts.join(''); M.FormSelect.init(matchSelectEl); if(list.length){ matchSelectEl.value=String(list[0].id); M.FormSelect.init(matchSelectEl);} }catch(e){ notify('Network error while loading matches'); } }
-    async function fetchAllPlayers(){ playersGrid.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersGrid.innerHTML='<span class="red-text">Response not JSON</span>'; return; } if(!j.ok){ playersGrid.innerHTML=`<span class="red-text">${j.error||'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; buildFilters(allPlayers); render(); }catch(e){ playersGrid.innerHTML='<span class="red-text">Network error</span>'; } }
-    async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify(j.error||'Stats error'); return; } userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); updateBadges(0); updateCapLine(); }catch(e){} }
+
+    async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class="red-text">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class="red-text">${j.error||'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; buildFilters(allPlayers); renderPlayers(); }catch(e){ playersList.innerHTML='<span class="red-text">Network error</span>'; } }
+
+    async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify(j.error||'Stats error'); return; } userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team.`; }catch(e){} }
+
     async function loadLeaderboard(){ lbTable.innerHTML='<tr><td colspan="3">Loading…</td></tr>'; try{ const res=await fetch(`${API}?action=leaderboard`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Response not JSON</td></tr>'; return; } if(!j.ok){ lbTable.innerHTML = `<tr><td colspan="3" class="red-text">${j.error||'API error'}</td></tr>`; return; } lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>`<tr><td>${i+1}</td><td>${r.name||''}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`).join('') || '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>'; }catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Failed</td></tr>'; } }
 
-    async function submitTeam(){ const email=(emailEl.value||'').trim(); const players=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(players.length!==11){ notify('Pick exactly 11 players'); return; } submitBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(players)); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON'); return; } if(j.ok){ notify('Submitted!'); await fetchUserStats(); lastTeamPlayers=players.slice(); updateSelectionUI(); if (document.querySelector('.tabs .tab a.active').getAttribute('href')==='#leaderboard') { loadLeaderboard(); } } else { if(j.code==='INSUFFICIENT_CHANGES') notify(`Not enough changes. Need ${j.needed}, remaining ${j.remaining}.`); else if(j.code==='ROLE_INVALID'){ const d=j.details||{}; if(d.issues&&d.issues.length) notify('Role rule errors: '+d.issues.join(', ')); else if(d.missing&&d.missing.length) notify('Role missing for: '+d.missing.join(', ')); else notify(j.error||'Role constraints failed'); } else if(j.code==='TEAM_CAP'){ const d=j.details||{}; if(d.issues&&d.issues.length) notify('Team cap exceeded: '+d.issues.join(', ')); else notify(j.error||'Team cap violation'); } else notify(j.error||'Submission failed'); } }catch(e){ notify('Network error'); } finally{ submitBtn.classList.remove('disabled'); } }
+    async function submitTeam(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(names.length!==11){ notify('Pick exactly 11 players'); return; } submitBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(names)); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON'); return; } if(j.ok){ notify('Submitted!'); await fetchUserStats(); lastTeamPlayers=names.slice(); updateSelectionUI(); } else { if(j.code==='INSUFFICIENT_CHANGES') notify(`Not enough changes. Need ${j.needed}, remaining ${j.remaining}.`); else if(j.code==='ROLE_INVALID'){ const d=j.details||{}; if(d.issues&&d.issues.length) notify('Role rule errors: '+d.issues.join(', ')); else if(d.missing&&d.missing.length) notify('Role missing for: '+d.missing.join(', ')); else notify(j.error||'Role constraints failed'); } else if(j.code==='TEAM_CAP'){ const d=j.details||{}; if(d.issues&&d.issues.length) notify('Team cap exceeded: '+d.issues.join(', ')); else notify(j.error||'Team cap violation'); } else notify(j.error||'Submission failed'); } }catch(e){ notify('Network error'); } finally{ submitBtn.classList.remove('disabled'); } }
 
     document.addEventListener('DOMContentLoaded', async function(){
       const tabs = document.querySelector('.tabs');
@@ -183,31 +356,23 @@
       await fetchUserStats();
       await loadLeaderboard();
 
-      // Tab change hook to refresh leaderboard when switching to it
-      const inst = M.Tabs.getInstance(tabs);
+      // Tab change hook: refresh leaderboard when switching to it
       tabs.addEventListener('click', (e)=>{
-        const a = e.target.closest('a');
-        if (!a) return;
-        const href = a.getAttribute('href');
-        if (href === '#leaderboard') {
-          loadLeaderboard();
-        }
+        const a = e.target.closest('a'); if(!a) return; if(a.getAttribute('href')==="#leaderboard") loadLeaderboard();
       });
 
       document.addEventListener('input', (e)=>{
-        if(e.target.id==='email'){
-          try{localStorage.setItem('ml_email', e.target.value||'');}catch(_){ }
-          fetchUserStats().then(()=>updateSelectionUI());
-        }
-        if(e.target.id==='searchInput') render();
+        if(e.target.id==='email'){ try{localStorage.setItem('ml_email', e.target.value||'');}catch(_){ } fetchUserStats().then(()=>updateSelectionUI()); }
+        if(e.target.id==='searchInput') renderPlayers();
       });
 
-      teamFilter.addEventListener('change', render);
-      roleFilter.addEventListener('change', render);
+      teamFilter.addEventListener('change', renderPlayers);
+      roleFilter.addEventListener('change', renderPlayers);
       matchSelectEl.addEventListener('change', updateSelectionUI);
       document.getElementById('refreshPlayers').addEventListener('click', fetchAllPlayers);
       document.getElementById('submitBtn').addEventListener('click', submitTeam);
       refreshLbBtn.addEventListener('click', loadLeaderboard);
+      clearAllBtn.addEventListener('click', (e)=>{ e.preventDefault(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked=false); updateSelectionUI(); });
     });
   </script>
 </body>
