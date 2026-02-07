@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.6.6</title>
+  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.6.7 (Vivid Accents)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -16,8 +16,8 @@
 
     /* Left: single-column player list */
     .player-list { display:flex; flex-direction:column; gap:10px; max-height:70vh; overflow:auto; }
-    .player-card { background:#fff; border-radius:12px; padding:10px; display:flex; align-items:center; gap:12px; border:1px solid #e3e6ea; transition: box-shadow .15s ease; }
-    .player-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+    .player-card { background:#fff; border-radius:12px; padding:10px; display:flex; align-items:center; gap:12px; border:1px solid #e3e6ea; transition: box-shadow .15s ease, transform .05s linear; }
+    .player-card:hover { box-shadow:0 6px 16px rgba(0,0,0,0.12); transform: translateY(-1px); }
     .avatar { width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #e0e0e0; background:#fafafa; flex:0 0 auto; }
     .player-info { flex:1; display:flex; flex-direction:column; }
     .player-name { font-weight:600; font-size:.98rem; }
@@ -46,14 +46,27 @@
     .rule-row { display:flex; flex-wrap:wrap; gap:.5rem; margin:.35rem 0 0 0; align-items:center; }
     .rule-title { font-weight:700; color:#37474f; margin-right:.3rem; }
     .rule-chip { display:inline-flex; align-items:center; gap:.35rem; padding:.22rem .55rem; border-radius:16px; border:1px solid #e0e0e0; font-size:.84rem; background:#fafafa; color:#37474f; cursor:help; }
-    .rule-chip.ok { background:#e8f5e9; color:#1b5e20; border-color:#c8e6c9; }
-    .rule-chip.bad { background:#ffebee; color:#b71c1c; border-color:#ffcdd2; }
+    .rule-chip.ok { background:#e8f5e9; color:#1b5e20; border-color:#2e7d32; box-shadow:0 0 0 2px rgba(46,125,50,.15) inset; }
+    .rule-chip.bad { background:#ffebee; color:#b71c1c; border-color:#c62828; box-shadow:0 0 0 2px rgba(198,40,40,.18) inset; }
 
-    /* Role accent helpers */
-    .accent-WK { background:linear-gradient(0deg, rgba(227,242,253,.65), transparent) !important; border-color:#90caf9 !important; }
-    .accent-BAT { background:linear-gradient(0deg, rgba(232,245,233,.65), transparent) !important; border-color:#a5d6a7 !important; }
-    .accent-AR { background:linear-gradient(0deg, rgba(243,229,245,.65), transparent) !important; border-color:#ce93d8 !important; }
-    .accent-BOWL { background:linear-gradient(0deg, rgba(255,248,225,.75), transparent) !important; border-color:#ffe082 !important; }
+    /* VIVID Role accents */
+    /* Stronger hues + inner glow + left stripe using background gradients */
+    .accent-WK   { border-color:#1565c0 !important; background:
+                    linear-gradient(90deg, rgba(21,101,192,.25), rgba(21,101,192,.12)),
+                    linear-gradient(0deg, #ffffff, #ffffff) !important;
+                   box-shadow:0 0 0 2px rgba(21,101,192,.22) inset; }
+    .accent-BAT  { border-color:#2e7d32 !important; background:
+                    linear-gradient(90deg, rgba(46,125,50,.25), rgba(46,125,50,.10)),
+                    linear-gradient(0deg, #ffffff, #ffffff) !important;
+                   box-shadow:0 0 0 2px rgba(46,125,50,.22) inset; }
+    .accent-AR   { border-color:#6a1b9a !important; background:
+                    linear-gradient(90deg, rgba(106,27,154,.25), rgba(106,27,154,.12)),
+                    linear-gradient(0deg, #ffffff, #ffffff) !important;
+                   box-shadow:0 0 0 2px rgba(106,27,154,.20) inset; }
+    .accent-BOWL { border-color:#ef6c00 !important; background:
+                    linear-gradient(90deg, rgba(239,108,0,.28), rgba(239,108,0,.12)),
+                    linear-gradient(0deg, #ffffff, #ffffff) !important;
+                   box-shadow:0 0 0 2px rgba(239,108,0,.22) inset; }
 
     /* Right: square preview cards */
     .preview-card { background:#fff; border-radius:12px; border:1px solid #e3e6ea; }
@@ -112,21 +125,13 @@
 
             <div id="capLine" class="cap-line">Team cap: max — per team.</div>
 
-            <!-- Role rules (dynamic) -->
+            <!-- Role rules (dynamic, tooltips) -->
             <div class="rule-row" id="roleRulesRow" style="display:none;">
               <span class="rule-title">Role rules:</span>
-              <span class="rule-chip tooltipped" id="ruleWK" data-tooltip="">
-                WK: —
-              </span>
-              <span class="rule-chip tooltipped" id="ruleBAT" data-tooltip="">
-                BAT: —
-              </span>
-              <span class="rule-chip tooltipped" id="ruleAR" data-tooltip="">
-                AR: —
-              </span>
-              <span class="rule-chip tooltipped" id="ruleBOWL" data-tooltip="">
-                BOWL: —
-              </span>
+              <span class="rule-chip tooltipped" id="ruleWK"   data-tooltip="">WK: —</span>
+              <span class="rule-chip tooltipped" id="ruleBAT"  data-tooltip="">BAT: —</span>
+              <span class="rule-chip tooltipped" id="ruleAR"   data-tooltip="">AR: —</span>
+              <span class="rule-chip tooltipped" id="ruleBOWL" data-tooltip="">BOWL: —</span>
             </div>
 
             <div class="filters">
@@ -249,10 +254,9 @@
         const n=counts[key]||0;
         el.classList.remove('ok','bad');
         el.textContent = `${label}: ${n} (min ${v.min}, max ${v.max})`;
-        // Tooltip lifecycle: destroy old, set new, init
         const old = M.Tooltip.getInstance(el); if(old) old.destroy();
         el.setAttribute('data-tooltip', tooltipForRole(label, n, v.min, v.max));
-        M.Tooltip.init(el, {position:'top', margin: 6});
+        M.Tooltip.init(el, {position:'top', margin:6});
         if(n<v.min || n>v.max) el.classList.add('bad'); else el.classList.add('ok');
       };
       setChip(ruleWK,'WK','WK'); setChip(ruleBAT,'BAT','BAT'); setChip(ruleAR,'AR','AR'); setChip(ruleBOWL,'BOWL','BOWL');
@@ -309,7 +313,7 @@
 
     async function loadLeaderboard(){ lbTable.innerHTML='<tr><td colspan="3">Loading…</td></tr>'; try{ const res=await fetch(`${API}?action=leaderboard`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Response not JSON</td></tr>'; return; } if(!j.ok){ lbTable.innerHTML = `<tr><td colspan="3" class="red-text">${j.error||'API error'}</td></tr>`; return; } lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>`<tr><td>${i+1}</td><td>${r.name||''}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`).join('') || '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>'; }catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Failed</td></tr>'; } }
 
-    async function submitTeam(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(names.length!==11){ notify('Pick exactly 11 players'); return; } submitBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(names)); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON'); return; } if(j.ok){ notify('Submitted!'); await fetchUserStats(); lastTeamPlayers=names.slice(); updateSelectionUI(); } else { if(j.code==='INSUFFICIENT_CHANGES') notify(`Not enough changes. Need ${j.needed}, remaining ${j.remaining}.`); else if(j.code==='ROLE_INVALID'){ const d=j.details||{}; if(d.issues&&d.issues.length) notify('Role rule errors: '+d.issues.join(', ')); else if(d.missing&&d.missing.length) notify('Role missing for: '+d.missing.join(', ')); else notify(j.error||'Role constraints failed'); } else if(j.code==='TEAM_CAP'){ const d=j.details||{}; if(d.issues&&d.issues.length) notify('Team cap exceeded: '+d.issues.join(', ')); else notify(j.error||'Team cap violation'); } else notify(j.error||'Submission failed'); } }catch(e){ notify('Network error'); } finally{ submitBtn.classList.remove('disabled'); } }
+    async function submitTeam(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(names.length!==11){ notify('Pick exactly 11 players'); return; } submitBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(names)); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON'); return; } if(j.ok){ notify('Submitted!'); await fetchUserStats(); lastTeamPlayers=names.slice(); updateSelectionUI(); } else { if(j.code==='INSUFFICIENT_CHANGES') notify(`Not enough changes. Need ${j.needed}, remaining ${j.remaining}.`); else if(j.code==='ROLE_INVALID'){ const d=j.details||{}; if(d.issues&&d.issues.length) notify('Role rule errors: '+d.issues.join(', ')); else if(d.missing&&d.missing.length) notify('Role missing for: '+d.missing.join(', ')); else notify(j.error||'Role constraints failed'); } else if(j.code==='TEAM_CAP'){ const d=j.details||{}; if(d.issues&&d.issues.length) notify('Team cap exceeded: '+d.issues.join(', ')); else notify(j.error||'Team cap violation'); } else notify('Submission failed'); } }catch(e){ notify('Network error'); } finally{ submitBtn.classList.remove('disabled'); } }
 
     document.addEventListener('DOMContentLoaded', async function(){
       M.AutoInit();
