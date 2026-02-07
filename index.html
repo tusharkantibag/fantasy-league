@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.6.7 (Vivid Accents)</title>
+  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.6.8 (Vivid + Animated Accents)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -42,31 +42,34 @@
 
     .cap-line { font-size:.9rem; color:#37474f; margin:.25rem 0 .5rem 0; }
 
-    /* Role rules (green OK, red BAD only) */
+    /* Role rules (green OK, red BAD only with tooltips) */
     .rule-row { display:flex; flex-wrap:wrap; gap:.5rem; margin:.35rem 0 0 0; align-items:center; }
     .rule-title { font-weight:700; color:#37474f; margin-right:.3rem; }
     .rule-chip { display:inline-flex; align-items:center; gap:.35rem; padding:.22rem .55rem; border-radius:16px; border:1px solid #e0e0e0; font-size:.84rem; background:#fafafa; color:#37474f; cursor:help; }
     .rule-chip.ok { background:#e8f5e9; color:#1b5e20; border-color:#2e7d32; box-shadow:0 0 0 2px rgba(46,125,50,.15) inset; }
     .rule-chip.bad { background:#ffebee; color:#b71c1c; border-color:#c62828; box-shadow:0 0 0 2px rgba(198,40,40,.18) inset; }
 
-    /* VIVID Role accents */
-    /* Stronger hues + inner glow + left stripe using background gradients */
-    .accent-WK   { border-color:#1565c0 !important; background:
+    /* === VIVID + ANIMATED Role accents === */
+    @keyframes accentPulse { from { box-shadow:0 0 0 2px var(--accentGlow, rgba(0,0,0,0.18)) inset; } 50% { box-shadow:0 0 0 4px var(--accentGlow, rgba(0,0,0,0.28)) inset; } to { box-shadow:0 0 0 2px var(--accentGlow, rgba(0,0,0,0.18)) inset; } }
+    @keyframes accentSlide { from { background-position: 0 0, 0 0; } 50% { background-position: 8px 0, 0 0; } to { background-position: 0 0, 0 0; } }
+    @media (prefers-reduced-motion: reduce) { .accent-WK, .accent-BAT, .accent-AR, .accent-BOWL { animation:none !important; } }
+
+    .accent-WK   { --accentGlow: rgba(21,101,192,.22); border-color:#1565c0 !important; background:
                     linear-gradient(90deg, rgba(21,101,192,.25), rgba(21,101,192,.12)),
                     linear-gradient(0deg, #ffffff, #ffffff) !important;
-                   box-shadow:0 0 0 2px rgba(21,101,192,.22) inset; }
-    .accent-BAT  { border-color:#2e7d32 !important; background:
+                   box-shadow:0 0 0 2px var(--accentGlow) inset; animation: accentPulse 3600ms ease-in-out infinite, accentSlide 6800ms ease-in-out infinite; }
+    .accent-BAT  { --accentGlow: rgba(46,125,50,.22); border-color:#2e7d32 !important; background:
                     linear-gradient(90deg, rgba(46,125,50,.25), rgba(46,125,50,.10)),
                     linear-gradient(0deg, #ffffff, #ffffff) !important;
-                   box-shadow:0 0 0 2px rgba(46,125,50,.22) inset; }
-    .accent-AR   { border-color:#6a1b9a !important; background:
+                   box-shadow:0 0 0 2px var(--accentGlow) inset; animation: accentPulse 3600ms ease-in-out infinite, accentSlide 6800ms ease-in-out infinite; }
+    .accent-AR   { --accentGlow: rgba(106,27,154,.20); border-color:#6a1b9a !important; background:
                     linear-gradient(90deg, rgba(106,27,154,.25), rgba(106,27,154,.12)),
                     linear-gradient(0deg, #ffffff, #ffffff) !important;
-                   box-shadow:0 0 0 2px rgba(106,27,154,.20) inset; }
-    .accent-BOWL { border-color:#ef6c00 !important; background:
+                   box-shadow:0 0 0 2px var(--accentGlow) inset; animation: accentPulse 3600ms ease-in-out infinite, accentSlide 6800ms ease-in-out infinite; }
+    .accent-BOWL { --accentGlow: rgba(239,108,0,.22); border-color:#ef6c00 !important; background:
                     linear-gradient(90deg, rgba(239,108,0,.28), rgba(239,108,0,.12)),
                     linear-gradient(0deg, #ffffff, #ffffff) !important;
-                   box-shadow:0 0 0 2px rgba(239,108,0,.22) inset; }
+                   box-shadow:0 0 0 2px var(--accentGlow) inset; animation: accentPulse 3600ms ease-in-out infinite, accentSlide 6800ms ease-in-out infinite; }
 
     /* Right: square preview cards */
     .preview-card { background:#fff; border-radius:12px; border:1px solid #e3e6ea; }
@@ -125,7 +128,7 @@
 
             <div id="capLine" class="cap-line">Team cap: max — per team.</div>
 
-            <!-- Role rules (dynamic, tooltips) -->
+            <!-- Role rules (dynamic tooltips) -->
             <div class="rule-row" id="roleRulesRow" style="display:none;">
               <span class="rule-title">Role rules:</span>
               <span class="rule-chip tooltipped" id="ruleWK"   data-tooltip="">WK: —</span>
@@ -239,67 +242,15 @@
 
     function roleCounts(list){ const c={WK:0,BAT:0,AR:0,BOWL:0}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name); const r=formatRole((p&&p.role)||''); if(c[r]!==undefined) c[r]++; }); return c; }
 
-    function tooltipForRole(label, n, min, max){
-      if(n < min) return `Need ${min-n} more ${label} (minimum ${min})`;
-      if(n > max) return `Too many ${label}: reduce by ${n-max} (maximum ${max})`;
-      return `${label} count is within the allowed range (${min}–${max})`;
-    }
+    function tooltipForRole(label, n, min, max){ if(n < min) return `Need ${min-n} more ${label} (minimum ${min})`; if(n > max) return `Too many ${label}: reduce by ${n-max} (maximum ${max})`; return `${label} count is within the allowed range (${min}–${max})`; }
 
-    function refreshRuleChips(){
-      if(!constraints||!constraints.WK){ ruleRow.style.display='none'; return; }
-      ruleRow.style.display='flex';
-      const counts=roleCounts(selected());
-      const setChip=(el,key,label)=>{
-        const v=constraints[key]||{min:0,max:0};
-        const n=counts[key]||0;
-        el.classList.remove('ok','bad');
-        el.textContent = `${label}: ${n} (min ${v.min}, max ${v.max})`;
-        const old = M.Tooltip.getInstance(el); if(old) old.destroy();
-        el.setAttribute('data-tooltip', tooltipForRole(label, n, v.min, v.max));
-        M.Tooltip.init(el, {position:'top', margin:6});
-        if(n<v.min || n>v.max) el.classList.add('bad'); else el.classList.add('ok');
-      };
-      setChip(ruleWK,'WK','WK'); setChip(ruleBAT,'BAT','BAT'); setChip(ruleAR,'AR','AR'); setChip(ruleBOWL,'BOWL','BOWL');
-    }
+    function refreshRuleChips(){ if(!constraints||!constraints.WK){ ruleRow.style.display='none'; return; } ruleRow.style.display='flex'; const counts=roleCounts(selected()); const setChip=(el,key,label)=>{ const v=constraints[key]||{min:0,max:0}; const n=counts[key]||0; el.classList.remove('ok','bad'); el.textContent = `${label}: ${n} (min ${v.min}, max ${v.max})`; const old = M.Tooltip.getInstance(el); if(old) old.destroy(); el.setAttribute('data-tooltip', tooltipForRole(label, n, v.min, v.max)); M.Tooltip.init(el, {position:'top', margin:6}); if(n<v.min || n>v.max) el.classList.add('bad'); else el.classList.add('ok'); }; setChip(ruleWK,'WK','WK'); setChip(ruleBAT,'BAT','BAT'); setChip(ruleAR,'AR','AR'); setChip(ruleBOWL,'BOWL','BOWL'); }
 
-    function renderPreview(){
-      const names=selected();
-      const rc=roleCounts(names);
-      pillWK.textContent=`WK: ${rc.WK}`; pillBAT.textContent=`BAT: ${rc.BAT}`; pillAR.textContent=`AR: ${rc.AR}`; pillBOWL.textContent=`BOWL: ${rc.BOWL}`;
-      const tc=teamCountsOf(names); const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—'; pillTeams.textContent = `Teams: ${teamsStr}`;
-
-      previewGrid.innerHTML='';
-      if(!names.length){ previewGrid.innerHTML='<span class="helper">No players selected yet.</span>'; refreshRuleChips(); return; }
-
-      names.forEach(n=>{
-        const p=allPlayers.find(x=>x.name===n) || {name:n, team:'', role:'', imageUrl:''};
-        const role=formatRole(p.role||'');
-        const card=document.createElement('div'); card.className='square-card'; if(role) card.classList.add('accent-'+role);
-        const pic=document.createElement('div'); pic.className='pic';
-        if(p.imageUrl){ const img=document.createElement('img'); img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); pic.innerHTML='<i class="material-icons">person</i>'; }; pic.appendChild(img); }
-        else { const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon); }
-        const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name;
-        const tm=document.createElement('div'); tm.className='team'; tm.textContent=p.team||'';
-        const rl=document.createElement('div'); rl.className='role'; rl.textContent=role||'—';
-        const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>'; btn.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
-        card.appendChild(btn); card.appendChild(pic); card.appendChild(nm); card.appendChild(tm); card.appendChild(rl); previewGrid.appendChild(card);
-      });
-
-      const msg=document.getElementById('validationMsg');
-      const changes=countChanges(lastTeamPlayers, names);
-      const cap=capStatus(names); const withinCap = cap.overTeams.length===0; let hints=[];
-      if(userBudget - (userUsed + changes) < 0) hints.push('Not enough changes remaining');
-      if(!withinCap) hints.push('Team cap exceeded: ' + cap.overTeams.join(', '));
-      msg.className = hints.length? 'helper error-text' : 'helper ok-text';
-      msg.textContent = hints.length? hints.join(' • ') : 'Looks good!';
-
-      refreshRuleChips();
-    }
+    function renderPreview(){ const names=selected(); const rc=roleCounts(names); pillWK.textContent=`WK: ${rc.WK}`; pillBAT.textContent=`BAT: ${rc.BAT}`; pillAR.textContent=`AR: ${rc.AR}`; pillBOWL.textContent=`BOWL: ${rc.BOWL}`; const tc=teamCountsOf(names); const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—'; pillTeams.textContent = `Teams: ${teamsStr}`; previewGrid.innerHTML=''; if(!names.length){ previewGrid.innerHTML='<span class="helper">No players selected yet.</span>'; refreshRuleChips(); return; } names.forEach(n=>{ const p=allPlayers.find(x=>x.name===n) || {name:n, team:'', role:'', imageUrl:''}; const role=formatRole(p.role||''); const card=document.createElement('div'); card.className='square-card'; if(role) card.classList.add('accent-'+role); const pic=document.createElement('div'); pic.className='pic'; if(p.imageUrl){ const img=document.createElement('img'); img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); pic.innerHTML='<i class="material-icons">person</i>'; }; pic.appendChild(img); } else { const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon); } const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name; const tm=document.createElement('div'); tm.className='team'; tm.textContent=p.team||''; const rl=document.createElement('div'); rl.className='role'; rl.textContent=role||'—'; const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>'; btn.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); }); card.appendChild(btn); card.appendChild(pic); card.appendChild(nm); card.appendChild(tm); card.appendChild(rl); previewGrid.appendChild(card); }); const msg=document.getElementById('validationMsg'); const changes=countChanges(lastTeamPlayers, names); const cap=capStatus(names); const withinCap = cap.overTeams.length===0; let hints=[]; if(userBudget - (userUsed + changes) < 0) hints.push('Not enough changes remaining'); if(!withinCap) hints.push('Team cap exceeded: ' + cap.overTeams.join(', ')); msg.className = hints.length? 'helper error-text' : 'helper ok-text'; msg.textContent = hints.length? hints.join(' • ') : 'Looks good!'; refreshRuleChips(); }
 
     function togglePlayer(name, on){ const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb)); if(map.has(name)){ map.get(name).checked = !!on; } updateSelectionUI(); }
 
-    function updateSelectionUI(){ const names=selected(); const n=names.length; selCount.setAttribute('data-badge-caption','/11 selected'); selCount.textContent=n; const ch=countChanges(lastTeamPlayers, names); updateBadges(ch); // repaint preview -> chips
-      renderPreview(); const anyBad = document.querySelectorAll('#roleRulesRow .rule-chip.bad').length > 0; const cap=capStatus(names); const withinCap = cap.overTeams.length===0; if(!emailEl.value||!matchSelectEl.value||n!==11||(userUsed+ch)>userBudget||!withinCap||anyBad) submitBtn.classList.add('disabled'); else submitBtn.classList.remove('disabled'); }
+    function updateSelectionUI(){ const names=selected(); const n=names.length; selCount.setAttribute('data-badge-caption','/11 selected'); selCount.textContent=n; const ch=countChanges(lastTeamPlayers, names); updateBadges(ch); renderPreview(); const anyBad = document.querySelectorAll('#roleRulesRow .rule-chip.bad').length > 0; const cap=capStatus(names); const withinCap = cap.overTeams.length===0; if(!emailEl.value||!matchSelectEl.value||n!==11||(userUsed+ch)>userBudget||!withinCap||anyBad) submitBtn.classList.add('disabled'); else submitBtn.classList.remove('disabled'); }
 
     function buildFilters(list){ const teams=Array.from(new Set(list.map(p=>String(p.team||'').toUpperCase()).filter(Boolean))).sort(); teamFilter.innerHTML='<option value="ALL" selected>All teams</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join(''); M.FormSelect.init(teamFilter); M.FormSelect.init(roleFilter); }
 
@@ -315,28 +266,7 @@
 
     async function submitTeam(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(names.length!==11){ notify('Pick exactly 11 players'); return; } submitBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(names)); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON'); return; } if(j.ok){ notify('Submitted!'); await fetchUserStats(); lastTeamPlayers=names.slice(); updateSelectionUI(); } else { if(j.code==='INSUFFICIENT_CHANGES') notify(`Not enough changes. Need ${j.needed}, remaining ${j.remaining}.`); else if(j.code==='ROLE_INVALID'){ const d=j.details||{}; if(d.issues&&d.issues.length) notify('Role rule errors: '+d.issues.join(', ')); else if(d.missing&&d.missing.length) notify('Role missing for: '+d.missing.join(', ')); else notify(j.error||'Role constraints failed'); } else if(j.code==='TEAM_CAP'){ const d=j.details||{}; if(d.issues&&d.issues.length) notify('Team cap exceeded: '+d.issues.join(', ')); else notify(j.error||'Team cap violation'); } else notify('Submission failed'); } }catch(e){ notify('Network error'); } finally{ submitBtn.classList.remove('disabled'); } }
 
-    document.addEventListener('DOMContentLoaded', async function(){
-      M.AutoInit();
-      const stored=(()=>{ try{return localStorage.getItem('ml_email')||'';}catch(_){return'';} })(); if(stored){ emailEl.value=stored; }
-      M.updateTextFields();
-      await fetchMatches();
-      await fetchAllPlayers();
-      await fetchUserStats();
-      await loadLeaderboard();
-
-      document.addEventListener('input', (e)=>{
-        if(e.target.id==='email'){ try{localStorage.setItem('ml_email', e.target.value||'');}catch(_){ } fetchUserStats().then(()=>updateSelectionUI()); }
-        if(e.target.id==='searchInput'){ renderPlayers(); }
-      });
-
-      teamFilter.addEventListener('change', renderPlayers);
-      roleFilter.addEventListener('change', renderPlayers);
-      matchSelectEl.addEventListener('change', ()=>{ fetchUserStats(); updateSelectionUI(); });
-      document.getElementById('refreshPlayers').addEventListener('click', fetchAllPlayers);
-      document.getElementById('submitBtn').addEventListener('click', submitTeam);
-      document.getElementById('refreshLb').addEventListener('click', loadLeaderboard);
-      clearAllBtn.addEventListener('click', (e)=>{ e.preventDefault(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked=false); updateSelectionUI(); });
-    });
+    document.addEventListener('DOMContentLoaded', async function(){ M.AutoInit(); const stored=(()=>{ try{return localStorage.getItem('ml_email')||'';}catch(_){return'';} })(); if(stored){ emailEl.value=stored; } M.updateTextFields(); await fetchMatches(); await fetchAllPlayers(); await fetchUserStats(); await loadLeaderboard(); document.addEventListener('input', (e)=>{ if(e.target.id==='email'){ try{localStorage.setItem('ml_email', e.target.value||'');}catch(_){ } fetchUserStats().then(()=>updateSelectionUI()); } if(e.target.id==='searchInput'){ renderPlayers(); } }); teamFilter.addEventListener('change', renderPlayers); roleFilter.addEventListener('change', renderPlayers); matchSelectEl.addEventListener('change', ()=>{ fetchUserStats(); updateSelectionUI(); }); document.getElementById('refreshPlayers').addEventListener('click', fetchAllPlayers); document.getElementById('submitBtn').addEventListener('click', submitTeam); document.getElementById('refreshLb').addEventListener('click', loadLeaderboard); clearAllBtn.addEventListener('click', (e)=>{ e.preventDefault(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked=false); updateSelectionUI(); }); });
   </script>
 </body>
 </html>
