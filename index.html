@@ -65,6 +65,19 @@
   
 /* compact role tag used in modal lists */
 .collection .collection-item .role-tag { font-size:.75rem; margin-left:.4rem; background:#eceff1; padding:.02rem .4rem; border-radius:10px; }
+/* Accent colors for IN/OUT items */
+.modal .collection .collection-item.out { border-left:4px solid #c62828; background:#ffebee; }
+.modal .collection .collection-item.in { border-left:4px solid #2e7d32; background:#e8f5e9; }
+
+
+/* Strong header pill colors for Players OUT/IN */
+.pill-out { background:#ffebee !important; color:#b71c1c !important; border:1px solid #ffcdd2; }
+.pill-in  { background:#e8f5e9 !important; color:#1b5e20 !important; border:1px solid #c8e6c9; }
+.pill-out .material-icons { color:#b71c1c !important; }
+.pill-in  .material-icons { color:#1b5e20 !important; }
+/* Slight hover elevation for list items */
+.modal .collection .collection-item.out:hover { filter:brightness(0.98); }
+.modal .collection .collection-item.in:hover  { filter:brightness(0.98); }
 
 </style>
 </head>
@@ -188,13 +201,13 @@
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
         <div>
-          <div class="pill" style="background:#ffebee;color:#b71c1c;display:inline-flex;gap:.4rem;align-items:center;">
+          <div class="pill pill-out" style="display:inline-flex;gap:.4rem;align-items:center;">
             <i class="material-icons">remove</i> Players OUT
           </div>
           <ul id="listDrops" class="collection" style="margin-top:.5rem;"></ul>
         </div>
         <div>
-          <div class="pill" style="background:#e8f5e9;color:#1b5e20;display:inline-flex;gap:.4rem;align-items:center;">
+          <div class="pill pill-in" style="display:inline-flex;gap:.4rem;align-items:center;">
             <i class="material-icons">add</i> Players IN
           </div>
           <ul id="listAdds" class="collection" style="margin-top:.5rem;"></ul>
@@ -308,7 +321,7 @@ function getPlayerInfoByName(name) {
   };
 }
 
-function renderList(listEl, names) {
+function renderList(listEl, names, kind) {
   listEl.innerHTML = '';
   if (!names.length) {
     listEl.innerHTML = '<li class="collection-item grey-text">None</li>';
@@ -317,17 +330,13 @@ function renderList(listEl, names) {
   names.forEach(n => {
     const p = getPlayerInfoByName(n);
     const li = document.createElement('li');
-    li.className = 'collection-item';
+    li.className = 'collection-item ' + (kind === 'out' ? 'out' : (kind === 'in' ? 'in' : ''));
     li.innerHTML = `<span><b>${p.name}</b> <span class="role-tag">${p.role || '—'}</span></span>
                     <div class="secondary-content grey-text">${p.team || ''}</div>`;
     listEl.appendChild(li);
   });
 }
 
-/**
- * Opens the preview modal.
- * mode: 'transfers' (default) or 'firstxi'
- */
 function openConfirmModal(mode = 'transfers') {
   const names = selected();
   const titleEl = document.getElementById('confirmTitle');
@@ -339,17 +348,16 @@ function openConfirmModal(mode = 'transfers') {
   const confirmBtn = document.getElementById('confirmSubmitBtn');
   const confirmLabel = document.getElementById('confirmSubmitLabel');
 
-  // Compute adds/drops & cost
   let adds = [], drops = [], cost = 0, remaining = 0;
   if (mode === 'firstxi') {
     adds = names.slice();
     drops = [];
-    cost = 0; // first XI initialization does not spend transfers
+    cost = 0;
     remaining = Math.max(0, userBudget - userUsed);
     titleEl.textContent = 'Confirm First XI';
     confirmLabel.textContent = 'Confirm & Save XI';
   } else {
-    const diff = computeTransfers(); // uses lastTeamPlayers vs selected()
+    const diff = computeTransfers();
     adds = diff.adds; drops = diff.drops;
     cost = adds.length;
     remaining = Math.max(0, userBudget - (userUsed + cost));
@@ -357,11 +365,9 @@ function openConfirmModal(mode = 'transfers') {
     confirmLabel.textContent = `Confirm & Submit (${cost} transfer${cost === 1 ? '' : 's'})`;
   }
 
-  // Populate lists
-  renderList(listAdds, adds);
-  renderList(listDrops, drops);
+  renderList(listAdds, adds, 'in');
+  renderList(listDrops, drops, 'out');
 
-  // Role rule & team-cap checks
   const rc = roleCounts(names);
   const cap = capStatus(names);
   const anyCapBad = cap.overTeams.length > 0;
@@ -381,7 +387,6 @@ function openConfirmModal(mode = 'transfers') {
   warnCap.style.display = anyCapBad ? 'block' : 'none';
   warnCap.textContent = anyCapBad ? ('Team cap exceeded: ' + cap.overTeams.join(', ')) : '';
 
-  // Summary line (budget + quick counts)
   const teamCountStr = Object.keys(cap.counts).sort().map(t => `${t} ${cap.counts[t]}`).join(' • ') || '—';
   summaryEl.innerHTML = `
     <div class="badge-inline" style="display:flex;gap:.75rem;flex-wrap:wrap;">
@@ -394,11 +399,9 @@ function openConfirmModal(mode = 'transfers') {
     </div>
   `;
 
-  // Disable confirm if invalid
   const invalid = (names.length !== 11) || rr.length || anyCapBad || ((mode !== 'firstxi') && ((userUsed + cost) > userBudget));
   if (invalid) confirmBtn.classList.add('disabled'); else confirmBtn.classList.remove('disabled');
 
-  // Attach one-shot submit action
   confirmBtn.onclick = () => {
     if (confirmBtn.classList.contains('disabled')) return;
     if (mode === 'firstxi') {
