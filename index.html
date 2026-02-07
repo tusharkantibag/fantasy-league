@@ -65,19 +65,14 @@
   
 /* compact role tag used in modal lists */
 .collection .collection-item .role-tag { font-size:.75rem; margin-left:.4rem; background:#eceff1; padding:.02rem .4rem; border-radius:10px; }
-/* Accent colors for IN/OUT items */
+/* Accent colors for IN/OUT items (darker) */
 .modal .collection .collection-item.out { border-left:5px solid #b71c1c; background:#ffcdd2; }
-.modal .collection .collection-item.in { border-left:4px solid #2e7d32; background:#e8f5e9; }
-
-
-/* Strong header pill colors for Players OUT/IN */
+.modal .collection .collection-item.in  { border-left:5px solid #1b5e20; background:#c8e6c9; }
+/* Strong header pill colors for section headings */
 .pill-out { background:#ef9a9a !important; color:#7f0000 !important; border:1px solid #b71c1c; }
 .pill-in  { background:#a5d6a7 !important; color:#0a3d14 !important; border:1px solid #1b5e20; }
 .pill-out .material-icons { color:#7f0000 !important; }
 .pill-in  .material-icons { color:#0a3d14 !important; }
-/* Slight hover elevation for list items */
-.modal .collection .collection-item.out:hover { filter:brightness(0.98); }
-.modal .collection .collection-item.in:hover  { filter:brightness(0.98); }
 
 </style>
 </head>
@@ -196,9 +191,7 @@
   <div id="confirmModal" class="modal">
     <div class="modal-content">
       <h5 id="confirmTitle">Confirm Transfers</h5>
-
       <div id="confirmSummary" style="margin:.5rem 0 1rem 0;"></div>
-
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
         <div>
           <div class="pill pill-out" style="display:inline-flex;gap:.4rem;align-items:center;">
@@ -213,7 +206,6 @@
           <ul id="listAdds" class="collection" style="margin-top:.5rem;"></ul>
         </div>
       </div>
-
       <div id="ruleWarnings" class="red-text" style="margin-top:12px; display:none;"></div>
       <div id="capWarnings" class="red-text" style="margin-top:4px; display:none;"></div>
     </div>
@@ -306,27 +298,21 @@
 
     function computeTransfers(){ const prev = new Set(lastTeamPlayers||[]); const curr = new Set(selected()); const adds = Array.from(curr).filter(x=>!prev.has(x)); const drops = Array.from(prev).filter(x=>!curr.has(x)); return {adds, drops}; }
 
-    async function submitTransfers(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found; please build your first XI.'); return; } if(names.length!==11){ notify('Your XI must have exactly 11 after transfers'); return; } const {adds, drops}=computeTransfers(); submitBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submittransfers'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('adds', JSON.stringify(adds)); qs.set('drops', JSON.stringify(drops)); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON'); return; } if(j.ok){ notify(`Transfers applied: +${adds.length}/-${drops.length}`); await fetchUserStats(); lastTeamPlayers=names.slice(); updateSelectionUI(); } else { notify(j.error||'Failed to apply transfers'); } }catch(e){ notify('Network error'); } finally{ submitBtn.classList.remove('disabled'); } }
+    async function submitTransfers(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found; please build your first XI.'); return; } if(names.length!==11){ notify('Your XI must have exactly 11 after transfers'); return; } const {adds, drops}=computeTransfers(); submitBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submittransfers'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('adds', JSON.stringify(adds)); qs.set('drops', JSON.stringify(drops)); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; let ok = false; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON'); return; } if(j.ok){ ok = true; notify(`Transfers applied: +${adds.length}/-${drops.length}`); await fetchUserStats(); lastTeamPlayers=names.slice(); updateSelectionUI(); } else { notify(j.error||'Failed to apply transfers'); } }catch(e){ notify('Network error'); } finally{ submitBtn.classList.remove('disabled'); } }
 
-    async function buildFirstXI(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(names.length!==11){ notify('Pick exactly 11 to build your first XI'); return; } buildFirstBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(names)); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON (submitteam)'); return; } if(j.ok){ notify('First XI saved! You can now do transfers.'); await fetchUserStats(); lastTeamPlayers=names.slice(); updateSelectionUI(); } else { notify(j.error||'Failed to build first XI'); } }catch(e){ notify('Network error'); } finally{ buildFirstBtn.classList.remove('disabled'); } }
+    async function buildFirstXI(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(names.length!==11){ notify('Pick exactly 11 to build your first XI'); return; } buildFirstBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(names)); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; let ok = false; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON (submitteam)'); return; } if(j.ok){ ok = true; ok = true; notify('First XI saved! You can now do transfers.'); await fetchUserStats(); lastTeamPlayers=names.slice(); updateSelectionUI(); } else { notify(j.error||'Failed to build first XI'); } }catch(e){ notify('Network error'); } finally{ buildFirstBtn.classList.remove('disabled'); } }
 
     
 // --- Confirm Modal helpers ---
 function getPlayerInfoByName(name) {
   const p = allPlayers.find(x => x.name === name) || { name, team: '', role: '' };
-  return {
-    name: p.name,
-    team: String(p.team || ''),
-    role: formatRole(p.role || '')
-  };
-}
+  return { name: p.name, team: String(p.team || ''), role: formatRole(p.role || '') };
+  return ok;
 
+}}
 function renderList(listEl, names, kind) {
   listEl.innerHTML = '';
-  if (!names.length) {
-    listEl.innerHTML = '<li class="collection-item grey-text">None</li>';
-    return;
-  }
+  if (!names.length) { listEl.innerHTML = '<li class="collection-item grey-text">None</li>'; return; }
   names.forEach(n => {
     const p = getPlayerInfoByName(n);
     const li = document.createElement('li');
@@ -335,8 +321,7 @@ function renderList(listEl, names, kind) {
                     <div class="secondary-content grey-text">${p.team || ''}</div>`;
     listEl.appendChild(li);
   });
-}
-
+}}
 function openConfirmModal(mode = 'transfers') {
   const names = selected();
   const titleEl = document.getElementById('confirmTitle');
@@ -350,42 +335,28 @@ function openConfirmModal(mode = 'transfers') {
 
   let adds = [], drops = [], cost = 0, remaining = 0;
   if (mode === 'firstxi') {
-    adds = names.slice();
-    drops = [];
-    cost = 0;
-    remaining = Math.max(0, userBudget - userUsed);
-    titleEl.textContent = 'Confirm First XI';
-    confirmLabel.textContent = 'Confirm & Save XI';
+    adds = names.slice(); drops = []; cost = 0; remaining = Math.max(0, userBudget - userUsed);
+    titleEl.textContent = 'Confirm First XI'; confirmLabel.textContent = 'Confirm & Save XI';
   } else {
-    const diff = computeTransfers();
-    adds = diff.adds; drops = diff.drops;
-    cost = adds.length;
+    const diff = computeTransfers(); adds = diff.adds; drops = diff.drops; cost = adds.length;
     remaining = Math.max(0, userBudget - (userUsed + cost));
     titleEl.textContent = 'Confirm Transfers';
     confirmLabel.textContent = `Confirm & Submit (${cost} transfer${cost === 1 ? '' : 's'})`;
   }
-
   renderList(listAdds, adds, 'in');
   renderList(listDrops, drops, 'out');
 
   const rc = roleCounts(names);
-  const cap = capStatus(names);
-  const anyCapBad = cap.overTeams.length > 0;
+  const cap = capStatus(names); const anyCapBad = cap.overTeams.length > 0;
   const rr = [];
   if (constraints && constraints.WK) {
-    const check = (key, label) => {
-      const v = constraints[key] || {min:0,max:99};
-      const n = rc[key] || 0;
+    const check = (key, label) => { const v = constraints[key] || {min:0,max:99}; const n = rc[key] || 0;
       if (n < v.min) rr.push(`${label}: need ${v.min - n} more (min ${v.min}).`);
-      if (n > v.max) rr.push(`${label}: reduce by ${n - v.max} (max ${v.max}).`);
-    };
+      if (n > v.max) rr.push(`${label}: reduce by ${n - v.max} (max ${v.max}).`); };
     check('WK','WK'); check('BAT','BAT'); check('AR','AR'); check('BOWL','BOWL');
   }
-
-  warnRoles.style.display = rr.length ? 'block' : 'none';
-  warnRoles.textContent = rr.join(' ');
-  warnCap.style.display = anyCapBad ? 'block' : 'none';
-  warnCap.textContent = anyCapBad ? ('Team cap exceeded: ' + cap.overTeams.join(', ')) : '';
+  warnRoles.style.display = rr.length ? 'block' : 'none'; warnRoles.textContent = rr.join(' ');
+  warnCap.style.display = anyCapBad ? 'block' : 'none'; warnCap.textContent = anyCapBad ? ('Team cap exceeded: ' + cap.overTeams.join(', ')) : '';
 
   const teamCountStr = Object.keys(cap.counts).sort().map(t => `${t} ${cap.counts[t]}`).join(' • ') || '—';
   summaryEl.innerHTML = `
@@ -396,19 +367,18 @@ function openConfirmModal(mode = 'transfers') {
         <i class="material-icons">battery_std</i> Remaining: <b>${userBudget - (userUsed + cost)}</b>
       </span>
       <span class="pill" style="background:#e3f2fd;color:#0d47a1;"><i class="material-icons">groups</i> Teams: ${teamCountStr}</span>
-    </div>
-  `;
+    </div>`;
 
-  const invalid = (names.length !== 11) || rr.length || anyCapBad || ((mode !== 'firstxi') && ((userUsed + cost) > userBudget));
-  if (invalid) confirmBtn.classList.add('disabled'); else confirmBtn.classList.remove('disabled');
-
-  confirmBtn.onclick = () => {
+  confirmBtn.onclick = async () => {
     if (confirmBtn.classList.contains('disabled')) return;
-    if (mode === 'firstxi') {
-      buildFirstXI();
-    } else {
-      submitTransfers();
-    }
+    confirmBtn.classList.add('disabled');
+    const modalEl = document.getElementById('confirmModal');
+    const instance = M.Modal.getInstance(modalEl) || M.Modal.init(modalEl, {dismissible:true});
+    let ok = false;
+    try {
+      if (mode === 'firstxi') { ok = await buildFirstXI(); } else { ok = await submitTransfers(); }
+    } finally { confirmBtn.classList.remove('disabled'); }
+    if (ok) { instance.close(); }
   };
 
   const modalEl = document.getElementById('confirmModal');
