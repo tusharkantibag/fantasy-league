@@ -189,7 +189,6 @@
       </div></div>
     </section>
   
-  <!-- Confirm Transfers / First XI Modal -->
   <div id="confirmModal" class="modal" style="overflow:visible;">
     <div class="modal-content" style="position:relative;">
       <h5 id="confirmTitle">Confirm Transfers</h5>
@@ -303,7 +302,6 @@
     async function buildFirstXI(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(names.length!==11){ notify('Pick exactly 11 to build your first XI'); return; } buildFirstBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(names)); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON (submitteam)'); return; } if(j.ok){ notify('First XI saved! You can now do transfers.'); await fetchUserStats(); lastTeamPlayers=names.slice(); updateSelectionUI(); } else { notify(j.error||'Failed to build first XI'); } }catch(e){ notify('Network error'); } finally{ buildFirstBtn.classList.remove('disabled'); } }
 
     
-// --- Confirm Modal helpers ---
 function getPlayerInfoByName(name){ const p=allPlayers.find(x=>x.name===name)||{name,team:'',role:''}; return {name:p.name,team:String(p.team||''),role:formatRole(p.role||'')}; }
 function renderList(listEl,names,kind){ listEl.innerHTML=''; if(!names.length){ listEl.innerHTML='<li class="collection-item grey-text">None</li>'; return; } names.forEach(n=>{ const p=getPlayerInfoByName(n); const li=document.createElement('li'); li.className='collection-item '+(kind==='out'?'out':(kind==='in'?'in':'')); li.innerHTML=`<span><b>${p.name}</b> <span class="role-tag">${p.role||'—'}</span></span><div class="secondary-content grey-text">${p.team||''}</div>`; listEl.appendChild(li); }); }
 function showSuccessTicker(modalEl){ try{ const host = modalEl.querySelector('.modal-content'); if(!host) return; const bar = document.createElement('div'); bar.className='success-ticker'; host.appendChild(bar); setTimeout(()=>{ try{ bar.remove(); }catch(e){} }, 1500); }catch(e){} }
@@ -313,54 +311,38 @@ function openConfirmModal(mode='transfers'){
   const summaryEl=document.getElementById('confirmSummary');
   const listAdds=document.getElementById('listAdds');
   const listDrops=document.getElementById('listDrops');
-  const warnRoles=document.getElementById('ruleWarnings');
-  const warnCap=document.getElementById('capWarnings');
   const confirmBtn=document.getElementById('confirmSubmitBtn');
   const confirmLabel=document.getElementById('confirmSubmitLabel');
 
   let adds=[],drops=[],cost=0; if(mode==='firstxi'){ adds=names.slice(); drops=[]; cost=0; titleEl.textContent='Confirm First XI'; confirmLabel.textContent='Confirm & Save XI'; } else { const diff=computeTransfers(); adds=diff.adds; drops=diff.drops; cost=adds.length; titleEl.textContent='Confirm Transfers'; confirmLabel.textContent=`Confirm & Submit (${cost} transfer${cost===1?'':'s'})`; }
   renderList(listAdds,adds,'in'); renderList(listDrops,drops,'out');
 
-  // Role rules & cap (informational only here; button enabling still governed by your main UI logic)
-  const rc=roleCounts(names); const cap=capStatus(names); const anyCapBad=cap.overTeams.length>0; const rr=[]; if(constraints&&constraints.WK){ const check=(key,label)=>{ const v=constraints[key]||{min:0,max:99}; const n=rc[key]||0; if(n<v.min) rr.push(`${label}: need ${v.min-n} more (min ${v.min}).`); if(n>v.max) rr.push(`${label}: reduce by ${n-v.max} (max ${v.max}).`); }; check('WK','WK'); check('BAT','BAT'); check('AR','AR'); check('BOWL','BOWL'); }
-  warnRoles.style.display=rr.length?'block':'none'; warnRoles.textContent=rr.join(' '); warnCap.style.display=anyCapBad?'block':'none'; warnCap.textContent=anyCapBad?('Team cap exceeded: '+cap.overTeams.join(', ')):'';
-
-  const teamCountStr=Object.keys(cap.counts).sort().map(t=>`${t} ${cap.counts[t]}`).join(' • ')||'—';
-  summaryEl.innerHTML=`<div class="badge-inline" style="display:flex;gap:.75rem;flex-wrap:wrap;"><span class="pill" style="background:#eceff1;color:#263238;"><i class="material-icons">sync_alt</i> Transfers today: <b>${cost}</b></span><span class="pill" style="background:#eceff1;color:#263238;"><i class="material-icons">timelapse</i> Used so far: <b>${userUsed + cost}</b></span><span class="pill" style="background:${(userBudget-(userUsed+cost))<0?'#ffebee':'#e8f5e9'};color:${(userBudget-(userUsed+cost))<0?'#b71c1c':'#1b5e20'};"><i class="material-icons">battery_std</i> Remaining: <b>${userBudget-(userUsed+cost)}</b></span><span class="pill" style="background:#e3f2fd;color:#0d47a1;"><i class="material-icons">groups</i> Teams: ${teamCountStr}</span></div>`;
-
   const modalEl=document.getElementById('confirmModal');
   const instance=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true});
 
-  // One-shot fetch wrapper: measure application time and close only when the submit action returns ok:true
   function attachOneShotFetchHook(){
     const originalFetch = window.fetch;
     const t0 = (performance && performance.now ? performance.now() : Date.now());
     let done=false;
     window.fetch = async function(url, opts){
+      const res = await originalFetch(url, opts);
       try{
-        const res = await originalFetch(url, opts);
-        try {
-          const u = String(url||'');
-          const isSubmit = /action=(submittransfers|submitteam)/i.test(u);
-          if (isSubmit){
-            const clone = res.clone();
-            const txt = await clone.text();
-            let ok=false; try { const j = JSON.parse(txt); ok = !!(j && j.ok); } catch(e){}
-            if (ok && !done){
-              const now = (performance && performance.now ? performance.now() : Date.now());
-              const elapsed = Math.max(0, now - t0);
-              showSuccessTicker(modalEl);
-              setTimeout(()=>{ try{ const inst=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true}); inst && inst.close(); }catch(e){} }, Math.max(1500, Math.floor(elapsed)));
-              done=true;
-              // restore fetch soon after closing to avoid side effects
-              setTimeout(()=>{ window.fetch = originalFetch; }, Math.max(1600, Math.floor(elapsed)+100));
-            }
+        const u = String(url||'');
+        const isSubmit = /action=(submittransfers|submitteam)/i.test(u);
+        if (isSubmit){
+          const txt = await res.clone().text();
+          let ok=false; try{ const j=JSON.parse(txt); ok = !!(j && j.ok); }catch(_){ }
+          if (ok && !done){
+            showSuccessTicker(modalEl);
+            setTimeout(()=>{ try{ const inst=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true}); inst && inst.close(); }catch(e){} }, 1500); // close immediately after ticker
+            done=true;
+            setTimeout(()=>{ window.fetch = originalFetch; }, 1600);
           }
-        } catch(e){ /* ignore */ }
-        return res;
-      } catch(err){ window.fetch = originalFetch; throw err; }
-    }
-    return () => { try{ window.fetch = originalFetch; }catch(e){} };
+        }
+      }catch(_){ }
+      return res;
+    };
+    return ()=>{ window.fetch = originalFetch; };
   }
 
   confirmBtn.onclick=async()=>{
@@ -368,7 +350,7 @@ function openConfirmModal(mode='transfers'){
     confirmBtn.classList.add('disabled');
     const detach = attachOneShotFetchHook();
     try{ if(mode==='firstxi'){ await buildFirstXI(); } else { await submitTransfers(); } }
-    finally{ confirmBtn.classList.remove('disabled'); /* keep wrapper until ok:true or restore soon */ }
+    finally{ confirmBtn.classList.remove('disabled'); }
   };
 
   instance.open();
