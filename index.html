@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.6.8 (Vivid + Animated Accents)</title>
+  <title>Sports Fever IPL Fantasy 2026 — Full Pool v4.6.9 (Per‑Role Tweaks)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -14,7 +14,6 @@
     .tabs .tab a.active { color:#0d47a1; }
     .tabs .indicator { background-color:#1976d2; }
 
-    /* Left: single-column player list */
     .player-list { display:flex; flex-direction:column; gap:10px; max-height:70vh; overflow:auto; }
     .player-card { background:#fff; border-radius:12px; padding:10px; display:flex; align-items:center; gap:12px; border:1px solid #e3e6ea; transition: box-shadow .15s ease, transform .05s linear; }
     .player-card:hover { box-shadow:0 6px 16px rgba(0,0,0,0.12); transform: translateY(-1px); }
@@ -42,36 +41,38 @@
 
     .cap-line { font-size:.9rem; color:#37474f; margin:.25rem 0 .5rem 0; }
 
-    /* Role rules (green OK, red BAD only with tooltips) */
     .rule-row { display:flex; flex-wrap:wrap; gap:.5rem; margin:.35rem 0 0 0; align-items:center; }
     .rule-title { font-weight:700; color:#37474f; margin-right:.3rem; }
     .rule-chip { display:inline-flex; align-items:center; gap:.35rem; padding:.22rem .55rem; border-radius:16px; border:1px solid #e0e0e0; font-size:.84rem; background:#fafafa; color:#37474f; cursor:help; }
     .rule-chip.ok { background:#e8f5e9; color:#1b5e20; border-color:#2e7d32; box-shadow:0 0 0 2px rgba(46,125,50,.15) inset; }
     .rule-chip.bad { background:#ffebee; color:#b71c1c; border-color:#c62828; box-shadow:0 0 0 2px rgba(198,40,40,.18) inset; }
 
-    /* === VIVID + ANIMATED Role accents === */
+    /* === VIVID + ANIMATED Role accents (per‑role tuned) === */
     @keyframes accentPulse { from { box-shadow:0 0 0 2px var(--accentGlow, rgba(0,0,0,0.18)) inset; } 50% { box-shadow:0 0 0 4px var(--accentGlow, rgba(0,0,0,0.28)) inset; } to { box-shadow:0 0 0 2px var(--accentGlow, rgba(0,0,0,0.18)) inset; } }
     @keyframes accentSlide { from { background-position: 0 0, 0 0; } 50% { background-position: 8px 0, 0 0; } to { background-position: 0 0, 0 0; } }
     @media (prefers-reduced-motion: reduce) { .accent-WK, .accent-BAT, .accent-AR, .accent-BOWL { animation:none !important; } }
 
+    /* WK (unchanged from 4.6.8) */
     .accent-WK   { --accentGlow: rgba(21,101,192,.22); border-color:#1565c0 !important; background:
                     linear-gradient(90deg, rgba(21,101,192,.25), rgba(21,101,192,.12)),
                     linear-gradient(0deg, #ffffff, #ffffff) !important;
                    box-shadow:0 0 0 2px var(--accentGlow) inset; animation: accentPulse 3600ms ease-in-out infinite, accentSlide 6800ms ease-in-out infinite; }
+    /* BAT (unchanged from 4.6.8) */
     .accent-BAT  { --accentGlow: rgba(46,125,50,.22); border-color:#2e7d32 !important; background:
                     linear-gradient(90deg, rgba(46,125,50,.25), rgba(46,125,50,.10)),
                     linear-gradient(0deg, #ffffff, #ffffff) !important;
                    box-shadow:0 0 0 2px var(--accentGlow) inset; animation: accentPulse 3600ms ease-in-out infinite, accentSlide 6800ms ease-in-out infinite; }
-    .accent-AR   { --accentGlow: rgba(106,27,154,.20); border-color:#6a1b9a !important; background:
-                    linear-gradient(90deg, rgba(106,27,154,.25), rgba(106,27,154,.12)),
+    /* AR (deeper purple) */
+    .accent-AR   { --accentGlow: rgba(74,20,140,.26); border-color:#4a148c !important; background:
+                    linear-gradient(90deg, rgba(74,20,140,.34), rgba(74,20,140,.16)),
                     linear-gradient(0deg, #ffffff, #ffffff) !important;
                    box-shadow:0 0 0 2px var(--accentGlow) inset; animation: accentPulse 3600ms ease-in-out infinite, accentSlide 6800ms ease-in-out infinite; }
-    .accent-BOWL { --accentGlow: rgba(239,108,0,.22); border-color:#ef6c00 !important; background:
-                    linear-gradient(90deg, rgba(239,108,0,.28), rgba(239,108,0,.12)),
+    /* BOWL (more orangey) */
+    .accent-BOWL { --accentGlow: rgba(255,109,0,.28); border-color:#ff6d00 !important; background:
+                    linear-gradient(90deg, rgba(255,109,0,.36), rgba(255,109,0,.16)),
                     linear-gradient(0deg, #ffffff, #ffffff) !important;
                    box-shadow:0 0 0 2px var(--accentGlow) inset; animation: accentPulse 3600ms ease-in-out infinite, accentSlide 6800ms ease-in-out infinite; }
 
-    /* Right: square preview cards */
     .preview-card { background:#fff; border-radius:12px; border:1px solid #e3e6ea; }
     .preview-header { display:flex; align-items:center; justify-content:space-between; }
     .pill { display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; border-radius:12px; background:#eceff1; font-size:.78rem; color:#37474f; }
@@ -103,11 +104,9 @@
 
     <section id="submit" class="col s12">
       <div class="row">
-        <!-- LEFT -->
         <div class="col s12 l5">
           <div class="card"><div class="card-content">
             <span class="card-title">Submit Team <span class="new badge blue" id="selCount" data-badge-caption="/11 selected">0</span></span>
-
             <div class="row">
               <div class="input-field col s12 m6">
                 <input id="email" type="email" class="validate" placeholder="you@example.com">
@@ -125,10 +124,8 @@
               <span class="badge-inline"><i class="material-icons">battery_std</i> Remaining: <b id="remaining">100</b></span>
               <span class="badge-inline"><i class="material-icons">flag</i> Budget: <b id="budget">100</b></span>
             </div>
-
             <div id="capLine" class="cap-line">Team cap: max — per team.</div>
 
-            <!-- Role rules (dynamic tooltips) -->
             <div class="rule-row" id="roleRulesRow" style="display:none;">
               <span class="rule-title">Role rules:</span>
               <span class="rule-chip tooltipped" id="ruleWK"   data-tooltip="">WK: —</span>
@@ -165,7 +162,6 @@
           </div></div>
         </div>
 
-        <!-- RIGHT -->
         <div class="col s12 l7">
           <div class="card preview-card"><div class="card-content">
             <div class="preview-header">
@@ -200,7 +196,6 @@
     function notify(msg){ M.toast({html: msg}); }
     function formatRole(r){ if(!r) return ''; r=String(r).trim().toUpperCase(); if(r==='WICKETKEEPER') return 'WK'; if(r==='BATSMAN'||r==='BATTER') return 'BAT'; if(r==='ALL-ROUNDER'||r==='ALLROUNDER'||r==='ALL_ROUNDER') return 'AR'; if(r==='BOWLER') return 'BOWL'; return r; }
 
-    // DOM
     const emailEl=document.getElementById('email');
     const matchSelectEl=document.getElementById('matchSelect');
     const selCount=document.getElementById('selCount');
@@ -228,11 +223,9 @@
 
     const lbTable=document.getElementById('lbTable');
 
-    // State
     let allPlayers=[]; let lastTeamPlayers=[]; let userBudget=100, userUsed=0, maxFromTeam=7;
     let constraints={WK:{min:1,max:2}, BAT:{min:3,max:6}, AR:{min:1,max:4}, BOWL:{min:3,max:6}};
 
-    // Helpers
     function selected(){ return Array.from(document.querySelectorAll('#playersList input[type=checkbox]:checked')).map(x=>x.value); }
     function countChanges(prev, curr){ const s=new Set(prev||[]); let overlap=0; (curr||[]).forEach(p=>{ if(s.has(p)) overlap++; }); return 11-overlap; }
     function teamCountsOf(list){ const c={}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name); const t=String((p&&p.team)||''); if(t) c[t]=(c[t]||0)+1; }); return c; }
