@@ -73,7 +73,7 @@
 .pill-in{background:#a5d6a7!important;color:#0a3d14!important;border:1px solid #1b5e20;}
 .pill-out .material-icons{color:#7f0000!important;}
 .pill-in .material-icons{color:#0a3d14!important;}
-/* Success ticker: slim green bar that fills in 1.5s */
+/* Success ticker */
 @keyframes tickerFill{from{width:0}to{width:100%}}
 .success-ticker{position:absolute;left:0;top:0;height:3px;width:0;background:#2e7d32;animation:tickerFill 1.5s linear forwards;border-top-left-radius:3px;border-top-right-radius:3px;}
 </style>
@@ -221,34 +221,7 @@
 
 </main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js">
-// Success-driven auto close with delay equal to application time and 1.5s ticker
-(function(){
-  try{
-    const oldNotify = window.notify;
-    window.notify = function(msg){
-      try{ if (typeof oldNotify === 'function') oldNotify(msg); }catch(e){}
-      try{
-        const s = String(msg||'');
-        if (/Transfers applied|First XI saved/i.test(s)){
-          const txn = window.__modalTxn || {};
-          const modalEl = document.getElementById('confirmModal');
-          if (modalEl){
-            const now = (window.performance && performance.now ? performance.now() : Date.now());
-            const elapsed = Math.max(0, now - (txn.t0||now));
-            // Show success ticker for 1.5s
-            showSuccessTicker(modalEl);
-            const waitMs = Math.max(1500, Math.floor(elapsed));
-            const instance = (txn.instance) ? txn.instance : (M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true}));
-            setTimeout(()=>{ try{ instance && instance.close(); }catch(e){} }, waitMs);
-          }
-        }
-      }catch(e){}
-    };
-  }catch(e){}
-})();
-
-</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script>
     const API = 'https://script.google.com/macros/s/AKfycbyXXV8SmhjqaHl9jFBxpGOXcVQi-6ordn4WfMkJo78gpvWJ9htZCkxAnrn1am2IMilL/exec';
     function notify(msg){ M.toast({html: msg, displayLength: 3500}); }
@@ -348,23 +321,54 @@ function openConfirmModal(mode='transfers'){
   let adds=[],drops=[],cost=0; if(mode==='firstxi'){ adds=names.slice(); drops=[]; cost=0; titleEl.textContent='Confirm First XI'; confirmLabel.textContent='Confirm & Save XI'; } else { const diff=computeTransfers(); adds=diff.adds; drops=diff.drops; cost=adds.length; titleEl.textContent='Confirm Transfers'; confirmLabel.textContent=`Confirm & Submit (${cost} transfer${cost===1?'':'s'})`; }
   renderList(listAdds,adds,'in'); renderList(listDrops,drops,'out');
 
+  // Role rules & cap (informational only here; button enabling still governed by your main UI logic)
   const rc=roleCounts(names); const cap=capStatus(names); const anyCapBad=cap.overTeams.length>0; const rr=[]; if(constraints&&constraints.WK){ const check=(key,label)=>{ const v=constraints[key]||{min:0,max:99}; const n=rc[key]||0; if(n<v.min) rr.push(`${label}: need ${v.min-n} more (min ${v.min}).`); if(n>v.max) rr.push(`${label}: reduce by ${n-v.max} (max ${v.max}).`); }; check('WK','WK'); check('BAT','BAT'); check('AR','AR'); check('BOWL','BOWL'); }
   warnRoles.style.display=rr.length?'block':'none'; warnRoles.textContent=rr.join(' '); warnCap.style.display=anyCapBad?'block':'none'; warnCap.textContent=anyCapBad?('Team cap exceeded: '+cap.overTeams.join(', ')):'';
+
   const teamCountStr=Object.keys(cap.counts).sort().map(t=>`${t} ${cap.counts[t]}`).join(' • ')||'—';
   summaryEl.innerHTML=`<div class="badge-inline" style="display:flex;gap:.75rem;flex-wrap:wrap;"><span class="pill" style="background:#eceff1;color:#263238;"><i class="material-icons">sync_alt</i> Transfers today: <b>${cost}</b></span><span class="pill" style="background:#eceff1;color:#263238;"><i class="material-icons">timelapse</i> Used so far: <b>${userUsed + cost}</b></span><span class="pill" style="background:${(userBudget-(userUsed+cost))<0?'#ffebee':'#e8f5e9'};color:${(userBudget-(userUsed+cost))<0?'#b71c1c':'#1b5e20'};"><i class="material-icons">battery_std</i> Remaining: <b>${userBudget-(userUsed+cost)}</b></span><span class="pill" style="background:#e3f2fd;color:#0d47a1;"><i class="material-icons">groups</i> Teams: ${teamCountStr}</span></div>`;
 
-  // capture start time and state for delay-based close
   const modalEl=document.getElementById('confirmModal');
   const instance=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true});
-  window.__modalTxn = { t0: (window.performance && performance.now ? performance.now() : Date.now()), instance, state:'idle', mode };
+
+  // One-shot fetch wrapper: measure application time and close only when the submit action returns ok:true
+  function attachOneShotFetchHook(){
+    const originalFetch = window.fetch;
+    const t0 = (performance && performance.now ? performance.now() : Date.now());
+    let done=false;
+    window.fetch = async function(url, opts){
+      try{
+        const res = await originalFetch(url, opts);
+        try {
+          const u = String(url||'');
+          const isSubmit = /action=(submittransfers|submitteam)/i.test(u);
+          if (isSubmit){
+            const clone = res.clone();
+            const txt = await clone.text();
+            let ok=false; try { const j = JSON.parse(txt); ok = !!(j && j.ok); } catch(e){}
+            if (ok && !done){
+              const now = (performance && performance.now ? performance.now() : Date.now());
+              const elapsed = Math.max(0, now - t0);
+              showSuccessTicker(modalEl);
+              setTimeout(()=>{ try{ const inst=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true}); inst && inst.close(); }catch(e){} }, Math.max(1500, Math.floor(elapsed)));
+              done=true;
+              // restore fetch soon after closing to avoid side effects
+              setTimeout(()=>{ window.fetch = originalFetch; }, Math.max(1600, Math.floor(elapsed)+100));
+            }
+          }
+        } catch(e){ /* ignore */ }
+        return res;
+      } catch(err){ window.fetch = originalFetch; throw err; }
+    }
+    return () => { try{ window.fetch = originalFetch; }catch(e){} };
+  }
 
   confirmBtn.onclick=async()=>{
     if(confirmBtn.classList.contains('disabled')) return;
     confirmBtn.classList.add('disabled');
-    const txn = window.__modalTxn || {}; txn.state='pending'; txn.t0 = (window.performance && performance.now ? performance.now() : Date.now());
+    const detach = attachOneShotFetchHook();
     try{ if(mode==='firstxi'){ await buildFirstXI(); } else { await submitTransfers(); } }
-    finally{ confirmBtn.classList.remove('disabled'); }
-    // Success ticker + close after max(application time, 1500ms) will be handled by notify wrapper on success toast
+    finally{ confirmBtn.classList.remove('disabled'); /* keep wrapper until ok:true or restore soon */ }
   };
 
   instance.open();
