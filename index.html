@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — v5.0.3 (Sticky, Filter Label Fix + Budget Filter)</title>
+  <title>Sports Fever IPL Fantasy 2026 — v5.0.4 (Sticky, Filter Label Fix + Budget Filter + Auto-load Last XI)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -91,7 +91,6 @@
 
   @media (max-width:480px){ .square-card{ width:150px; flex-basis:150px; } }
 
-  /* Budget slider chip */
   .budget-chip-wrap{ display:inline-flex; align-items:center; gap:.5rem; }
   .budget-chip-wrap label{ margin:0; font-size:.85rem; color:#37474f; }
   .budget-chip-wrap input[type=range]{ width:160px; height:22px; }
@@ -309,7 +308,7 @@
   const purseLeftEl=document.getElementById('purseLeft');
   const totalBudgetEl=document.getElementById('totalBudgetCr');
 
-  // NEW budget filter elements
+  // Budget filter elements
   const budgetMaxEl=document.getElementById('budgetMax');
   const budgetMaxLabel=document.getElementById('budgetMaxLabel');
 
@@ -410,7 +409,14 @@
     M.FormSelect.init(roleFilter);
   }
 
-  function applyLastXIIfReady(){ if(!(playersReady && statsReady)) return; if(!selectedNames || selectedNames.size===0){ selectedNames = new Set(lastTeamPlayers||[]); } const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb)); let checked=0; (selected()||[]).forEach(n=>{ if(map.has(n) && checked<11){ map.get(n).checked=true; checked++; } }); updateSelectionUI(); if(lastTeamPlayers && lastTeamPlayers.length){ document.getElementById('transferBanner').style.display='flex'; } }
+  function applyLastXIIfReady(){
+    if(!(playersReady && statsReady)) return;
+    if(!selectedNames || selectedNames.size===0){ selectedNames = new Set(lastTeamPlayers||[]); }
+    const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb));
+    let checked=0; (selected()||[]).forEach(n=>{ if(map.has(n) && checked<11){ map.get(n).checked=true; checked++; } });
+    updateSelectionUI();
+    if(lastTeamPlayers && lastTeamPlayers.length){ document.getElementById('transferBanner').style.display='flex'; }
+  }
 
   function renderPlayers(){
     const t=(teamFilter.value||'ALL').toUpperCase();
@@ -444,21 +450,18 @@
       playersList.appendChild(card);
     });
 
-    // (Re)build Team/Role filters to ensure options are complete and labels in sync
+    // keep filter dropdowns synced
     buildFilters(allPlayers);
+
+    // NEW: mark players list as ready and try to auto-apply last XI now
+    playersReady = true;
+    applyLastXIIfReady();
   }
 
   async function fetchMatches(){ matchSelectEl.innerHTML='<option value="">Loading…</option>'; try{ const res=await fetch(`${API}?action=matches`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON (matches)'); return; } if(!j.ok){ notify(j.error||'API error (matches)'); return; } const list=Array.isArray(j.matches)? j.matches:[]; const opts=['<option value="">-- Select Match --</option>']; list.forEach(m=>opts.push(`<option value="${m.id}">${m.label||m.match||('Match '+m.id)}</option>`)); matchSelectEl.innerHTML=opts.join(''); M.FormSelect.init(matchSelectEl); if(list.length){ matchSelectEl.value=String(list[0].id); M.FormSelect.init(matchSelectEl);} healthLine.style.display='block'; healthLine.innerHTML = `<b>Health</b>: matches=${list.length}, players=${allPlayers.length}`; if(!list.length) notify('No matches returned. Check Matches headers or API URL.'); }catch(e){ notify('Network error (matches)'); }
   }
 
-  async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class="red-text">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class="red-text">${j.error||'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; // set up budget slider max and default
-    const maxPrice = Math.max(0, ...allPlayers.map(p=>Number(p.price||0)));
-    budgetMaxEl.max = String(maxPrice||100);
-    const savedCap = (()=>{ try{return Number(localStorage.getItem('ml_budget_cap')||'');}catch(_){return NaN;} })();
-    const initialCap = !isNaN(savedCap) && savedCap>0 ? Math.min(savedCap, maxPrice) : maxPrice;
-    budgetMaxEl.value = String(initialCap);
-    budgetMaxLabel.textContent = String(initialCap);
-    renderPlayers(); if(!allPlayers.length) notify('No players returned. Check Players headers.'); }catch(e){ playersList.innerHTML='<span class="red-text">Network error</span>'; }
+  async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class="red-text">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class="red-text">${j.error||'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; const maxPrice = Math.max(0, ...allPlayers.map(p=>Number(p.price||0))); budgetMaxEl.max = String(maxPrice||100); const savedCap = (()=>{ try{return Number(localStorage.getItem('ml_budget_cap')||'');}catch(_){return NaN;} })(); const initialCap = !isNaN(savedCap) && savedCap>0 ? Math.min(savedCap, maxPrice) : maxPrice; budgetMaxEl.value = String(initialCap); budgetMaxLabel.textContent = String(initialCap); renderPlayers(); if(!allPlayers.length) notify('No players returned. Check Players headers.'); }catch(e){ playersList.innerHTML='<span class="red-text">Network error</span>'; }
   }
 
   async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; } userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; totalBudget=Number(j.totalBudget||100); selectedNames = new Set(lastTeamPlayers||[]); updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team.`; statsReady = true; applyLastXIIfReady(); }catch(e){ notify('Network error (stats)'); }
@@ -489,7 +492,7 @@
     const confirmLabel=document.getElementById('confirmSubmitLabel');
     let adds=[],drops=[],cost=0; if(mode==='firstxi'){ adds=names.slice(); drops=[]; cost=totalCostOf(adds); titleEl.textContent='Confirm First XI'; confirmLabel.textContent='Confirm & Save XI'; } else { const diff=computeTransfers(); adds=diff.adds; drops=diff.drops; cost=totalCostOf(names); const tcount=adds.length; titleEl.textContent='Confirm Transfers'; confirmLabel.textContent=`Confirm & Submit (${tcount} transfer${tcount===1?'':'s'})`; }
     renderList(listAdds,adds,'in'); renderList(listDrops,drops,'out');
-    const overBudget = cost>totalBudget; summaryEl.innerHTML = `<div class="grey-text">Total cost: <b>${cost}</b> / Cap <b>${totalBudget}</b>${overBudget?' — <span class="red-text">Over budget</span>':''}</div>`;
+    const overBudget = cost>totalBudget; summaryEl.innerHTML = `<div class=\"grey-text\">Total cost: <b>${cost}</b> / Cap <b>${totalBudget}</b>${overBudget?' — <span class=\"red-text\">Over budget</span>':''}</div>`;
     const modalEl=document.getElementById('confirmModal');
     const instance=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true});
     function attachOneShotFetchHook(){
