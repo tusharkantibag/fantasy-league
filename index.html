@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — v4.8.0 (Salary Cap)</title>
+  <title>Sports Fever IPL Fantasy 2026 — v4.9.0 (Salary Cap, 4-row Preview)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -52,7 +52,13 @@
   .preview-card { background:#fff; border-radius:12px; border:1px solid #e3e6ea; }
   .preview-header { display:flex; align-items:center; justify-content:space-between; }
   .pill { display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; border-radius:12px; background:#eceff1; font-size:.78rem; color:#37474f; }
-  .preview-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:12px; margin-top:.6rem; }
+  /* FOUR-ROW PREVIEW LAYOUT */
+  .preview-grid{ display:block; }
+  .lineup-row{ display:flex; flex-wrap:wrap; gap:12px; margin:8px 0; min-height:96px; }
+  .lineup-row[data-role=WK]  { border-left:3px solid #1565c0; padding-left:8px; }
+  .lineup-row[data-role=BAT] { border-left:3px solid #2e7d32; padding-left:8px; }
+  .lineup-row[data-role=AR]  { border-left:3px solid #7b1fa2; padding-left:8px; }
+  .lineup-row[data-role=BOWL]{ border-left:3px solid #ff6d00; padding-left:8px; }
   .square-card { background:#fafcff; border:1px solid #dde5ee; border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; position:relative; }
   .square-card .pic { width:100%; aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#fff; border:1px solid #e0e0e0; display:flex; align-items:center; justify-content:center; }
   .square-card .pic img { width:100%; height:100%; object-fit:cover; }
@@ -180,7 +186,12 @@
               <span class="pill" id="pillTeams">Teams: —</span>
               <span class="pill" id="pillCost">Cost: 0</span>
             </div>
-            <div id="previewGrid" class="preview-grid"></div>
+            <div id="previewGrid" class="preview-grid">
+              <div class="lineup-row" data-role="WK" id="row-WK"></div>
+              <div class="lineup-row" data-role="BAT" id="row-BAT"></div>
+              <div class="lineup-row" data-role="AR" id="row-AR"></div>
+              <div class="lineup-row" data-role="BOWL" id="row-BOWL"></div>
+            </div>
             <div id="validationMsg" class="helper" style="margin-top:.6rem;"></div>
           </div></div>
         </div>
@@ -293,13 +304,74 @@
   function roleCounts(list){ const c={WK:0,BAT:0,AR:0,BOWL:0}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name); const r=formatRole((p&&p.role)||''); if(c[r]!==undefined) c[r]++; }); return c; }
   function tooltipForRole(label, n, min, max){ if(n < min) return `Need ${min-n} more ${label} (minimum ${min})`; if(n > max) return `Too many ${label}: reduce by ${n-max} (maximum ${max})`; return `${label} count is within the allowed range (${min}–${max})`; }
   function refreshRuleChips(){ if(!constraints||!constraints.WK){ ruleRow.style.display='none'; return; } ruleRow.style.display='flex'; const counts=roleCounts(selected()); const setChip=(el,key,label)=>{ const v=constraints[key]||{min:0,max:0}; const n=counts[key]||0; el.classList.remove('ok','bad'); el.textContent = `${label}: ${n} (min ${v.min}, max ${v.max})`; const old = M.Tooltip.getInstance(el); if(old) old.destroy(); el.setAttribute('data-tooltip', tooltipForRole(label, n, v.min, v.max)); M.Tooltip.init(el, {position:'top', margin:6}); if(n<v.min || n>v.max) el.classList.add('bad'); else el.classList.add('ok'); }; setChip(ruleWK,'WK','WK'); setChip(ruleBAT,'BAT','BAT'); setChip(ruleAR,'AR','AR'); setChip(ruleBOWL,'BOWL','BOWL'); }
-  function renderPreview(){ const names=selected(); const rc=roleCounts(names); pillWK.textContent=`WK: ${rc.WK}`; pillBAT.textContent=`BAT: ${rc.BAT}`; pillAR.textContent=`AR: ${rc.AR}`; pillBOWL.textContent=`BOWL: ${rc.BOWL}`; const tc=teamCountsOf(names); const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—'; pillTeams.textContent = `Teams: ${teamsStr}`; const cost=totalCostOf(names); pillCost.textContent = `Cost: ${cost}`; previewGrid.innerHTML=''; if(!names.length){ previewGrid.innerHTML='<span class="helper">No players selected yet.</span>'; refreshRuleChips(); return; } names.forEach(n=>{ const p=allPlayers.find(x=>x.name===n) || {name:n, team:'', role:'', imageUrl:'', price:0}; const role=formatRole(p.role||''); const card=document.createElement('div'); card.className='square-card'; if(role) card.classList.add('accent-'+role); const pic=document.createElement('div'); pic.className='pic'; if(p.imageUrl){ const img=document.createElement('img'); img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); pic.innerHTML='<i class="material-icons">person</i>'; }; pic.appendChild(img); } else { const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon); } const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name; const tm=document.createElement('div'); tm.className='team'; tm.textContent=p.team||''; const rl=document.createElement('div'); rl.className='role'; rl.textContent=role||'—'; const pr=document.createElement('div'); pr.className='price'; pr.textContent=String(Number(p.price||0)); const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>'; btn.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); }); card.appendChild(btn); card.appendChild(pic); card.appendChild(nm); card.appendChild(tm); card.appendChild(rl); card.appendChild(pr); previewGrid.appendChild(card); }); const msg=document.getElementById('validationMsg'); const changes=countChanges(lastTeamPlayers, names); const cap=capStatus(names); const withinCap = cap.overTeams.length===0; const overBudget = totalCostOf(names) > totalBudget; if(!withinCap){ msg.className='helper error-text'; msg.textContent='Team cap exceeded: ' + cap.overTeams.join(', '); } else if(overBudget){ msg.className='helper error-text'; msg.textContent=`Over budget! Reduce cost to ≤ ${totalBudget}.`; } else { msg.className='helper ok-text'; msg.textContent = 'Looks good!'; }
+  function renderPreview(){
+    const names=selected();
+    const rc=roleCounts(names);
+    pillWK.textContent=`WK: ${rc.WK}`; pillBAT.textContent=`BAT: ${rc.BAT}`; pillAR.textContent=`AR: ${rc.AR}`; pillBOWL.textContent=`BOWL: ${rc.BOWL}`;
+    const tc=teamCountsOf(names);
+    const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—';
+    pillTeams.textContent = `Teams: ${teamsStr}`;
+    const cost=totalCostOf(names); pillCost.textContent = `Cost: ${cost}`;
+
+    // Clear rows
+    const rowWK=document.getElementById('row-WK');
+    const rowBAT=document.getElementById('row-BAT');
+    const rowAR=document.getElementById('row-AR');
+    const rowBOWL=document.getElementById('row-BOWL');
+    rowWK.innerHTML=''; rowBAT.innerHTML=''; rowAR.innerHTML=''; rowBOWL.innerHTML='';
+
+    if(!names.length){
+      previewGrid.innerHTML = '<span class="helper">No players selected yet.</span>'+
+        '<div class="lineup-row" data-role="WK" id="row-WK"></div>'+
+        '<div class="lineup-row" data-role="BAT" id="row-BAT"></div>'+
+        '<div class="lineup-row" data-role="AR" id="row-AR"></div>'+
+        '<div class="lineup-row" data-role="BOWL" id="row-BOWL"></div>';
+      refreshRuleChips();
+      return;
+    }
+
+    function makeCard(p){
+      const role=formatRole(p.role||'');
+      const card=document.createElement('div');
+      card.className='square-card';
+      if(role) card.classList.add('accent-'+role);
+      const pic=document.createElement('div'); pic.className='pic';
+      if(p.imageUrl){
+        const img=document.createElement('img'); img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); pic.innerHTML='<i class="material-icons">person</i>'; };
+        pic.appendChild(img);
+      } else { const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon); }
+      const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name;
+      const tm=document.createElement('div'); tm.className='team'; tm.textContent=p.team||'';
+      const rl=document.createElement('div'); rl.className='role'; rl.textContent=role||'—';
+      const pr=document.createElement('div'); pr.className='price'; pr.textContent=String(Number(p.price||0));
+      const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>';
+      btn.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
+      card.appendChild(btn); card.appendChild(pic); card.appendChild(nm); card.appendChild(tm); card.appendChild(rl); card.appendChild(pr);
+      return {card, role};
+    }
+
+    names.forEach(n=>{
+      const p=allPlayers.find(x=>x.name===n) || {name:n, team:'', role:'', imageUrl:'', price:0};
+      const {card, role} = makeCard(p);
+      if(role==='WK') rowWK.appendChild(card);
+      else if(role==='BAT') rowBAT.appendChild(card);
+      else if(role==='AR') rowAR.appendChild(card);
+      else if(role==='BOWL') rowBOWL.appendChild(card);
+      else rowBAT.appendChild(card);
+    });
+
+    const msg=document.getElementById('validationMsg');
+    const changes=countChanges(lastTeamPlayers, names);
+    const cap=capStatus(names);
+    const withinCap = cap.overTeams.length===0;
+    const overBudget = totalCostOf(names) > totalBudget;
+    if(!withinCap){ msg.className='helper error-text'; msg.textContent='Team cap exceeded: ' + cap.overTeams.join(', '); }
+    else if(overBudget){ msg.className='helper error-text'; msg.textContent=`Over budget! Reduce cost to ≤ ${totalBudget}.`; }
+    else { msg.className='helper ok-text'; msg.textContent = 'Looks good!'; }
     refreshRuleChips();
   }
   function togglePlayer(name, on){
-    // update selection model
     if(on){ selectedNames.add(name); } else { selectedNames.delete(name); }
-    // reflect to visible checkbox if present
     const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb));
     if(map.has(name)) map.get(name).checked = !!on;
     updateSelectionUI();
@@ -312,9 +384,7 @@
   }
   async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class="red-text">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class="red-text">${j.error||'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; renderPlayers(); if(!allPlayers.length) notify('No players returned. Check Players headers.'); }catch(e){ playersList.innerHTML='<span class="red-text">Network error</span>'; }
   }
-  async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; } userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; totalBudget=Number(j.totalBudget||100); // salary cap
-    selectedNames = new Set(lastTeamPlayers||[]);
-    updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team.`; statsReady = true; applyLastXIIfReady(); }catch(e){ notify('Network error (stats)'); }
+  async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; } userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; totalBudget=Number(j.totalBudget||100); selectedNames = new Set(lastTeamPlayers||[]); updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team.`; statsReady = true; applyLastXIIfReady(); }catch(e){ notify('Network error (stats)'); }
   }
   async function loadLeaderboard(){ lbTable.innerHTML='<tr><td colspan="3">Loading…</td></tr>'; try{ const res=await fetch(`${API}?action=leaderboard`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Response not JSON</td></tr>'; return; } if(!j.ok){ lbTable.innerHTML = `<tr><td colspan="3" class="red-text">${j.error||'API error'}</td></tr>`; return; } lbTable.innerHTML = (j.leaderboard||[]).map((r,i)=>`<tr><td>${i+1}</td><td>${r.name||''}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`).join('') || '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>'; }catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Failed</td></tr>'; }
   }
