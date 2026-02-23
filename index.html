@@ -87,6 +87,11 @@
     .budget-chip-wrap{ display:inline-flex; align-items:center; gap:.5rem; }
     .budget-chip-wrap label{ margin:0; font-size:.85rem; color:#37474f; }
     .budget-chip-wrap input[type=range]{ width:160px; height:22px; }
+  
+    /* Category emoji icon */
+    .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
+    .square-card .cat-ico-badge{ position:absolute; top:8px; left:8px; font-size:1.05rem; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+
   </style>
 </head>
 <body>
@@ -301,6 +306,15 @@
   const totalBudgetEl=document.getElementById('totalBudgetCr');
   const budgetMaxEl=document.getElementById('budgetMax');
   const budgetMaxLabel=document.getElementById('budgetMaxLabel');
+
+  function catIcon(cat){
+    cat = String(cat||'').toUpperCase();
+    if(cat==='FOREIGN') return '✈️';
+    if(cat==='UNCAPPED') return '🧒';
+    if(cat==='CAPPED') return '🧢';
+    return '';
+  }
+
 
   // Points & data
   let pointsMap = {};
