@@ -88,7 +88,7 @@
     .budget-chip-wrap label{ margin:0; font-size:.85rem; color:#37474f; }
     .budget-chip-wrap input[type=range]{ width:160px; height:22px; }
 
-    /* Category emoji icon */
+    /* Category emoji icon (list & preview inline) */
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
     .cat-ico + .team-chip { margin-left: .15rem; }
     /* Small badge on preview square */
@@ -307,6 +307,7 @@
   const totalBudgetEl=document.getElementById('totalBudgetCr');
   const budgetMaxEl=document.getElementById('budgetMax');
   const budgetMaxLabel=document.getElementById('budgetMaxLabel');
+
   // Normalize category values from the API
   function normalizeCategory(raw){
     const s = String(raw ?? '').trim().toUpperCase();
@@ -321,7 +322,7 @@
     if(c==='FOREIGN')  return '🌍';
     if(c==='UNCAPPED') return '🧒';
     if(c==='CAPPED')   return '🧢';
-    return ''; // change to '❓' to debug unknowns
+    return '';
   }
 
 
@@ -471,15 +472,11 @@
         `<span class=\"player-meta\"><span class=\"team-chip\">${p.team||''}</span>`+
         `<span class=\"price-chip\"><i class=\"material-icons\" style=\"font-size:16px;\">monetization_on</i>${Number(p.price||0)}</span>`+
         ptsChip + `</span>`;
-      /* Insert category icon via DOM so we don't depend on exact HTML string */
       try {
         const catRaw = (p.category ?? p.Category ?? '');
         const catIco = catIcon(catRaw);
         const catTitle = normalizeCategory(catRaw) || '';
-        if(catIco){
-          const meta = info.querySelector('.player-meta');
-          if(meta){ const span=document.createElement('span'); span.className='cat-ico'; span.title=catTitle; span.textContent=catIco; meta.prepend(span); }
-        }
+        if(catIco){ const meta = info.querySelector('.player-meta'); if(meta){ const span=document.createElement('span'); span.className='cat-ico'; span.title=catTitle; span.textContent=catIco; meta.prepend(span);} }
       } catch(_){}
       card.appendChild(label); card.appendChild(img); card.appendChild(info);
       playersList.appendChild(card);
