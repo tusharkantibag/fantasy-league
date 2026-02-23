@@ -87,11 +87,12 @@
     .budget-chip-wrap{ display:inline-flex; align-items:center; gap:.5rem; }
     .budget-chip-wrap label{ margin:0; font-size:.85rem; color:#37474f; }
     .budget-chip-wrap input[type=range]{ width:160px; height:22px; }
-  
+
     /* Category emoji icon */
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
+    .cat-ico + .team-chip { margin-left: .15rem; }
+    /* Small badge on preview square */
     .square-card .cat-ico-badge{ position:absolute; top:8px; left:8px; font-size:1.05rem; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
-
   </style>
 </head>
 <body>
@@ -306,22 +307,21 @@
   const totalBudgetEl=document.getElementById('totalBudgetCr');
   const budgetMaxEl=document.getElementById('budgetMax');
   const budgetMaxLabel=document.getElementById('budgetMaxLabel');
-
-  // --- Category normalization + emoji helper (robust to variants and whitespace) ---
+  // Normalize category values from the API
   function normalizeCategory(raw){
     const s = String(raw ?? '').trim().toUpperCase();
     if(!s) return '';
     if(s==='FOREIGN' || s==='OVERSEAS') return 'FOREIGN';
     if(s==='UNCAPPED') return 'UNCAPPED';
     if(s==='CAPPED' || s==='INDIAN' || s==='DOMESTIC') return 'CAPPED';
-    return s; // unknown label, keep as-is in uppercase
+    return s; // keep unknown uppercase for debugging
   }
   function catIcon(raw){
     const c = normalizeCategory(raw);
-    if(c==='FOREIGN') return '🌍';
+    if(c==='FOREIGN')  return '🌍';
     if(c==='UNCAPPED') return '🧒';
-    if(c==='CAPPED') return '🧢';
-    return ''; // hide unknowns; change to '❓' if you want to see unmatched
+    if(c==='CAPPED')   return '🧢';
+    return ''; // change to '❓' to debug unknowns
   }
 
 
@@ -471,6 +471,16 @@
         `<span class=\"player-meta\"><span class=\"team-chip\">${p.team||''}</span>`+
         `<span class=\"price-chip\"><i class=\"material-icons\" style=\"font-size:16px;\">monetization_on</i>${Number(p.price||0)}</span>`+
         ptsChip + `</span>`;
+      /* Insert category icon via DOM so we don't depend on exact HTML string */
+      try {
+        const catRaw = (p.category ?? p.Category ?? '');
+        const catIco = catIcon(catRaw);
+        const catTitle = normalizeCategory(catRaw) || '';
+        if(catIco){
+          const meta = info.querySelector('.player-meta');
+          if(meta){ const span=document.createElement('span'); span.className='cat-ico'; span.title=catTitle; span.textContent=catIco; meta.prepend(span); }
+        }
+      } catch(_){}
       card.appendChild(label); card.appendChild(img); card.appendChild(info);
       playersList.appendChild(card);
     });
