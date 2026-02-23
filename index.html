@@ -307,12 +307,21 @@
   const budgetMaxEl=document.getElementById('budgetMax');
   const budgetMaxLabel=document.getElementById('budgetMaxLabel');
 
-  function catIcon(cat){
-    cat = String(cat||'').toUpperCase();
-    if(cat==='FOREIGN') return '✈️';
-    if(cat==='UNCAPPED') return '🧒';
-    if(cat==='CAPPED') return '🧢';
-    return '';
+  // --- Category normalization + emoji helper (robust to variants and whitespace) ---
+  function normalizeCategory(raw){
+    const s = String(raw ?? '').trim().toUpperCase();
+    if(!s) return '';
+    if(s==='FOREIGN' || s==='OVERSEAS') return 'FOREIGN';
+    if(s==='UNCAPPED') return 'UNCAPPED';
+    if(s==='CAPPED' || s==='INDIAN' || s==='DOMESTIC') return 'CAPPED';
+    return s; // unknown label, keep as-is in uppercase
+  }
+  function catIcon(raw){
+    const c = normalizeCategory(raw);
+    if(c==='FOREIGN') return '🌍';
+    if(c==='UNCAPPED') return '🧒';
+    if(c==='CAPPED') return '🧢';
+    return ''; // hide unknowns; change to '❓' if you want to see unmatched
   }
 
 
