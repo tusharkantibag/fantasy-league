@@ -88,10 +88,10 @@
     .budget-chip-wrap label{ margin:0; font-size:.85rem; color:#37474f; }
     .budget-chip-wrap input[type=range]{ width:160px; height:22px; }
 
-    /* Category emoji icon (list & preview inline) */
+    /* Category emoji icon (list) */
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
     .cat-ico + .team-chip { margin-left: .15rem; }
-    /* Small badge on preview square */
+    /* Optional badge (kept) */
     .square-card .cat-ico-badge{ position:absolute; top:8px; left:8px; font-size:1.05rem; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
   </style>
 </head>
@@ -308,14 +308,13 @@
   const budgetMaxEl=document.getElementById('budgetMax');
   const budgetMaxLabel=document.getElementById('budgetMaxLabel');
 
-  // Normalize category values from the API
   function normalizeCategory(raw){
     const s = String(raw ?? '').trim().toUpperCase();
     if(!s) return '';
     if(s==='FOREIGN' || s==='OVERSEAS') return 'FOREIGN';
     if(s==='UNCAPPED') return 'UNCAPPED';
     if(s==='CAPPED' || s==='INDIAN' || s==='DOMESTIC') return 'CAPPED';
-    return s; // keep unknown uppercase for debugging
+    return s;
   }
   function catIcon(raw){
     const c = normalizeCategory(raw);
@@ -395,7 +394,8 @@
       else { const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon); }
       const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name;
       const tm=document.createElement('div'); tm.className='team'; tm.textContent=p.team||'';
-      const rl=document.createElement('div'); rl.className='role'; rl.textContent=role||'—';
+      const rl=document.createElement('div'); rl.className='role';
+      try{ const _catRaw=(p.category ?? p.Category ?? ''); const _ico=catIcon(_catRaw); rl.textContent=(role||'—') + (_ico?(' '+_ico):''); }catch(_){ rl.textContent=role||'—'; }
       const pr=document.createElement('div'); pr.className='price'; pr.textContent=String(Number(p.price||0));
       const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>';
       btn.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
