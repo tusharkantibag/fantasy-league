@@ -93,7 +93,6 @@
     /* Inset corner emoji (inside padding) */
     .cat-corner{ position:absolute; top:10px; left:10px; z-index:10; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:0 1px 3px rgba(0,0,0,.14); font-size:16px; line-height:1; pointer-events:none; }
     @media (max-width:480px){ .cat-corner{ top:8px; left:8px; width:24px; height:24px; font-size:15px; } }
-    /* List icon (unchanged) */
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
     .cat-ico + .team-chip { margin-left: .15rem; }
   </style>
@@ -167,6 +166,12 @@
                   <option value="BAT">BAT</option>
                   <option value="AR">AR</option>
                   <option value="BOWL">BOWL</option>
+                              <span class="filter-chip"><i class="material-icons">category</i>
+                <select id="catFilter">
+                  <option value="ALL" selected>All categories</option>
+                  <option value="FOREIGN">FOREIGN</option>
+                  <option value="UNCAPPED">UNCAPPED</option>
+                  <option value="CAPPED">CAPPED</option>
                 </select>
               </span>
               <span class="filter-chip">
@@ -283,6 +288,7 @@
   const playersList=document.getElementById('playersList');
   const teamFilter=document.getElementById('teamFilter');
   const roleFilter=document.getElementById('roleFilter');
+  const catFilter=document.getElementById('catFilter');
   const searchInput=document.getElementById('searchInput');
   const submitBtn=document.getElementById('submitBtn');
   const buildFirstBtn=document.getElementById('buildFirstBtn');
@@ -449,12 +455,15 @@
     const r=(roleFilter.value||'ALL').toUpperCase();
     const q=(searchInput.value||'').trim().toLowerCase();
     const priceCap = Number(budgetMaxEl.value || Infinity);
+    const c=(catFilter.value||'ALL').toUpperCase();
     const filtered=allPlayers.filter(p=>{
       const tOk=(t==='ALL')|| String(p.team||'').toUpperCase()===t;
       const rOk=(r==='ALL')|| (formatRole(p.role||'')===r);
+      const pCat = normalizeCategory((p.category ?? p.Category ?? ''));
+      const cOk=(c==='ALL') || (pCat===c);
       const qOk=!q|| String(p.name||'').toLowerCase().includes(q);
       const priceOk = Number(p.price||0) <= priceCap;
-      return tOk&&rOk&&qOk&&priceOk;
+      return tOk&&rOk&&cOk&&qOk&&priceOk;
     });
     playersList.innerHTML='';
     filtered.forEach(p=>{
@@ -474,12 +483,7 @@
         `<span class=\"player-meta\"><span class=\"team-chip\">${p.team||''}</span>`+
         `<span class=\"price-chip\"><i class=\"material-icons\" style=\"font-size:16px;\">monetization_on</i>${Number(p.price||0)}</span>`+
         ptsChip + `</span>`;
-      try {
-        const catRaw = (p.category ?? p.Category ?? '');
-        const catIco = catIcon(catRaw);
-        const catTitle = normalizeCategory(catRaw) || '';
-        if(catIco){ const meta = info.querySelector('.player-meta'); if(meta){ const span=document.createElement('span'); span.className='cat-ico'; span.title=catTitle; span.textContent=catIco; meta.prepend(span);} }
-      } catch(_){}
+      try { const catRaw=(p.category ?? p.Category ?? ''); const ico=catIcon(catRaw); const title=normalizeCategory(catRaw)||''; if(ico){ const meta=info.querySelector('.player-meta'); if(meta){ const span=document.createElement('span'); span.className='cat-ico'; span.title=title; span.textContent=ico; meta.prepend(span);} } } catch(_){}
       card.appendChild(label); card.appendChild(img); card.appendChild(info);
       playersList.appendChild(card);
     });
@@ -555,6 +559,7 @@
     });
     teamFilter.addEventListener('change', renderPlayers);
     roleFilter.addEventListener('change', renderPlayers);
+    if (catFilter) catFilter.addEventListener('change', renderPlayers);
     matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); });
     document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints(); });
     document.getElementById('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
