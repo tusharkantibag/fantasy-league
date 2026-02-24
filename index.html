@@ -88,11 +88,12 @@
     .budget-chip-wrap label{ margin:0; font-size:.85rem; color:#37474f; }
     .budget-chip-wrap input[type=range]{ width:160px; height:22px; }
 
-    /* Category emoji icon (list) */
+    /* Category emoji corner badge (preview squares) */
+    .cat-corner { position:absolute; top:6px; left:6px; z-index:3; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#ffffff; box-shadow:0 1px 4px rgba(0,0,0,.18); font-size:14px; line-height:1; }
+    @media (max-width:480px){ .cat-corner{ top:4px; left:4px; width:20px; height:20px; font-size:13px; } }
+    /* Inline list icon (unchanged) */
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
     .cat-ico + .team-chip { margin-left: .15rem; }
-    /* Optional badge (kept) */
-    .square-card .cat-ico-badge{ position:absolute; top:8px; left:8px; font-size:1.05rem; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
   </style>
 </head>
 <body>
@@ -394,8 +395,7 @@
       else { const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon); }
       const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name;
       const tm=document.createElement('div'); tm.className='team'; tm.textContent=p.team||'';
-      const rl=document.createElement('div'); rl.className='role';
-      try{ const _catRaw=(p.category ?? p.Category ?? ''); const _ico=catIcon(_catRaw); rl.textContent=(role||'—') + (_ico?(' '+_ico):''); }catch(_){ rl.textContent=role||'—'; }
+      const rl=document.createElement('div'); rl.className='role'; rl.textContent=role||'—';
       const pr=document.createElement('div'); pr.className='price'; pr.textContent=String(Number(p.price||0));
       const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>';
       btn.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
