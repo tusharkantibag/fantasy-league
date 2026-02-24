@@ -88,10 +88,11 @@
     .budget-chip-wrap label{ margin:0; font-size:.85rem; color:#37474f; }
     .budget-chip-wrap input[type=range]{ width:160px; height:22px; }
 
-    /* Category emoji corner badge (preview squares) */
-    .cat-corner { position:absolute; top:6px; left:6px; z-index:3; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#ffffff; box-shadow:0 1px 4px rgba(0,0,0,.18); font-size:14px; line-height:1; }
+    /* Ensure preview squares can show corner overlays */
+    .square-card{ position:relative; overflow:visible; }
+    /* Sticky category emoji (top-left) */
+    .cat-corner{ position:absolute; top:6px; left:6px; z-index:10; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.18); font-size:14px; line-height:1; pointer-events:none; }
     @media (max-width:480px){ .cat-corner{ top:4px; left:4px; width:20px; height:20px; font-size:13px; } }
-    /* Inline list icon (unchanged) */
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
     .cat-ico + .team-chip { margin-left: .15rem; }
   </style>
@@ -308,7 +309,6 @@
   const totalBudgetEl=document.getElementById('totalBudgetCr');
   const budgetMaxEl=document.getElementById('budgetMax');
   const budgetMaxLabel=document.getElementById('budgetMaxLabel');
-
   function normalizeCategory(raw){
     const s = String(raw ?? '').trim().toUpperCase();
     if(!s) return '';
@@ -319,9 +319,9 @@
   }
   function catIcon(raw){
     const c = normalizeCategory(raw);
-    if(c==='FOREIGN')  return '🌍';
-    if(c==='UNCAPPED') return '🧒';
-    if(c==='CAPPED')   return '🧢';
+    if(c==='FOREIGN')  return '\U0001F30D';
+    if(c==='UNCAPPED') return '\U0001F9D2';
+    if(c==='CAPPED')   return '\U0001F9E2';
     return '';
   }
 
@@ -400,6 +400,7 @@
       const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>';
       btn.addEventListener('click', (e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
       card.appendChild(btn); card.appendChild(pic); card.appendChild(nm); card.appendChild(tm); card.appendChild(rl); card.appendChild(pr);
+      try{ const _catRaw=(p.category ?? p.Category ?? ''); const _ico=catIcon(_catRaw); if(_ico){ const prev=card.querySelector('.cat-corner'); if(prev) prev.remove(); const badge=document.createElement('div'); badge.className='cat-corner'; badge.title=normalizeCategory(_catRaw)||''; badge.textContent=_ico; card.appendChild(badge);} }catch(_){}
       return {card, role};
     }
     names.forEach(n=>{ const p=allPlayers.find(x=>x.name===n) || {name:n, team:'', role:'', imageUrl:'', price:0}; const {card, role} = makeCard(p);
