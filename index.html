@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — v5.2.2 (Display-only deadlines)</title>
+  <title>Sports Fever IPL Fantasy 2026 — v5.2.3 (Auto-latest + display deadline)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -96,6 +96,7 @@
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
     .cat-ico + .team-chip { margin-left: .15rem; }
   </style>
+<style id="deadline-safe-style">/* intentionally minimal */</style>
 </head>
 <body>
   <nav class="blue">
@@ -124,7 +125,7 @@
               <div class="input-field col s12 m6">
                 <select id="matchSelect"></select>
                 <label>For Match</label>
-<!-- Display-only Deadline row (does not change layout wrappers) -->
+<!-- Display-only Deadline row (outside Materialize select wrapper; safe) -->
 <div class="row" id="deadline-note-row" style="margin-top:-8px; display:none;">
   <div class="col s12">
     <div id="deadlineNote" class="badge-inline" style="display:inline-flex; gap:.35rem;"></div>
