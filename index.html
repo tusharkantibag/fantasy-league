@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — v5.1.0 (Foreign/Uncapped rules)</title>
+  <title>Sports Fever IPL Fantasy 2026 — v5.2.0 (Deadlines)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -296,7 +296,7 @@
 
   <script>
   // 👉 Replace this with your deployed Apps Script Web App URL
-  const API = 'https://script.google.com/macros/s/AKfycbyElingMZ0L2YfptibX9yUaSIxrzLRbmkLY2zBBXISqys5-uPYF8z1WAnqeQtsAZtd3/exec';
+  const API = 'https://script.google.com/macros/s/AKfycbx6CmQeKiXO5a_BLAdlljTcz9H5zvMvpCKSwLTnQtlvcyB4WztKsOdxs0_lQJHQa48V/exec';
 
   function notify(msg){ M.toast({html: msg, displayLength: 3500}); }
   function formatRole(r){ if(!r) return ''; r=String(r).trim().toUpperCase();
@@ -338,6 +338,16 @@
   const totalBudgetEl=document.getElementById('totalBudgetCr');
   const budgetMaxEl=document.getElementById('budgetMax');
   const budgetMaxLabel=document.getElementById('budgetMaxLabel');
+
+
+ // Deadline support
+ let matchesMeta = {}; // id -> {deadlineTs, deadlineIso, label}
+ let deadlineTimer = null;
+ function getSelectedMatchMeta(){ const id = (matchSelectEl.value||'').trim(); return matchesMeta[id]||null; }
+ function beforeDeadline(){ const m = getSelectedMatchMeta(); if(!m||!m.deadlineTs) return true; return Date.now() < m.deadlineTs; }
+ function ensureDeadlineNoteEl(){ let el = document.getElementById('deadlineNote'); if(!el){ el = document.createElement('div'); el.id='deadlineNote'; el.className='badge-inline'; const host = matchSelectEl.closest('.row')||document.querySelector('#submit .card-content'); host && host.appendChild(el); } return el; }
+ function renderDeadlineNote(){ const meta = getSelectedMatchMeta(); const el = ensureDeadlineNoteEl(); if(!meta||!meta.deadlineTs){ el.textContent = 'No deadline set'; el.classList.remove('badge-alert','badge-ok'); el.classList.add('badge-warn'); return; } const now=Date.now(); const remain = meta.deadlineTs - now; if(remain<=0){ el.textContent = 'Deadline passed'; el.classList.remove('badge-ok','badge-warn'); el.classList.add('badge-alert'); } else { const mins = Math.floor(remain/60000), secs=Math.floor((remain%60000)/1000); el.textContent = 'Deadline: ' + new Date(meta.deadlineTs).toLocaleString() + '  (T- ' + mins + 'm ' + secs + 's)'; el.classList.remove('badge-alert','badge-warn'); el.classList.add(mins<=10? 'badge-warn':'badge-ok'); } }
+ function startDeadlineTicker(){ if(deadlineTimer) clearInterval(deadlineTimer); renderDeadlineNote(); deadlineTimer = setInterval(()=>{ renderDeadlineNote(); updateSelectionUI(); }, 1000); }
 
   // CATEGORY FILTER ADDED
   const catFilter = document.getElementById('catFilter');
@@ -509,6 +519,7 @@
     if(!emailEl.value || !matchSelectEl.value || n!==11 || (!withinCap) || anyRoleBad || anyCatBad || (!withinBudget)){
       submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled');
     } else {
+ if(!beforeDeadline()){ submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); } else {
       if(hasBase){ if((userUsed+ch)>userBudget) submitBtn.classList.add('disabled'); else submitBtn.classList.remove('disabled'); }
       else { buildFirstBtn.classList.remove('disabled'); }
     }
@@ -604,7 +615,7 @@
     applyLastXIIfReady();
   }
 
-  async function fetchMatches(){ matchSelectEl.innerHTML='<option value="">Loading…</option>'; try{ const res=await fetch(`${API}?action=matches`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON (matches)'); return; } if(!j.ok){ notify(j.error||'API error (matches)'); return; } const list=Array.isArray(j.matches)? j.matches:[]; const opts=['<option value="">-- Select Match --</option>']; list.forEach(m=>opts.push(`<option value="${m.id}">${m.label||m.match||('Match '+m.id)}</option>`)); matchSelectEl.innerHTML=opts.join(''); M.FormSelect.init(matchSelectEl); if(list.length){ matchSelectEl.value=String(list[0].id); M.FormSelect.init(matchSelectEl);} healthLine.style.display='block'; healthLine.innerHTML = `<b>Health</b>: matches=${list.length}, players=${allPlayers.length}`; if(!list.length) notify('No matches returned. Check Matches headers or API URL.'); }catch(e){ notify('Network error (matches)'); } }
+  async function fetchMatches(){ matchSelectEl.innerHTML='<option value="">Loading…</option>'; try{ const res=await fetch(`${API}?action=matchesv2`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON (matches)'); return; } if(!j.ok){ notify(j.error||'API error (matches)'); return; } const list=Array.isArray(j.matches)? j.matches:[]; const opts=['<option value="">-- Select Match --</option>']; list.forEach(m=>{ const dl = matchesMeta[m.id] && matchesMeta[m.id].deadlineTs ? new Date(matchesMeta[m.id].deadlineTs).toLocaleString() : '-'; opts.push('<option value=+m.id+>'+(m.label||m.match||('Match '+m.id))+' — [DL '+dl+']</option>'); }); matchSelectEl.innerHTML=opts.join(''); M.FormSelect.init(matchSelectEl); if(list.length){ matchSelectEl.value=String(list[0].id); M.FormSelect.init(matchSelectEl);} startDeadlineTicker(); healthLine.style.display='block'; healthLine.innerHTML = `<b>Health</b>: matches=${list.length}, players=${allPlayers.length}`; if(!list.length) notify('No matches returned. Check Matches headers or API URL.'); }catch(e){ notify('Network error (matches)'); } }
   async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class="red-text">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class="red-text">${j.error||'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; // now includes category
     const maxPrice = Math.max(0, ...allPlayers.map(p=>Number(p.price||0)));
     budgetMaxEl.max = String(maxPrice||100);
@@ -683,7 +694,7 @@
     catFilter.addEventListener('change', renderPlayers);
     // /CATEGORY FILTER ADDED
 
-    matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); });
+    matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); startDeadlineTicker(); });
     document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints(); });
     document.getElementById('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
     document.getElementById('buildFirstBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
