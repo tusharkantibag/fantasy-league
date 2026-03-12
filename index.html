@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — v5.2.1 (Safe deadlines)</title>
+  <title>Sports Fever IPL Fantasy 2026 — v5.2.2 (Display-only deadlines)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -124,15 +124,15 @@
               <div class="input-field col s12 m6">
                 <select id="matchSelect"></select>
                 <label>For Match</label>
-              </div>
-            </div>
-<!-- Deadline note row (layout-safe, outside of form-select wrapper) -->
+<!-- Display-only Deadline row (does not change layout wrappers) -->
 <div class="row" id="deadline-note-row" style="margin-top:-8px; display:none;">
   <div class="col s12">
     <div id="deadlineNote" class="badge-inline" style="display:inline-flex; gap:.35rem;"></div>
   </div>
 </div>
 
+              </div>
+            </div>
 
             <div class="budget" id="budgetPanel" style="margin-bottom:.25rem;">
               <span class="badge-inline"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b> transfers</span>
@@ -346,66 +346,6 @@
   const budgetMaxEl=document.getElementById('budgetMax');
   const budgetMaxLabel=document.getElementById('budgetMaxLabel');
 
-
-// ===== Deadline (non-intrusive) =====
-let matchesMeta = {};            // id -> {deadlineTs, deadlineIso, label}
-let deadlineTimer = null;
-
-function setDeadlineRowVisible(on) {
-  const row = document.getElementById('deadline-note-row');
-  if (!row) return;
-  row.style.display = on ? 'block' : 'none';
-}
-
-function getSelectedMatchMeta() {
-  const id = (matchSelectEl.value || '').trim();
-  return matchesMeta[id] || null;
-}
-
-function beforeDeadline() {
-  const m = getSelectedMatchMeta();
-  if (!m || !m.deadlineTs) return true;        // no deadline => do not block UI
-  return Date.now() < m.deadlineTs;
-}
-
-function renderDeadlineNote() {
-  const el = document.getElementById('deadlineNote');
-  const meta = getSelectedMatchMeta();
-  if (!el) return;
-
-  // No known deadlines? keep the row hidden and skip
-  if (!meta || !meta.deadlineTs) {
-    setDeadlineRowVisible(false);
-    return;
-  }
-  setDeadlineRowVisible(true);
-
-  const remain = meta.deadlineTs - Date.now();
-  el.classList.remove('badge-alert','badge-warn','badge-ok');
-
-  if (remain <= 0) {
-    el.textContent = 'Deadline passed';
-    el.classList.add('badge-alert');
-  } else {
-    const mins = Math.floor(remain/60000);
-    const secs = Math.floor((remain%60000)/1000);
-    const pretty = new Date(meta.deadlineTs).toLocaleString();
-    el.textContent = `Deadline: ${pretty}  (T- ${mins}m ${secs}s)`;
-    el.classList.add(mins <= 10 ? 'badge-warn' : 'badge-ok');
-  }
-}
-
-function startDeadlineTicker() {
-  if (deadlineTimer) clearInterval(deadlineTimer);
-  renderDeadlineNote();
-  deadlineTimer = setInterval(() => {
-    renderDeadlineNote();
-    // Re-evaluate button enabled/disabled if (and only if) we have a real deadline
-    const meta = getSelectedMatchMeta();
-    if (meta && meta.deadlineTs) updateSelectionUI();
-  }, 1000);
-}
-
   // CATEGORY FILTER ADDED
   const catFilter = document.getElementById('catFilter');
   // /CATEGORY FILTER ADDED
@@ -576,12 +516,6 @@ function startDeadlineTicker() {
     if(!emailEl.value || !matchSelectEl.value || n!==11 || (!withinCap) || anyRoleBad || anyCatBad || (!withinBudget)){
       submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled');
     } else {
-  const metaForUi = (typeof getSelectedMatchMeta==='function') ? getSelectedMatchMeta() : null;
-  const hasRealDeadline = !!(metaForUi && metaForUi.deadlineTs);
-  if (hasRealDeadline && !beforeDeadline()) {
-    submitBtn.classList.add('disabled');
-    buildFirstBtn.classList.add('disabled');
-  } else {
       if(hasBase){ if((userUsed+ch)>userBudget) submitBtn.classList.add('disabled'); else submitBtn.classList.remove('disabled'); }
       else { buildFirstBtn.classList.remove('disabled'); }
     }
@@ -677,65 +611,7 @@ function startDeadlineTicker() {
     applyLastXIIfReady();
   }
 
-  
-async function fetchMatches(){
-  matchSelectEl.innerHTML='<option value="">Loading…</option>';
-  let list = [];
-  try {
-    // 1) Try the v2 endpoint that includes deadlineIso
-    let res = await fetch(`${API}?action=matchesv2`);
-    let txt = await res.text(); let j;
-    try { j = JSON.parse(txt); } catch(e){ j = null; }
-    if (j && j.ok && Array.isArray(j.matches)) {
-      list = j.matches;
-      matchesMeta = {};
-      list.forEach(m => {
-        const ts = m.deadlineIso ? Date.parse(m.deadlineIso) : NaN;
-        matchesMeta[m.id] = {
-          deadlineTs: (isNaN(ts) ? null : ts),
-          deadlineIso: m.deadlineIso || '',
-          label: m.label || m.match || m.id
-        };
-      });
-    } else {
-      // 2) Fallback to v1 (no deadlines)
-      const res2 = await fetch(`${API}?action=matches`);
-      const txt2 = await res2.text(); let j2;
-      try { j2 = JSON.parse(txt2); } catch(e){ j2 = null; }
-      if (j2 && j2.ok && Array.isArray(j2.matches)) {
-        list = j2.matches;
-        matchesMeta = {};  // empty => no UI blocking
-      } else {
-        notify('No matches returned. Check Matches sheet or API URL.');
-        list = [];
-      }
-    }
-  } catch(e) {
-    notify('Network error (matches)');
-  }
-
-  const opts = ['<option value="">-- Select Match --</option>'];
-  list.forEach(m => {
-    const label = m.label || m.match || ('Match ' + (m.id || ''));
-    opts.push(`<option value="${m.id}">${label}</option>`);
-  });
-  matchSelectEl.innerHTML = opts.join('');
-  M.FormSelect.init(matchSelectEl);
-
-  if (list.length) {
-    matchSelectEl.value = String(list[0].id);
-    M.FormSelect.init(matchSelectEl);
-  }
-
-  // Start ticker only if we actually have deadlines
-  const haveDeadlines = Object.values(matchesMeta).some(v => v && v.deadlineTs);
-  if (haveDeadlines) startDeadlineTicker(); else setDeadlineRowVisible(false);
-
-  // Optional: health line (keeps your existing behavior)
-  healthLine.style.display='block';
-  healthLine.innerHTML = `<b>Health</b>: matches=${list.length}, players=${allPlayers.length}`;
-  if(!list.length) notify('No matches returned. Check Matches headers or API URL.');
-}
+  async function fetchMatches(){ matchSelectEl.innerHTML='<option value="">Loading…</option>'; try{ const res=await fetch(`${API}?action=matches`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON (matches)'); return; } if(!j.ok){ notify(j.error||'API error (matches)'); return; } const list=Array.isArray(j.matches)? j.matches:[]; const opts=['<option value="">-- Select Match --</option>']; list.forEach(m=>opts.push(`<option value="${m.id}">${m.label||m.match||('Match '+m.id)}</option>`)); matchSelectEl.innerHTML=opts.join(''); M.FormSelect.init(matchSelectEl); if(list.length){ matchSelectEl.value=String(list[0].id); M.FormSelect.init(matchSelectEl);} healthLine.style.display='block'; healthLine.innerHTML = `<b>Health</b>: matches=${list.length}, players=${allPlayers.length}`; if(!list.length) notify('No matches returned. Check Matches headers or API URL.'); }catch(e){ notify('Network error (matches)'); } }
   async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class="red-text">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class="red-text">${j.error||'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; // now includes category
     const maxPrice = Math.max(0, ...allPlayers.map(p=>Number(p.price||0)));
     budgetMaxEl.max = String(maxPrice||100);
@@ -814,7 +690,7 @@ async function fetchMatches(){
     catFilter.addEventListener('change', renderPlayers);
     // /CATEGORY FILTER ADDED
 
-    matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); const haveDeadlines = Object.values(matchesMeta).some(v => v && v.deadlineTs); if (haveDeadlines) startDeadlineTicker(); else setDeadlineRowVisible(false); });
+    matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); });
     document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints(); });
     document.getElementById('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
     document.getElementById('buildFirstBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
