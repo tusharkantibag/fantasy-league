@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — v5.3.2 (C/VC mandatory)</title>
+  <title>Sports Fever IPL Fantasy 2026 — v5.4.0 (C/VC on-card)</title>
 
   <!-- Materialize CSS + Google Icons -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
 
   <style>
     body { background:#f5f7fb; }
@@ -87,20 +87,23 @@
     .square-card .price{ font-size:.78rem; text-align:center; margin-top:.2rem; padding:.12rem .5rem; border-radius:12px; background:#fff3e0; color:#e65100; display:inline-block; }
     .square-card .remove{ position:absolute; top:8px; right:8px; }
 
-    .health { font-size:.82rem; color:#546e7a; margin:.25rem 0; }
-    .health b { color:#0d47a1; }
-    .ok-text{ color:#2e7d32; }
-    .error-text{ color:#c62828; }
-
-    @media (max-width:480px){
-      .square-card{ width:150px; flex-basis:150px; }
-      .cat-corner{ top:8px; left:8px; width:24px; height:24px; font-size:15px; }
-    }
-
     .square-card{ position:relative; overflow:visible; }
     .cat-corner{ position:absolute; top:10px; left:10px; z-index:10; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:0 1px 3px rgba(0,0,0,.14); font-size:16px; line-height:1; pointer-events:none; }
+    @media (max-width:480px){ .cat-corner{ top:8px; left:8px; width:24px; height:24px; font-size:15px; } }
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
     .cat-ico + .team-chip { margin-left: .15rem; }
+
+    /* --- New: single badge per card to cycle None→C→VC→None --- */
+    .cv-badge{
+      position:absolute; top:8px; right:42px; /* space for the remove 'X' at right:8px */
+      padding:2px 6px; border-radius:8px; font-size:.72rem; font-weight:800;
+      border:1px solid #d0d7de; background:#eceff1; color:#37474f;
+      cursor:pointer; user-select:none; z-index:12; line-height:1.1;
+    }
+    .cv-badge.cv-none { background:#eceff1; color:#607d8b; border-color:#d0d7de; }
+    .cv-badge.cv-c    { background:#ffe082; color:#5d4037; border-color:#ffb300; }
+    .cv-badge.cv-vc   { background:#bbdefb; color:#0d47a1; border-color:#64b5f6; }
+    .cv-badge:active  { transform:translateY(1px); }
   </style>
 </head>
 <body>
@@ -251,25 +254,6 @@
                 <span class="pill" id="pillCost">Cost: 0</span>
               </div>
 
-              <!-- NEW: C/VC panel -->
-              <div id="cvPanel" class="card" style="box-shadow:none;border:1px solid #e0e0e0;border-radius:10px;margin:.4rem 0;padding:.6rem;">
-                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-                  <span class="pill"><i class="material-icons">military_tech</i>Captain (C)</span>
-                  <div class="input-field" style="min-width:220px;margin:0;">
-                    <select id="captainSelect"></select>
-                    <label class="active">Select Captain</label>
-                  </div>
-
-                  <span class="pill"><i class="material-icons">emoji_events</i>Vice‑Captain (VC)</span>
-                  <div class="input-field" style="min-width:220px;margin:0;">
-                    <select id="vcSelect"></select>
-                    <label class="active">Select Vice‑Captain</label>
-                  </div>
-                </div>
-                <div id="cvWarning" class="red-text" style="margin-top:.25rem;display:none;"></div>
-              </div>
-              <!-- /C/VC panel -->
-
               <div id="previewGrid" class="preview-grid">
                 <div class="lineup-row" data-role="WK">
                   <div class="role-header role-WK"><i class="material-icons">sports_cricket</i>Wicketkeepers</div>
@@ -344,7 +328,7 @@
 
   <script>
     /* --------------------- CONFIG --------------------- */
-    // Use your deployed Apps Script web app URL:
+    // Replace with YOUR Web App URL from Apps Script deployment
     const API = 'https://script.google.com/macros/s/AKfycbw14RPbSGaJPpzJ3kDyiHbG-0Xh8vgGDJpOauUZNvBrxiBma2x66HqJnMJDbqoeoAcK/exec';
 
     /* ---------------------- UTILS ---------------------- */
@@ -420,11 +404,6 @@
     const dlTime=document.getElementById('dlTime');
     const dlCountdown=document.getElementById('dlCountdown');
 
-    // NEW: C/VC UI
-    const captainSelect=document.getElementById('captainSelect');
-    const vcSelect=document.getElementById('vcSelect');
-    const cvWarning=document.getElementById('cvWarning');
-
     /* --------------------- APP STATE --------------------- */
     let isLocked=false, cutoffAt=null, countdownTimer=null;
 
@@ -438,7 +417,8 @@
     let totalBudget=100;
     let selectedNames=new Set();
 
-    let selectedCaptain=''; let selectedViceCaptain='';
+    // NEW: per-player C/VC state -> 'NONE' | 'C' | 'VC'
+    const cvMap = new Map();
 
     function selected(){ return Array.from(selectedNames); }
 
@@ -471,8 +451,7 @@
     function teamCountsOf(list){
       const c={}; (list||[]).forEach(name=>{
         const p=allPlayers.find(x=>x.name===name);
-        const t=String((p&&p.team)||'');
-        if(t) c[t]=(c[t]||0)+1;
+        const t=String((p&&p.team)||''); if(t) c[t]=(c[t]||0)+1;
       }); return c;
     }
     function capStatus(list){
@@ -487,6 +466,29 @@
       const c={FOREIGN:0, UNCAPPED:0, CAPPED:0};
       (list||[]).forEach(n=>{ const p=allPlayers.find(x=>x.name===n)||{}; const cat=categoryOf(p); if(typeof c[cat]==='number') c[cat]++; });
       return c;
+    }
+
+    // NEW: C/VC validation snapshot against current XI
+    function getCvStatus(names){
+      const cNames=[], vcNames=[];
+      (names||[]).forEach(n=>{
+        const st = cvMap.get(n) || 'NONE';
+        if(st==='C') cNames.push(n);
+        else if(st==='VC') vcNames.push(n);
+      });
+      return {
+        cNames, vcNames,
+        ok: (cNames.length===1 && vcNames.length===1 && cNames[0]!==vcNames[0]),
+        msg: (()=>{
+          if(names.length!==11) return '';
+          if(cNames.length===0 || vcNames.length===0) return 'Please select Captain (C) and Vice‑Captain (VC).';
+          if(cNames.length>1 && vcNames.length>1) return 'Multiple Captains and Vice‑Captains selected; keep exactly one of each.';
+          if(cNames.length>1) return 'Multiple Captains selected; keep exactly one Captain.';
+          if(vcNames.length>1) return 'Multiple Vice‑Captains selected; keep exactly one Vice‑Captain.';
+          if(cNames[0]===vcNames[0]) return 'Captain and Vice‑Captain must be different.';
+          return '';
+        })()
+      };
     }
 
     /* --------------------- UI REFRESH --------------------- */
@@ -559,7 +561,7 @@
         el.classList.remove('ok','bad');
         el.textContent=`${label}: ${n} (${kind==='max'?'max '+thr:'min '+thr})`;
         const old=M.Tooltip.getInstance(el); if(old) old.destroy();
-        el.setAttribute('data-tooltip', tooltipForCat(label,n,thr,kind));
+        el.setAttribute('data-tooltip', tooltipForCat(label, n, thr, kind));
         M.Tooltip.init(el,{position:'top', margin:6});
         const bad=(kind==='max'? n>thr : n<thr);
         if(bad) el.classList.add('bad'); else el.classList.add('ok');
@@ -586,49 +588,85 @@
       const rowBOWL=document.getElementById('row-BOWL');
       rowWK.innerHTML=''; rowBAT.innerHTML=''; rowAR.innerHTML=''; rowBOWL.innerHTML='';
 
+      function setBadgeVisual(el, state){
+        el.classList.remove('cv-none','cv-c','cv-vc');
+        if(state==='C'){ el.classList.add('cv-c');  el.textContent='C'; }
+        else if(state==='VC'){ el.classList.add('cv-vc'); el.textContent='VC'; }
+        else { el.classList.add('cv-none'); el.textContent='—'; }
+      }
+
       function makeCard(p){
         const role=formatRole(p.role||'');
-        const card=document.createElement('div'); card.className='square-card';
+
+        const card=document.createElement('div');
+        card.className='square-card';
         if(role) card.classList.add('accent-'+role);
+
         const pic=document.createElement('div'); pic.className='pic';
         if(p.imageUrl){
-          const img=document.createElement('img'); img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl;
+          const img=document.createElement('img');
+          img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer';
+          img.src=p.imageUrl;
           img.onerror=function(){ this.remove(); pic.innerHTML='<i class="material-icons">person</i>'; };
           pic.appendChild(img);
-        } else {
+        }else{
           const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon);
         }
+
         const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name;
         const tm=document.createElement('div'); tm.className='team'; tm.textContent=p.team||'';
         const rl=document.createElement('div'); rl.className='role'; rl.textContent=role||'—';
         const pr=document.createElement('div'); pr.className='price'; pr.textContent=String(Number(p.price||0));
+
         const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>';
         btn.addEventListener('click',(e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
 
-        card.appendChild(btn); card.appendChild(pic); card.appendChild(nm); card.appendChild(tm); card.appendChild(rl); card.appendChild(pr);
+        // Single badge: cycle None→C→VC→None
+        const badge=document.createElement('a'); badge.href='#'; badge.className='cv-badge cv-none';
+        const curr=cvMap.get(p.name)||'NONE'; setBadgeVisual(badge,curr);
+        badge.title='Click to cycle: None → C → VC → None';
+        badge.addEventListener('click',(e)=>{
+          e.preventDefault(); e.stopPropagation();
+          const st=cvMap.get(p.name)||'NONE';
+          const next = (st==='NONE') ? 'C' : (st==='C' ? 'VC' : 'NONE');
+          if(next==='NONE'){ cvMap.delete(p.name); }
+          else { cvMap.set(p.name, next); }
+          setBadgeVisual(badge, next);
+          updateSelectionUI();
+        });
+
+        card.appendChild(btn);
+        card.appendChild(badge);
+        card.appendChild(pic);
+        card.appendChild(nm);
+        card.appendChild(tm);
+        card.appendChild(rl);
+        card.appendChild(pr);
 
         try{
           const _catRaw=(p.category ?? p.Category ?? '');
           const _ico=catIcon(_catRaw);
           if(_ico){
             const prev=card.querySelector('.cat-corner'); if(prev) prev.remove();
-            const badge=document.createElement('div'); badge.className='cat-corner'; badge.title=normalizeCategory(_catRaw)||''; badge.textContent=_ico;
-            card.appendChild(badge);
+            const cg=document.createElement('div'); cg.className='cat-corner'; cg.title=normalizeCategory(_catRaw)||''; cg.textContent=_ico;
+            card.appendChild(cg);
           }
         }catch(_){}
+
         return {card, role};
       }
 
       names.forEach(n=>{
         const p=allPlayers.find(x=>x.name===n)||{name:n,team:'',role:'',imageUrl:'',price:0};
         const {card,role}=makeCard(p);
-        if(role==='WK') rowWK.appendChild(card);
-        else if(role==='BAT') rowBAT.appendChild(card);
-        else if(role==='AR') rowAR.appendChild(card);
+        if     (role==='WK')   rowWK.appendChild(card);
+        else if(role==='BAT')  rowBAT.appendChild(card);
+        else if(role==='AR')   rowAR.appendChild(card);
         else if(role==='BOWL') rowBOWL.appendChild(card);
-        else rowBAT.appendChild(card);
+        else                   rowBAT.appendChild(card);
       });
 
+      // Main validation line (includes C/VC checks)
       const msg=document.getElementById('validationMsg');
       const cap=capStatus(names);
       const withinCap=cap.overTeams.length===0;
@@ -636,42 +674,33 @@
       const cat=categoryCounts(names);
       const catForeignOk=(cat.FOREIGN||0)<=Number(categoryCaps.maxForeign||0);
       const catUncappedOk=(cat.UNCAPPED||0)>=Number(categoryCaps.minUncapped||0);
+      const cvStat=getCvStatus(names);
 
-      if(!withinCap){ msg.className='helper error-text'; msg.textContent='Team cap exceeded: '+cap.overTeams.join(', '); }
-      else if(overBudget){ msg.className='helper error-text'; msg.textContent=`Over budget! Reduce cost to ≤ ${totalBudget}.`; }
-      else if(!catForeignOk){ msg.className='helper error-text'; msg.textContent=`Too many FOREIGN players. Max allowed = ${categoryCaps.maxForeign}.`; }
-      else if(!catUncappedOk){ msg.className='helper error-text'; msg.textContent=`Not enough UNCAPPED players. Min required = ${categoryCaps.minUncapped}.`; }
-      else { msg.className='helper ok-text'; msg.textContent='Looks good!'; }
-
-      refreshRuleChips();
-      refreshCategoryChips();
-
-      // Keep C/VC selects in sync with current XI
-      rebuildCvSelects();
+      if(!withinCap){
+        msg.className='helper error-text'; msg.textContent='Team cap exceeded: ' + cap.overTeams.join(', ');
+      } else if(overBudget){
+        msg.className='helper error-text'; msg.textContent=`Over budget! Reduce cost to ≤ ${totalBudget}.`;
+      } else if(!catForeignOk){
+        msg.className='helper error-text'; msg.textContent=`Too many FOREIGN players. Max allowed = ${categoryCaps.maxForeign}.`;
+      } else if(!catUncappedOk){
+        msg.className='helper error-text'; msg.textContent=`Not enough UNCAPPED players. Min required = ${categoryCaps.minUncapped}.`;
+      } else if(names.length===11 && !cvStat.ok){
+        msg.className='helper error-text'; msg.textContent=cvStat.msg || 'Please set valid Captain and Vice‑Captain.';
+      } else {
+        msg.className='helper ok-text'; msg.textContent='Looks good!';
+      }
     }
-
-    function rebuildCvSelects(){
-      const xi=selected();
-      const options = xi.map(n=>`<option value="${n}">${n}</option>`).join('');
-      captainSelect.innerHTML = '<option value="" disabled selected>-- pick Captain --</option>' + options;
-      vcSelect.innerHTML      = '<option value="" disabled selected>-- pick Vice‑Captain --</option>' + options;
-
-      // preserve choices if still valid
-      if(selectedCaptain && xi.includes(selectedCaptain)) captainSelect.value=selectedCaptain;
-      if(selectedViceCaptain && xi.includes(selectedViceCaptain)) vcSelect.value=selectedViceCaptain;
-
-      let inst;
-      inst=M.FormSelect.getInstance(captainSelect); if(inst) inst.destroy();
-      inst=M.FormSelect.getInstance(vcSelect); if(inst) inst.destroy();
-      M.FormSelect.init(captainSelect); M.FormSelect.init(vcSelect);
-    }
-
-    captainSelect.addEventListener('change', ()=>{ selectedCaptain=captainSelect.value||''; updateSelectionUI(); });
-    vcSelect.addEventListener('change',       ()=>{ selectedViceCaptain=vcSelect.value||''; updateSelectionUI(); });
 
     function togglePlayer(name, on){
-      if(on) selectedNames.add(name); else selectedNames.delete(name);
-      const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value,cb));
+      if(on){
+        selectedNames.add(name);
+      } else {
+        selectedNames.delete(name);
+        // clear any C/VC tag for this player
+        if(cvMap.has(name)) cvMap.delete(name);
+      }
+      const map=new Map();
+      document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb));
       if(map.has(name)) map.get(name).checked=!!on;
       updateSelectionUI();
     }
@@ -693,19 +722,8 @@
       const withinBudget=cost<=totalBudget;
       const hasBase=!!(lastTeamPlayers && lastTeamPlayers.length);
 
-      // C/VC validation
-      const needCv=(n===11);
-      let cvOk=false, cvMsg='';
-      if(!needCv){ cvOk=false; cvMsg=''; }
-      else{
-        const c=selectedCaptain||'', v=selectedViceCaptain||'';
-        if(!c||!v){ cvOk=false; cvMsg='Please select both Captain (C) and Vice‑Captain (VC).'; }
-        else if(c===v){ cvOk=false; cvMsg='Captain and Vice‑Captain must be different.'; }
-        else if(!names.includes(c)||!names.includes(v)){ cvOk=false; cvMsg='C/VC must be chosen from the selected XI.'; }
-        else cvOk=true;
-      }
-      cvWarning.style.display=cvOk?'none':(cvMsg?'block':'none');
-      cvWarning.textContent=cvMsg;
+      const cvStat=getCvStatus(names);
+      const cvOk = (n===11) ? cvStat.ok : false;
 
       submitBtn.style.display=hasBase?'inline-flex':'none';
       buildFirstBtn.style.display=hasBase?'none':'inline-flex';
@@ -744,8 +762,8 @@
       if(!selectedNames || selectedNames.size===0){ selectedNames=new Set(lastTeamPlayers||[]); }
       const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb));
       let checked=0; (selected()||[]).forEach(n=>{ if(map.has(n) && checked<11){ map.get(n).checked=true; checked++; } });
-      // require explicit re-pick of C/VC
-      selectedCaptain=''; selectedViceCaptain=''; rebuildCvSelects();
+      // force explicit C/VC selection for the new XI
+      cvMap.clear();
       updateSelectionUI();
       if(lastTeamPlayers && lastTeamPlayers.length){ document.getElementById('transferBanner').style.display='flex'; }
     }
@@ -939,7 +957,10 @@
       if(!email || !matchSelectEl.value){ notify('Email & Match required'); return; }
       if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found; please build your first XI.'); return; }
       if(names.length!==11){ notify('Your XI must have exactly 11 after transfers'); return; }
-      if(!selectedCaptain || !selectedViceCaptain){ notify('Please select Captain and Vice‑Captain'); return; }
+
+      const cvStat=getCvStatus(names);
+      if(!cvStat.ok){ notify(cvStat.msg || 'Please select valid Captain and Vice‑Captain.'); return; }
+      const cName=cvStat.cNames[0], vcName=cvStat.vcNames[0];
 
       const {adds,drops}=computeTransfers();
       submitBtn.classList.add('disabled');
@@ -950,8 +971,8 @@
         qs.set('matchId',matchSelectEl.value);
         qs.set('adds', JSON.stringify(adds));
         qs.set('drops', JSON.stringify(drops));
-        qs.set('c', selectedCaptain);
-        qs.set('vc', selectedViceCaptain);
+        qs.set('c', cName);
+        qs.set('vc', vcName);
 
         const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'});
         const raw=await res.text();
@@ -970,7 +991,10 @@
       const email=(emailEl.value||'').trim(); const names=selected();
       if(!email || !matchSelectEl.value){ notify('Email & Match required'); return; }
       if(names.length!==11){ notify('Pick exactly 11 to build your first XI'); return; }
-      if(!selectedCaptain || !selectedViceCaptain){ notify('Please select Captain and Vice‑Captain'); return; }
+
+      const cvStat=getCvStatus(names);
+      if(!cvStat.ok){ notify(cvStat.msg || 'Please select valid Captain and Vice‑Captain.'); return; }
+      const cName=cvStat.cNames[0], vcName=cvStat.vcNames[0];
 
       buildFirstBtn.classList.add('disabled');
       try{
@@ -979,8 +1003,8 @@
         qs.set('email',email);
         qs.set('matchId',matchSelectEl.value);
         qs.set('players', JSON.stringify(names));
-        qs.set('c', selectedCaptain);
-        qs.set('vc', selectedViceCaptain);
+        qs.set('c', cName);
+        qs.set('vc', vcName);
 
         const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'});
         const raw=await res.text();
@@ -1024,9 +1048,10 @@
       renderList(listAdds,adds,'in'); renderList(listDrops,drops,'out');
 
       const overBudget=cost>totalBudget;
-      const cvcLine = (selectedCaptain && selectedViceCaptain)
-        ? `<div class="grey-text">C: <b>${selectedCaptain}</b> • VC: <b>${selectedViceCaptain}</b></div>`
-        : `<div class="red-text">Pick Captain and Vice‑Captain</div>`;
+      const cvStat=getCvStatus(names);
+      const cvcLine = cvStat.ok
+        ? `<div class="grey-text">C: <b>${cvStat.cNames[0]}</b> • VC: <b>${cvStat.vcNames[0]}</b></div>`
+        : `<div class="red-text">${cvStat.msg || 'Pick Captain and Vice‑Captain'}</div>`;
       summaryEl.innerHTML =
         `<div class="grey-text">Total cost: <b>${cost}</b> / Cap <b>${totalBudget}</b>${overBudget?' — <span class="red-text">Over budget</span>':''}</div>` +
         cvcLine;
@@ -1039,8 +1064,7 @@
         window.fetch=async function(url,opts){
           const res=await originalFetch(url,opts);
           try{
-            const u=String(url||'');
-            const isSubmit=/action=(submittransfers|submitteam)/i.test(u);
+            const u=String(url||''); const isSubmit=/action=(submittransfers|submitteam)/i.test(u);
             if(isSubmit){
               const txt=await res.clone().text();
               let ok=false; try{ const j=JSON.parse(txt); ok=!!(j&&j.ok);}catch(_){}
@@ -1106,8 +1130,8 @@
       clearAllBtn.addEventListener('click', (e)=>{
         e.preventDefault();
         selectedNames.clear();
+        cvMap.clear();
         document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked=false);
-        selectedCaptain=''; selectedViceCaptain=''; rebuildCvSelects();
         updateSelectionUI();
       });
 
@@ -1115,8 +1139,8 @@
         e.preventDefault();
         if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found to reset.'); return; }
         selectedNames=new Set(lastTeamPlayers||[]);
+        cvMap.clear(); // force re-selection of C/VC
         document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked = selectedNames.has(cb.value));
-        selectedCaptain=''; selectedViceCaptain=''; rebuildCvSelects();
         updateSelectionUI();
         notify('Reverted to your last saved XI.');
       });
