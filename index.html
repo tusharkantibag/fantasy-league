@@ -93,17 +93,71 @@
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
     .cat-ico + .team-chip { margin-left: .15rem; }
 
-    /* --- New: single badge per card to cycle None→C→VC→None --- */
+    /* === C/VC badge — bigger & prominent === */
     .cv-badge{
-      position:absolute; top:8px; right:42px; /* space for the remove 'X' at right:8px */
-      padding:2px 6px; border-radius:8px; font-size:.72rem; font-weight:800;
-      border:1px solid #d0d7de; background:#eceff1; color:#37474f;
-      cursor:pointer; user-select:none; z-index:12; line-height:1.1;
+      position:absolute; 
+      top:6px; 
+      right:40px;               /* keep room for the remove 'X' at right:8px */
+      display:inline-flex; 
+      align-items:center; 
+      gap:6px;
+
+      padding:4px 10px;
+      border-radius:12px;
+      font-size:0.95rem;        /* was ~0.72rem */
+      font-weight:900;
+      letter-spacing:0.02em;
+      text-transform:uppercase;
+      line-height:1;
+
+      border:1px solid #cfd8dc;
+      background:#eceff1;
+      color:#37474f;
+      cursor:pointer; 
+      user-select:none; 
+      z-index:12;
+
+      box-shadow:
+        0 2px 6px rgba(0,0,0,.12),
+        0 0 0 2px rgba(255,255,255,.85) inset;   /* inner ring */
+      transition: transform .05s ease, box-shadow .15s ease, background .15s ease;
     }
-    .cv-badge.cv-none { background:#eceff1; color:#607d8b; border-color:#d0d7de; }
-    .cv-badge.cv-c    { background:#ffe082; color:#5d4037; border-color:#ffb300; }
-    .cv-badge.cv-vc   { background:#bbdefb; color:#0d47a1; border-color:#64b5f6; }
-    .cv-badge:active  { transform:translateY(1px); }
+    .cv-badge:hover { transform: translateY(-1px); }
+
+    .cv-badge i.material-icons{
+      font-size:18px;           /* icon inside the pill */
+      line-height:1;
+      opacity:.95;
+    }
+
+    .cv-badge.cv-none { 
+      background:#eceff1; 
+      color:#607d8b; 
+      border-color:#cfd8dc; 
+      box-shadow:0 2px 6px rgba(0,0,0,.10), 0 0 0 2px rgba(255,255,255,.85) inset;
+    }
+
+    /* Captain = amber tone + soft glow */
+    .cv-badge.cv-c{ 
+      background:#ffecb3;       /* lighter amber for legibility */
+      color:#4e342e; 
+      border-color:#ffb300; 
+      box-shadow:
+        0 2px 8px rgba(255,179,0,.45),
+        0 0 0 2px rgba(255,255,255,.9) inset;
+    }
+
+    /* Vice-captain = light blue tone + soft glow */
+    .cv-badge.cv-vc{ 
+      background:#e3f2fd; 
+      color:#0d47a1; 
+      border-color:#64b5f6; 
+      box-shadow:
+        0 2px 8px rgba(100,181,246,.45),
+        0 0 0 2px rgba(255,255,255,.9) inset;
+    }
+
+    .cv-badge:active { transform: translateY(1px); }
   </style>
 </head>
 <body>
@@ -588,11 +642,23 @@
       const rowBOWL=document.getElementById('row-BOWL');
       rowWK.innerHTML=''; rowBAT.innerHTML=''; rowAR.innerHTML=''; rowBOWL.innerHTML='';
 
+      // BIGGER, ICON-ENHANCED BADGE CONTENT
       function setBadgeVisual(el, state){
         el.classList.remove('cv-none','cv-c','cv-vc');
-        if(state==='C'){ el.classList.add('cv-c');  el.textContent='C'; }
-        else if(state==='VC'){ el.classList.add('cv-vc'); el.textContent='VC'; }
-        else { el.classList.add('cv-none'); el.textContent='—'; }
+
+        if(state === 'C'){
+          el.classList.add('cv-c');
+          el.setAttribute('aria-label', 'Captain');
+          el.innerHTML = '<i class="material-icons" aria-hidden="true">military_tech</i><span>C</span>';
+        } else if(state === 'VC'){
+          el.classList.add('cv-vc');
+          el.setAttribute('aria-label', 'Vice-Captain');
+          el.innerHTML = '<i class="material-icons" aria-hidden="true">emoji_events</i><span>VC</span>';
+        } else {
+          el.classList.add('cv-none');
+          el.setAttribute('aria-label', 'No C/VC set');
+          el.innerHTML = '<i class="material-icons" aria-hidden="true">radio_button_unchecked</i><span>—</span>';
+        }
       }
 
       function makeCard(p){
