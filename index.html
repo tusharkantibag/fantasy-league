@@ -77,14 +77,24 @@
     .role-header.role-BOWL{ color:#ff6d00; border-color:#ffe0b2; background:#fff3e0; }
     .role-cards{ display:flex; flex-wrap:wrap; gap:12px; margin-top:6px; }
 
-    .square-card{ background:#fafcff; border:1px solid #dde5ee; border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; position:relative; width:180px; flex:0 0 180px; }
+    .square-card{ background:#fafcff; border:1px solid #dde5ee; border-radius:12px; padding:10px; padding-bottom:48px; /* leave space for bottom badge */ display:flex; flex-direction:column; align-items:center; position:relative; width:180px; flex:0 0 180px; }
     .square-card .pic{ width:100%; aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#fff; border:1px solid #e0e0e0; display:flex; align-items:center; justify-content:center; }
     .square-card .pic img{ width:100%; height:100%; object-fit:cover; }
     .square-card .pic i{ font-size:42px; color:#90a4ae; }
+
     .square-card .name{ margin-top:.5rem; font-weight:700; font-size:.95rem; text-align:center; }
-    .square-card .team{ font-size:.8rem; color:#607d8b; text-align:center; margin-top:.15rem; }
-    .square-card .role{ font-size:.78rem; text-align:center; margin-top:.2rem; padding:.12rem .5rem; border-radius:12px; background:#eceff1; color:#37474f; display:inline-block; }
-    .square-card .price{ font-size:.78rem; text-align:center; margin-top:.2rem; padding:.12rem .5rem; border-radius:12px; background:#fff3e0; color:#e65100; display:inline-block; }
+    /* NEW: team + role in one line */
+    .square-card .team-role{ margin-top:.15rem; font-size:.85rem; color:#546e7a; text-align:center; }
+    .square-card .team-role b{ color:#37474f; font-weight:700; }
+    /* NEW: points line below team-role */
+    .square-card .pts-line{ margin-top:.25rem; font-size:.82rem; color:#6a1b9a; display:inline-flex; align-items:center; gap:.25rem; }
+    .square-card .pts-line i{ font-size:16px; line-height:1; }
+
+    .square-card .role{ display:none; } /* old role chip hidden */
+    .square-card .team{ display:none; } /* old team line hidden */
+
+    .square-card .price{ font-size:.78rem; text-align:center; margin-top:.4rem; padding:.12rem .5rem; border-radius:12px; background:#fff3e0; color:#e65100; display:inline-block; }
+
     .square-card .remove{ position:absolute; top:8px; right:8px; }
 
     .square-card{ position:relative; overflow:visible; }
@@ -93,18 +103,19 @@
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
     .cat-ico + .team-chip { margin-left: .15rem; }
 
-    /* === C/VC badge — bigger & prominent === */
+    /* === C/VC badge — bigger & bottom-centered === */
     .cv-badge{
       position:absolute; 
-      top:6px; 
-      right:40px;               /* keep room for the remove 'X' at right:8px */
+      bottom:6px; 
+      left:50%;
+      transform:translateX(-50%);
       display:inline-flex; 
       align-items:center; 
       gap:6px;
 
-      padding:4px 10px;
-      border-radius:12px;
-      font-size:0.95rem;        /* was ~0.72rem */
+      padding:6px 14px;
+      border-radius:14px;
+      font-size:1.05rem;
       font-weight:900;
       letter-spacing:0.02em;
       text-transform:uppercase;
@@ -118,14 +129,14 @@
       z-index:12;
 
       box-shadow:
-        0 2px 6px rgba(0,0,0,.12),
-        0 0 0 2px rgba(255,255,255,.85) inset;   /* inner ring */
+        0 2px 8px rgba(0,0,0,.14),
+        0 0 0 2px rgba(255,255,255,.9) inset;
       transition: transform .05s ease, box-shadow .15s ease, background .15s ease;
     }
-    .cv-badge:hover { transform: translateY(-1px); }
+    .cv-badge:hover { transform: translate(-50%, -1px); }
 
     .cv-badge i.material-icons{
-      font-size:18px;           /* icon inside the pill */
+      font-size:18px;
       line-height:1;
       opacity:.95;
     }
@@ -134,30 +145,28 @@
       background:#eceff1; 
       color:#607d8b; 
       border-color:#cfd8dc; 
-      box-shadow:0 2px 6px rgba(0,0,0,.10), 0 0 0 2px rgba(255,255,255,.85) inset;
+      box-shadow:0 2px 8px rgba(0,0,0,.10), 0 0 0 2px rgba(255,255,255,.9) inset;
     }
 
-    /* Captain = amber tone + soft glow */
     .cv-badge.cv-c{ 
-      background:#ffecb3;       /* lighter amber for legibility */
+      background:#ffecb3;
       color:#4e342e; 
       border-color:#ffb300; 
       box-shadow:
-        0 2px 8px rgba(255,179,0,.45),
-        0 0 0 2px rgba(255,255,255,.9) inset;
+        0 2px 10px rgba(255,179,0,.45),
+        0 0 0 2px rgba(255,255,255,.95) inset;
     }
 
-    /* Vice-captain = light blue tone + soft glow */
     .cv-badge.cv-vc{ 
       background:#e3f2fd; 
       color:#0d47a1; 
       border-color:#64b5f6; 
       box-shadow:
-        0 2px 8px rgba(100,181,246,.45),
-        0 0 0 2px rgba(255,255,255,.9) inset;
+        0 2px 10px rgba(100,181,246,.45),
+        0 0 0 2px rgba(255,255,255,.95) inset;
     }
 
-    .cv-badge:active { transform: translateY(1px); }
+    .cv-badge:active { transform: translate(-50%, 1px); }
   </style>
 </head>
 <body>
@@ -471,7 +480,7 @@
     let totalBudget=100;
     let selectedNames=new Set();
 
-    // NEW: per-player C/VC state -> 'NONE' | 'C' | 'VC'
+    // per-player C/VC state -> 'NONE' | 'C' | 'VC'
     const cvMap = new Map();
 
     function selected(){ return Array.from(selectedNames); }
@@ -522,7 +531,7 @@
       return c;
     }
 
-    // NEW: C/VC validation snapshot against current XI
+    // C/VC validation snapshot
     function getCvStatus(names){
       const cNames=[], vcNames=[];
       (names||[]).forEach(n=>{
@@ -642,10 +651,8 @@
       const rowBOWL=document.getElementById('row-BOWL');
       rowWK.innerHTML=''; rowBAT.innerHTML=''; rowAR.innerHTML=''; rowBOWL.innerHTML='';
 
-      // BIGGER, ICON-ENHANCED BADGE CONTENT
       function setBadgeVisual(el, state){
         el.classList.remove('cv-none','cv-c','cv-vc');
-
         if(state === 'C'){
           el.classList.add('cv-c');
           el.setAttribute('aria-label', 'Captain');
@@ -680,14 +687,24 @@
         }
 
         const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name;
-        const tm=document.createElement('div'); tm.className='team'; tm.textContent=p.team||'';
-        const rl=document.createElement('div'); rl.className='role'; rl.textContent=role||'—';
+
+        /* NEW: Team – Role in the same line */
+        const teamRole=document.createElement('div'); teamRole.className='team-role';
+        const teamTxt=(p.team||'').toUpperCase();
+        teamRole.innerHTML = `<b>${teamTxt || '—'}</b> – ${role || '—'}`;
+
+        /* NEW: Points line below */
+        const pts=document.createElement('div'); pts.className='pts-line';
+        const ptsVal = pointsOf(p.name);
+        pts.innerHTML = `<i class="material-icons" title="Points">stars</i>${(typeof ptsVal==='number') ? ptsVal : '—'}`;
+
+        /* Keep the price chip; card has bottom padding so badge won't overlap */
         const pr=document.createElement('div'); pr.className='price'; pr.textContent=String(Number(p.price||0));
 
         const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>';
         btn.addEventListener('click',(e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
 
-        // Single badge: cycle None→C→VC→None
+        // C/VC badge (bottom-centered) — click to cycle None→C→VC→None
         const badge=document.createElement('a'); badge.href='#'; badge.className='cv-badge cv-none';
         const curr=cvMap.get(p.name)||'NONE'; setBadgeVisual(badge,curr);
         badge.title='Click to cycle: None → C → VC → None';
@@ -705,10 +722,11 @@
         card.appendChild(badge);
         card.appendChild(pic);
         card.appendChild(nm);
-        card.appendChild(tm);
-        card.appendChild(rl);
+        card.appendChild(teamRole);
+        card.appendChild(pts);
         card.appendChild(pr);
 
+        // category mini-icon (unchanged)
         try{
           const _catRaw=(p.category ?? p.Category ?? '');
           const _ico=catIcon(_catRaw);
@@ -732,7 +750,7 @@
         else                   rowBAT.appendChild(card);
       });
 
-      // Main validation line (includes C/VC checks)
+      // Validation line (includes C/VC checks)
       const msg=document.getElementById('validationMsg');
       const cap=capStatus(names);
       const withinCap=cap.overTeams.length===0;
@@ -762,7 +780,6 @@
         selectedNames.add(name);
       } else {
         selectedNames.delete(name);
-        // clear any C/VC tag for this player
         if(cvMap.has(name)) cvMap.delete(name);
       }
       const map=new Map();
@@ -828,8 +845,7 @@
       if(!selectedNames || selectedNames.size===0){ selectedNames=new Set(lastTeamPlayers||[]); }
       const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb));
       let checked=0; (selected()||[]).forEach(n=>{ if(map.has(n) && checked<11){ map.get(n).checked=true; checked++; } });
-      // force explicit C/VC selection for the new XI
-      cvMap.clear();
+      cvMap.clear(); // force explicit re-selection of C/VC
       updateSelectionUI();
       if(lastTeamPlayers && lastTeamPlayers.length){ document.getElementById('transferBanner').style.display='flex'; }
     }
@@ -1205,7 +1221,7 @@
         e.preventDefault();
         if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found to reset.'); return; }
         selectedNames=new Set(lastTeamPlayers||[]);
-        cvMap.clear(); // force re-selection of C/VC
+        cvMap.clear();
         document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked = selectedNames.has(cb.value));
         updateSelectionUI();
         notify('Reverted to your last saved XI.');
