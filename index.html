@@ -3,14 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — v5.5.1 (Card‑tap C/VC, hotfix)</title>
+  <title>Sports Fever IPL Fantasy 2026 — v5.4.0 (C/VC on-card)</title>
 
-  <!-- ✅ Correct CSS includes -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" integrity="sha512-csS0D9Yf1l7H6b8b1W6w6z3m9b3Y9tXnqk6fE3TzJ0GzjGn9r0Jc1bKQq6wJm5lQ3F4w/3f5sJX4m+9h6sZy1g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <!-- Materialize CSS + Google Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
 
   <style>
-    /* --------- Base UI --------- */
     body { background:#f5f7fb; }
     nav .brand-logo { font-weight:800; }
     .tabs .tab a { color:#1976d2; }
@@ -78,7 +77,7 @@
     .role-header.role-BOWL{ color:#ff6d00; border-color:#ffe0b2; background:#fff3e0; }
     .role-cards{ display:flex; flex-wrap:wrap; gap:12px; margin-top:6px; }
 
-    .square-card{ background:#fafcff; border:1px solid #dde5ee; border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; position:relative; width:180px; flex:0 0 180px; cursor:pointer; }
+    .square-card{ background:#fafcff; border:1px solid #dde5ee; border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; position:relative; width:180px; flex:0 0 180px; }
     .square-card .pic{ width:100%; aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#fff; border:1px solid #e0e0e0; display:flex; align-items:center; justify-content:center; }
     .square-card .pic img{ width:100%; height:100%; object-fit:cover; }
     .square-card .pic i{ font-size:42px; color:#90a4ae; }
@@ -86,41 +85,36 @@
     .square-card .team{ font-size:.8rem; color:#607d8b; text-align:center; margin-top:.15rem; }
     .square-card .role{ font-size:.78rem; text-align:center; margin-top:.2rem; padding:.12rem .5rem; border-radius:12px; background:#eceff1; color:#37474f; display:inline-block; }
     .square-card .price{ font-size:.78rem; text-align:center; margin-top:.2rem; padding:.12rem .5rem; border-radius:12px; background:#fff3e0; color:#e65100; display:inline-block; }
-    .square-card .remove{ position:absolute; top:8px; right:8px; z-index:20; cursor:pointer; }
+    .square-card .remove{ position:absolute; top:8px; right:8px; }
 
-    /* Category mini-icon */
     .square-card{ position:relative; overflow:visible; }
     .cat-corner{ position:absolute; top:10px; left:10px; z-index:10; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:0 1px 3px rgba(0,0,0,.14); font-size:16px; line-height:1; pointer-events:none; }
     @media (max-width:480px){ .cat-corner{ top:8px; left:8px; width:24px; height:24px; font-size:15px; } }
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
     .cat-ico + .team-chip { margin-left: .15rem; }
 
-    /* --- Whole-card C/VC visual states --- */
-    .square-card.cv-c    { border-color:#ffb300 !important; box-shadow:0 0 0 2px rgba(255,179,0,.25) inset; }
-    .square-card.cv-vc   { border-color:#64b5f6 !important; box-shadow:0 0 0 2px rgba(100,181,246,.25) inset; }
-    .cv-ribbon{
-      position:absolute; top:8px; left:50%; transform:translateX(-50%);
-      padding:2px 8px; border-radius:10px; font-size:.72rem; font-weight:800;
-      border:1px solid #d0d7de; background:#eceff1; color:#37474f; z-index:12;
-      pointer-events:none; user-select:none;
+    /* --- New: single badge per card to cycle None→C→VC→None --- */
+    .cv-badge{
+      position:absolute; top:8px; right:42px; /* space for the remove 'X' at right:8px */
+      padding:2px 6px; border-radius:8px; font-size:.72rem; font-weight:800;
+      border:1px solid #d0d7de; background:#eceff1; color:#37474f;
+      cursor:pointer; user-select:none; z-index:12; line-height:1.1;
     }
-    .cv-ribbon.c  { background:#ffe082; color:#5d4037; border-color:#ffb300; }
-    .cv-ribbon.vc { background:#bbdefb; color:#0d47a1; border-color:#64b5f6; }
+    .cv-badge.cv-none { background:#eceff1; color:#607d8b; border-color:#d0d7de; }
+    .cv-badge.cv-c    { background:#ffe082; color:#5d4037; border-color:#ffb300; }
+    .cv-badge.cv-vc   { background:#bbdefb; color:#0d47a1; border-color:#64b5f6; }
+    .cv-badge:active  { transform:translateY(1px); }
   </style>
 </head>
 <body>
   <nav class="blue">
     <div class="nav-wrapper container">
-      <!-- ✅ Proper anchor for brand -->
-      <a href="#submit" class="brand-logo">
-        <i class="material-icons">emoji_events</i> Sports Fever IPL Fantasy 2026
-      </a>
+      <a href="#submit" class="brand-logo"><i class="material-icons">emoji_events</i> Sports Fever IPL Fantasy 2026</a>
     </div>
   </nav>
 
   <main class="container" style="margin-top:1.25rem;">
     <div class="row"><div class="col s12">
-      <!-- ✅ Proper tab anchors -->
       <ul class="tabs">
         <li class="tab col s3"><a href="#submit" class="active"><i class="material-icons left">swap_horiz</i>Transfers</a></li>
         <li class="tab col s3"><a href="#leaderboard"><i class="material-icons left">leaderboard</i>Leaderboard</a></li>
@@ -321,19 +315,20 @@
         <div id="capWarnings" class="red-text" style="margin-top:4px;display:none;"></div>
       </div>
       <div class="modal-footer">
-        <!-- ✅ Proper modal buttons -->
-        <a href="#!" id="confirmSubmitBtn" class="waves-effect waves-light btn"><i class="material-icons left">check</i><span id="confirmSubmitLabel">Confirm & Submit</span></a>
-        <a href="#!" class="modal-close waves-effect btn-flat"><i class="material-icons left">close</i>Cancel</a>
+        <a id="confirmSubmitBtn" href="#" class="btn waves-effect blue">
+          <i class="material-icons left">check</i><span id="confirmSubmitLabel">Confirm & Submit</span>
+        </a>
+        <a href="#" class="modal-close btn-flat"><i class="material-icons left">close</i>Cancel</a>
       </div>
     </div>
   </main>
 
-  <!-- ✅ Correct JS include -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js" integrity="sha512-CqZPLU3gD0b7+cC+qdcw9u8qgF4WwYqNrcvNfVn1mL4R5X9bO6oK7x7mQkqf6hR8p2p7x2y2Lr5R+M1QWq5Zxg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Materialize JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
   <script>
     /* --------------------- CONFIG --------------------- */
-    // 👉 Replace with YOUR Apps Script Web App URL:
+    // Replace with YOUR Web App URL from Apps Script deployment
     const API = 'https://script.google.com/macros/s/AKfycbw14RPbSGaJPpzJ3kDyiHbG-0Xh8vgGDJpOauUZNvBrxiBma2x66HqJnMJDbqoeoAcK/exec';
 
     /* ---------------------- UTILS ---------------------- */
@@ -422,7 +417,7 @@
     let totalBudget=100;
     let selectedNames=new Set();
 
-    // Per-player C/VC state -> 'NONE' | 'C' | 'VC'
+    // NEW: per-player C/VC state -> 'NONE' | 'C' | 'VC'
     const cvMap = new Map();
 
     function selected(){ return Array.from(selectedNames); }
@@ -473,7 +468,7 @@
       return c;
     }
 
-    // C/VC validation snapshot against current XI
+    // NEW: C/VC validation snapshot against current XI
     function getCvStatus(names){
       const cNames=[], vcNames=[];
       (names||[]).forEach(n=>{
@@ -593,18 +588,11 @@
       const rowBOWL=document.getElementById('row-BOWL');
       rowWK.innerHTML=''; rowBAT.innerHTML=''; rowAR.innerHTML=''; rowBOWL.innerHTML='';
 
-      // Apply card C/VC ribbons and glow
-      function applyCvVisual(card, state){
-        card.classList.remove('cv-c','cv-vc');
-        const old = card.querySelector('.cv-ribbon');
-        if(old) old.remove();
-        if(state==='C' || state==='VC'){
-          card.classList.add(state==='C' ? 'cv-c' : 'cv-vc');
-          const rb = document.createElement('div');
-          rb.className = 'cv-ribbon ' + (state==='C'?'c':'vc');
-          rb.textContent = state;
-          card.appendChild(rb);
-        }
+      function setBadgeVisual(el, state){
+        el.classList.remove('cv-none','cv-c','cv-vc');
+        if(state==='C'){ el.classList.add('cv-c');  el.textContent='C'; }
+        else if(state==='VC'){ el.classList.add('cv-vc'); el.textContent='VC'; }
+        else { el.classList.add('cv-none'); el.textContent='—'; }
       }
 
       function makeCard(p){
@@ -631,32 +619,30 @@
         const pr=document.createElement('div'); pr.className='price'; pr.textContent=String(Number(p.price||0));
 
         const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>';
-        // Prevent remove click from toggling C/VC
-        btn.addEventListener('click',(e)=>{ e.preventDefault(); e.stopPropagation(); togglePlayer(p.name,false); });
+        btn.addEventListener('click',(e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
 
-        // Whole-card click cycles NONE -> C -> VC -> NONE
-        card.addEventListener('click',(e)=>{
-          if(window.getSelection().toString().length>0) return; // ignore text selection
-          const st = cvMap.get(p.name) || 'NONE';
+        // Single badge: cycle None→C→VC→None
+        const badge=document.createElement('a'); badge.href='#'; badge.className='cv-badge cv-none';
+        const curr=cvMap.get(p.name)||'NONE'; setBadgeVisual(badge,curr);
+        badge.title='Click to cycle: None → C → VC → None';
+        badge.addEventListener('click',(e)=>{
+          e.preventDefault(); e.stopPropagation();
+          const st=cvMap.get(p.name)||'NONE';
           const next = (st==='NONE') ? 'C' : (st==='C' ? 'VC' : 'NONE');
-
-          if(next==='NONE') cvMap.delete(p.name);
-          else cvMap.set(p.name, next);
-
-          applyCvVisual(card, next);
+          if(next==='NONE'){ cvMap.delete(p.name); }
+          else { cvMap.set(p.name, next); }
+          setBadgeVisual(badge, next);
           updateSelectionUI();
         });
 
         card.appendChild(btn);
+        card.appendChild(badge);
         card.appendChild(pic);
         card.appendChild(nm);
         card.appendChild(tm);
         card.appendChild(rl);
         card.appendChild(pr);
 
-        applyCvVisual(card, cvMap.get(p.name)||'NONE');
-
-        // Category icon
         try{
           const _catRaw=(p.category ?? p.Category ?? '');
           const _ico=catIcon(_catRaw);
@@ -680,7 +666,7 @@
         else                   rowBAT.appendChild(card);
       });
 
-      // Validation line (includes C/VC checks)
+      // Main validation line (includes C/VC checks)
       const msg=document.getElementById('validationMsg');
       const cap=capStatus(names);
       const withinCap=cap.overTeams.length===0;
@@ -710,7 +696,8 @@
         selectedNames.add(name);
       } else {
         selectedNames.delete(name);
-        if(cvMap.has(name)) cvMap.delete(name); // clear C/VC on removal
+        // clear any C/VC tag for this player
+        if(cvMap.has(name)) cvMap.delete(name);
       }
       const map=new Map();
       document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb));
@@ -775,7 +762,8 @@
       if(!selectedNames || selectedNames.size===0){ selectedNames=new Set(lastTeamPlayers||[]); }
       const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb));
       let checked=0; (selected()||[]).forEach(n=>{ if(map.has(n) && checked<11){ map.get(n).checked=true; checked++; } });
-      cvMap.clear(); // force explicit re-selection of C/VC
+      // force explicit C/VC selection for the new XI
+      cvMap.clear();
       updateSelectionUI();
       if(lastTeamPlayers && lastTeamPlayers.length){ document.getElementById('transferBanner').style.display='flex'; }
     }
