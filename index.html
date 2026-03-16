@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — v5.6.0 (POST submit + C/VC bottom pill)</title>
+  <title>Sports Fever IPL Fantasy 2026 — v5.6.1 (POST submit + centered C/VC pill)</title>
 
   <!-- Materialize CSS + Google Icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet"/>
@@ -30,7 +30,6 @@
     .player-check { transform:scale(1.25); }
 
     .sticky-actions { position: sticky; bottom: 0; background:#fff; padding:.75rem; border-top:1px solid #eee; display:flex; flex-wrap:wrap; gap:.75rem; justify-content:space-between; align-items:center; }
-    .budget { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
     .badge-inline { display:inline-flex; align-items:center; gap:.35rem; padding:.3rem .6rem; border-radius:14px; background:#eceff1; color:#263238; font-size:.85rem; }
     .badge-inline .material-icons { font-size:18px; }
     .badge-ok { background:#e8f5e9; color:#1b5e20; }
@@ -66,7 +65,7 @@
     .preview-grid{ display:block; }
     .lineup-row{ margin:12px 0; padding-left:8px; border-left:3px solid #dde5ee; }
     .lineup-row[data-role=WK]{   border-left-color:#1565c0; }
-    .lineup-row[data-role=BAT]{  border-left-color:#2e7d32; }
+    .lineup-row[data-role=BAT]{  border-left-color:#2e7d2f; }
     .lineup-row[data-role=AR]{   border-left-color:#7b1fa2; }
     .lineup-row[data-role=BOWL]{ border-left-color:#ff6d00; }
     .role-header{ position:sticky; top:8px; z-index:5; background:#ffffff; display:inline-flex; align-items:center; gap:.4rem; padding:.22rem .6rem; border:1px solid #e0e0e0; border-radius:12px; font-weight:700; color:#37474f; box-shadow:0 4px 10px rgba(0,0,0,.06); backdrop-filter:saturate(1.2) blur(2px); }
@@ -77,10 +76,10 @@
     .role-header.role-BOWL{ color:#ff6d00; border-color:#ffe0b2; background:#fff3e0; }
     .role-cards{ display:flex; flex-wrap:wrap; gap:12px; margin-top:6px; }
 
-    /* Card */
+    /* Preview square cards */
     .square-card{
       background:#fafcff; border:1px solid #dde5ee; border-radius:12px;
-      padding:10px; padding-bottom:48px; /* leave space for bottom badge */
+      padding:10px; padding-bottom:56px; /* extra space for the bottom badge */
       display:flex; flex-direction:column; align-items:center; position:relative; width:180px; flex:0 0 180px;
     }
     .square-card .pic{ width:100%; aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#fff; border:1px solid #e0e0e0; display:flex; align-items:center; justify-content:center; }
@@ -88,12 +87,10 @@
     .square-card .pic i{ font-size:42px; color:#90a4ae; }
 
     .square-card .name{ margin-top:.5rem; font-weight:700; font-size:.95rem; text-align:center; }
-
     /* Team – Role in one line */
     .square-card .team-role{ margin-top:.15rem; font-size:.85rem; color:#546e7a; text-align:center; }
     .square-card .team-role b{ color:#37474f; font-weight:700; }
-
-    /* Points line below */
+    /* Points below */
     .square-card .pts-line{ margin-top:.25rem; font-size:.82rem; color:#6a1b9a; display:inline-flex; align-items:center; gap:.25rem; }
     .square-card .pts-line i{ font-size:16px; line-height:1; }
 
@@ -107,15 +104,15 @@
     .cat-corner{ position:absolute; top:10px; left:10px; z-index:10; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:0 1px 3px rgba(0,0,0,.14); font-size:16px; line-height:1; pointer-events:none; }
     @media (max-width:480px){ .cat-corner{ top:8px; left:8px; width:24px; height:24px; font-size:15px; } }
 
-    /* === C/VC badge — bigger & bottom-centered === */
+    /* C/VC badge — bigger & bottom-centered */
     .cv-badge{
-      position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
-      display:inline-flex; align-items:center; gap:6px;
-      padding:6px 14px; border-radius:14px; font-size:1.05rem; font-weight:900; letter-spacing:0.02em;
+      position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 16px; border-radius:16px; font-size:1.08rem; font-weight:900; letter-spacing:0.02em;
       text-transform:uppercase; line-height:1;
       border:1px solid #cfd8dc; background:#eceff1; color:#37474f;
       cursor:pointer; user-select:none; z-index:12;
-      box-shadow: 0 2px 8px rgba(0,0,0,.14), 0 0 0 2px rgba(255,255,255,.9) inset;
+      box-shadow: 0 2px 10px rgba(0,0,0,.14), 0 0 0 2px rgba(255,255,255,.95) inset;
       transition: transform .05s ease, box-shadow .15s ease, background .15s ease;
     }
     .cv-badge:hover { transform: translate(-50%, -1px); }
@@ -171,17 +168,15 @@
                 </span>
               </div>
 
-              <div class="budget" id="budgetPanel" style="margin-bottom:.25rem;">
-                <span class="badge-inline"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b> transfers</span>
-                <span class="badge-inline"><i class="material-icons">timelapse</i> Used: <b id="usedSoFar">0</b></span>
-                <span class="badge-inline"><i class="material-icons">battery_std</i> Remaining: <b id="remaining">100</b></span>
-                <span class="badge-inline"><i class="material-icons">flag</i> Budget: <b id="budget">100</b></span>
-              </div>
+              <div class="badge-inline"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b> transfers</div>
+              <div class="badge-inline"><i class="material-icons">timelapse</i> Used: <b id="usedSoFar">0</b></div>
+              <div class="badge-inline"><i class="material-icons">battery_std</i> Remaining: <b id="remaining">100</b></div>
+              <div class="badge-inline"><i class="material-icons">flag</i> Budget: <b id="budget">100</b></div>
 
-              <div class="budget" id="pursePanel" style="margin:-.25rem 0 .35rem 0;">
-                <span class="badge-inline"><i class="material-icons">monetization_on</i> Spent: <b id="spentCr">0</b></span>
-                <span class="badge-inline"><i class="material-icons">account_balance_wallet</i> Left: <b id="purseLeft">100</b></span>
-                <span class="badge-inline"><i class="material-icons">credit_score</i> Cap: <b id="totalBudgetCr">100</b></span>
+              <div style="margin:.35rem 0;">
+                <div class="badge-inline"><i class="material-icons">monetization_on</i> Spent: <b id="spentCr">0</b></div>
+                <div class="badge-inline"><i class="material-icons">account_balance_wallet</i> Left: <b id="purseLeft">100</b></div>
+                <div class="badge-inline"><i class="material-icons">credit_score</i> Cap: <b id="totalBudgetCr">100</b></div>
               </div>
 
               <div id="capLine" class="cap-line">Team cap: max — per team.</div>
@@ -206,7 +201,7 @@
                 <span class="rule-chip tooltipped" id="ruleUncapped" data-tooltip="">UNCAPPED: —</span>
               </div>
 
-              <div class="filters">
+              <div class="filters" style="margin-top:.6rem;">
                 <span class="filter-chip"><i class="material-icons">groups</i>
                   <select id="teamFilter"><option value="ALL" selected>All teams</option></select>
                 </span>
@@ -336,7 +331,7 @@
       </div>
       <div class="modal-footer">
         <a id="confirmSubmitBtn" href="#" class="btn waves-effect blue">
-          <i class="material-icons left">check</i><span id="confirmSubmitLabel">Confirm & Submit</span>
+          <i class="material-icons left">check</i><span id="confirmSubmitLabel">Confirm &amp; Submit</span>
         </a>
         <a href="#" class="modal-close btn-flat"><i class="material-icons left">close</i>Cancel</a>
       </div>
@@ -348,11 +343,11 @@
 
   <script>
     /* --------------------- CONFIG --------------------- */
-    // Replace with YOUR Web App URL from Apps Script deployment
+    // Replace with YOUR Web App URL from Apps Script deployment if different
     const API = 'https://script.google.com/macros/s/AKfycbw14RPbSGaJPpzJ3kDyiHbG-0Xh8vgGDJpOauUZNvBrxiBma2x66HqJnMJDbqoeoAcK/exec';
 
     /* ---------------------- UTILS ---------------------- */
-    function notify(msg){ M.toast({html: msg, displayLength: 3500}); }
+    function notify(msg){ M.toast({html: msg, displayLength: 4000}); }
     function formatRole(r){
       if(!r) return '';
       r = String(r).trim().toUpperCase();
@@ -384,7 +379,7 @@
       }catch(_){ return iso; }
     }
 
-    // Surface real errors from fetch (handles HTTP and {ok:false})
+    // Fetch helper: throws on HTTP errors and {ok:false}
     async function fetchJsonWithErrors(url, options){
       const res = await fetch(url, options);
       const text = await res.text();
@@ -455,7 +450,6 @@
 
     // per-player C/VC state -> 'NONE' | 'C' | 'VC'
     const cvMap = new Map();
-
     function selected(){ return Array.from(selectedNames); }
 
     /* --------------------- TIMERS --------------------- */
@@ -503,8 +497,6 @@
       (list||[]).forEach(n=>{ const p=allPlayers.find(x=>x.name===n)||{}; const cat=categoryOf(p); if(typeof c[cat]==='number') c[cat]++; });
       return c;
     }
-
-    // C/VC validation snapshot
     function getCvStatus(names){
       const cNames=[], vcNames=[];
       (names||[]).forEach(n=>{
@@ -535,38 +527,17 @@
       document.getElementById('remaining').textContent=String(remain);
       document.getElementById('budget').textContent=String(userBudget);
 
-      const panel=document.getElementById('budgetPanel');
-      panel.querySelectorAll('.badge-inline').forEach(b=>{
-        b.classList.remove('badge-ok','badge-warn','badge-alert');
-        if(remain<0) b.classList.add('badge-alert');
-        else if(remain<=10) b.classList.add('badge-warn');
-        else b.classList.add('badge-ok');
-      });
-
       const cost=totalCostOf(selected());
       spentEl.textContent=String(cost);
       totalBudgetEl.textContent=String(totalBudget);
       const left=Math.max(0,totalBudget-cost);
       purseLeftEl.textContent=String(left);
-
-      const panel2=document.getElementById('pursePanel');
-      panel2.querySelectorAll('.badge-inline').forEach(b=>{
-        b.classList.remove('badge-ok','badge-warn','badge-alert');
-        if(cost>totalBudget) b.classList.add('badge-alert');
-        else if(left<=10) b.classList.add('badge-warn');
-        else b.classList.add('badge-ok');
-      });
     }
 
     function roleCounts(list){
       const c={WK:0,BAT:0,AR:0,BOWL:0};
       (list||[]).forEach(n=>{ const p=allPlayers.find(x=>x.name===n); const r=formatRole((p&&p.role)||''); if(c[r]!==undefined) c[r]++; });
       return c;
-    }
-    function tooltipForRole(label, n, min, max){
-      if(n<min) return `Need ${min-n} more ${label} (minimum ${min})`;
-      if(n>max) return `Too many ${label}: reduce by ${n-max} (maximum ${max})`;
-      return `${label} count is within the allowed range (${min}–${max})`;
     }
     function refreshRuleChips(){
       if(!constraints || !constraints.WK){ ruleRow.style.display='none'; return; }
@@ -577,17 +548,13 @@
         el.classList.remove('ok','bad');
         el.textContent=`${label}: ${n} (min ${v.min}, max ${v.max})`;
         const old=M.Tooltip.getInstance(el); if(old) old.destroy();
-        el.setAttribute('data-tooltip', tooltipForRole(label,n,v.min,v.max));
+        el.setAttribute('data-tooltip', n<v.min ? `Need ${v.min-n} more ${label}` : (n>v.max ? `Reduce ${n-v.max} ${label}` : `${label} OK`));
         M.Tooltip.init(el,{position:'top', margin:6});
         if(n<v.min || n>v.max) el.classList.add('bad'); else el.classList.add('ok');
       };
       setChip(ruleWK,'WK','WK'); setChip(ruleBAT,'BAT','BAT'); setChip(ruleAR,'AR','AR'); setChip(ruleBOWL,'BOWL','BOWL');
     }
-    function tooltipForCat(label, n, thr, kind){
-      if(kind==='max') return n>thr ? `Too many ${label}: reduce by ${n-thr} (max ${thr})` : `${label} within limit (≤ ${thr})`;
-      if(kind==='min') return n<thr ? `Need ${thr-n} more ${label} (min ${thr})` : `${label} requirement met (≥ ${thr})`;
-      return '';
-    }
+
     function refreshCategoryChips(){
       if(!categoryCaps){ catRow.style.display='none'; return; }
       catRow.style.display='flex';
@@ -596,9 +563,9 @@
         el.classList.remove('ok','bad');
         el.textContent=`${label}: ${n} (${kind==='max'?'max '+thr:'min '+thr})`;
         const old=M.Tooltip.getInstance(el); if(old) old.destroy();
-        el.setAttribute('data-tooltip', tooltipForCat(label, n, thr, kind));
-        M.Tooltip.init(el,{position:'top', margin:6});
         const bad=(kind==='max'? n>thr : n<thr);
+        el.setAttribute('data-tooltip', bad ? 'Adjust to meet rule' : 'OK');
+        M.Tooltip.init(el,{position:'top', margin:6});
         if(bad) el.classList.add('bad'); else el.classList.add('ok');
       };
       setChip(ruleForeign,'FOREIGN',counts.FOREIGN||0,Number(categoryCaps.maxForeign||0),'max');
@@ -816,7 +783,7 @@
       if(!selectedNames || selectedNames.size===0){ selectedNames=new Set(lastTeamPlayers||[]); }
       const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb));
       let checked=0; (selected()||[]).forEach(n=>{ if(map.has(n) && checked<11){ map.get(n).checked=true; checked++; } });
-      cvMap.clear(); // force explicit C/VC selection
+      cvMap.clear(); // force explicit re-selection
       updateSelectionUI();
       if(lastTeamPlayers && lastTeamPlayers.length){ document.getElementById('transferBanner').style.display='flex'; }
     }
@@ -897,8 +864,8 @@
 
         deadlineBar.style.display='inline-flex';
         cutoffAt = m.cutoffAt? new Date(m.cutoffAt): null;
-        document.getElementById('dlLabel').textContent=m.label||m.id;
-        document.getElementById('dlTime').textContent = cutoffAt? formatIst(m.cutoffAt): '—';
+        dlLabel.textContent=m.label||m.id;
+        dlTime.textContent = cutoffAt? formatIst(m.cutoffAt): '—';
         startCountdown();
 
         healthLine.style.display='block';
@@ -1060,14 +1027,6 @@
       finally{ buildFirstBtn.classList.remove('disabled'); }
     }
 
-    function showSuccessTicker(modalEl){
-      try{
-        const host=modalEl.querySelector('.modal-content'); if(!host) return;
-        const bar=document.createElement('div'); bar.className='success-ticker'; host.appendChild(bar);
-        setTimeout(()=>{ try{ bar.remove(); }catch(e){} },1500);
-      }catch(e){}
-    }
-
     function openConfirmModal(mode='transfers'){
       const names=selected();
       const titleEl=document.getElementById('confirmTitle');
@@ -1097,16 +1056,14 @@
         `<div class="grey-text">Total cost: <b>${cost}</b> / Cap <b>${totalBudget}</b>${overBudget?' — <span class="red-text">Over budget</span>':''}</div>` +
         cvcLine;
 
-      const modalEl=document.getElementById('confirmModal');
-      const instance=M.Modal.getInstance(modalEl) || M.Modal.init(modalEl,{dismissible:true});
-
-      confirmBtn.onclick=async()=>{
+      const instance=M.Modal.getInstance(confirmModal) || M.Modal.init(confirmModal,{dismissible:true});
+      confirmBtn.onclick=async(e)=>{
+        e.preventDefault();
         if(confirmBtn.classList.contains('disabled')) return;
         confirmBtn.classList.add('disabled');
         try{ if(mode==='firstxi'){ await buildFirstXI(); } else { await submitTransfers(); } }
         finally{ confirmBtn.classList.remove('disabled'); }
       };
-
       instance.open();
     }
 
@@ -1146,7 +1103,7 @@
 
       document.getElementById('refreshLb').addEventListener('click', loadLeaderboard);
 
-      clearAllBtn.addEventListener('click', (e)=>{
+      clearAllBtn.addEventListener?.('click', (e)=>{
         e.preventDefault();
         selectedNames.clear();
         cvMap.clear();
@@ -1154,11 +1111,11 @@
         updateSelectionUI();
       });
 
-      resetBtn.addEventListener('click', (e)=>{
+      resetBtn.addEventListener?.('click', (e)=>{
         e.preventDefault();
         if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found to reset.'); return; }
         selectedNames=new Set(lastTeamPlayers||[]);
-        cvMap.clear(); // force re-selection of C/VC
+        cvMap.clear();
         document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked = selectedNames.has(cb.value));
         updateSelectionUI();
         notify('Reverted to your last saved XI.');
