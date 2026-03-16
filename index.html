@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — v5.6.1 (POST submit + centered C/VC pill)</title>
+  <title>Sports Fever IPL Fantasy 2026 — v5.7 (POST + C/VC bottom pill)</title>
 
   <!-- Materialize CSS + Google Icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet"/>
@@ -18,8 +18,7 @@
 
     .player-list { display:flex; flex-direction:column; gap:10px; max-height:70vh; overflow:auto; }
     .player-card { background:#fff; border-radius:12px; padding:10px; display:flex; align-items:center; gap:12px; border:1px solid #e3e6ea; transition: box-shadow .15s ease, transform .05s linear; }
-    .player-card:hover { box-shadow:0 6px 16px rgba(0,0,0,0.12); transform: translateY(-1px); }
-    .avatar { width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid #e0e0e0; background:#fafafa; flex:0 0 auto; }
+    .player-card:hover { box-shadow:0 6px 16px rgba(0,0,0,0.ight:48px; border-radius:8px; object-fit:cover; border:1px solid #e0e0e0; background:#fafafa; flex:0 0 auto; }
     .player-info { flex:1; display:flex; flex-direction:column; }
     .player-name { font-weight:600; font-size:.98rem; }
     .player-meta { font-size:.83rem; color:#546e7a; display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
@@ -32,14 +31,10 @@
     .sticky-actions { position: sticky; bottom: 0; background:#fff; padding:.75rem; border-top:1px solid #eee; display:flex; flex-wrap:wrap; gap:.75rem; justify-content:space-between; align-items:center; }
     .badge-inline { display:inline-flex; align-items:center; gap:.35rem; padding:.3rem .6rem; border-radius:14px; background:#eceff1; color:#263238; font-size:.85rem; }
     .badge-inline .material-icons { font-size:18px; }
-    .badge-ok { background:#e8f5e9; color:#1b5e20; }
-    .badge-warn { background:#fff8e1; color:#e65100; }
-    .badge-alert { background:#ffebee; color:#b71c1c; }
 
     .filters { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin:.5rem 0 1rem 0; }
     .filter-chip { background:#fff; border:1px solid #e0e0e0; border-radius:18px; padding:.25rem .6rem; display:inline-flex; align-items:center; gap:.5rem; }
     .filter-chip select { border:none; background:transparent; outline:none; }
-    .search-box { max-width:260px; }
 
     .cap-line { font-size:.9rem; color:#37474f; margin:.25rem 0 .25rem 0; }
     .transfer-banner { display:flex; align-items:center; gap:.5rem; font-size:.88rem; margin:.25rem 0 .5rem 0; }
@@ -51,35 +46,17 @@
     .rule-chip.ok { background:#e8f5e9; color:#1b5e20; border-color:#2e7d32; box-shadow:0 0 0 2px rgba(46,125,50,.15) inset; }
     .rule-chip.bad { background:#ffebee; color:#b71c1c; border-color:#c62828; box-shadow:0 0 0 2px rgba(198,40,40,.18) inset; }
 
-    @keyframes tickerFill{from{width:0}to{width:100%}}
-    .success-ticker{position:absolute;left:0;top:0;height:3px;width:0;background:#2e7d32;animation:tickerFill 1.5s linear forwards;border-top-left-radius:3px;border-top-right-radius:3px;}
-
-    .accent-WK { border-color:#1565c0 !important; box-shadow:0 0 0 2px rgba(21,101,192,.22) inset; }
-    .accent-BAT { border-color:#2e7d32 !important; box-shadow:0 0 0 2px rgba(46,125,50,.22) inset; }
-    .accent-AR { border-color:#7b1fa2 !important; box-shadow:0 0 0 2px rgba(123,31,162,.24) inset; }
-    .accent-BOWL { border-color:#ff6d00 !important; box-shadow:0 0 0 2px rgba(255,109,0,.26) inset; }
-
     .preview-card { background:#fff; border-radius:12px; border:1px solid #e3e6ea; }
     .preview-header { display:flex; align-items:center; justify-content:space-between; }
     .pill { display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; border-radius:12px; background:#eceff1; font-size:.78rem; color:#37474f; }
     .preview-grid{ display:block; }
     .lineup-row{ margin:12px 0; padding-left:8px; border-left:3px solid #dde5ee; }
-    .lineup-row[data-role=WK]{   border-left-color:#1565c0; }
-    .lineup-row[data-role=BAT]{  border-left-color:#2e7d2f; }
-    .lineup-row[data-role=AR]{   border-left-color:#7b1fa2; }
-    .lineup-row[data-role=BOWL]{ border-left-color:#ff6d00; }
-    .role-header{ position:sticky; top:8px; z-index:5; background:#ffffff; display:inline-flex; align-items:center; gap:.4rem; padding:.22rem .6rem; border:1px solid #e0e0e0; border-radius:12px; font-weight:700; color:#37474f; box-shadow:0 4px 10px rgba(0,0,0,.06); backdrop-filter:saturate(1.2) blur(2px); }
-    .role-header .material-icons{ font-size:18px; opacity:.85; }
-    .role-header.role-WK{ color:#1565c0; border-color:#bbdefb; background:#e3f2fd; }
-    .role-header.role-BAT{ color:#2e7d32; border-color:#c8e6c9; background:#e8f5e9; }
-    .role-header.role-AR{ color:#7b1fa2; border-color:#e1bee7; background:#f3e5f5; }
-    .role-header.role-BOWL{ color:#ff6d00; border-color:#ffe0b2; background:#fff3e0; }
-    .role-cards{ display:flex; flex-wrap:wrap; gap:12px; margin-top:6px; }
+    .role-header{ position:sticky; top:8px; z-index:5; background:#ffffff; display:inline-flex; align-items:center; gap:.4rem; padding:.22rem .6rem; border:1px solid #e0e0e0; border-radius:12px; font-weight:700; color:#37474f; box-shadow:0 4px 10px rgba(0,0,0,.06); }
 
-    /* Preview square cards */
+    /* Card */
     .square-card{
       background:#fafcff; border:1px solid #dde5ee; border-radius:12px;
-      padding:10px; padding-bottom:56px; /* extra space for the bottom badge */
+      padding:10px; padding-bottom:56px; /* space for bottom badge */
       display:flex; flex-direction:column; align-items:center; position:relative; width:180px; flex:0 0 180px;
     }
     .square-card .pic{ width:100%; aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#fff; border:1px solid #e0e0e0; display:flex; align-items:center; justify-content:center; }
@@ -87,10 +64,10 @@
     .square-card .pic i{ font-size:42px; color:#90a4ae; }
 
     .square-card .name{ margin-top:.5rem; font-weight:700; font-size:.95rem; text-align:center; }
-    /* Team – Role in one line */
+    /* Team – Role */
     .square-card .team-role{ margin-top:.15rem; font-size:.85rem; color:#546e7a; text-align:center; }
     .square-card .team-role b{ color:#37474f; font-weight:700; }
-    /* Points below */
+    /* Points line */
     .square-card .pts-line{ margin-top:.25rem; font-size:.82rem; color:#6a1b9a; display:inline-flex; align-items:center; gap:.25rem; }
     .square-card .pts-line i{ font-size:16px; line-height:1; }
 
@@ -99,10 +76,6 @@
 
     .square-card .price{ font-size:.78rem; text-align:center; margin-top:.4rem; padding:.12rem .5rem; border-radius:12px; background:#fff3e0; color:#e65100; display:inline-block; }
     .square-card .remove{ position:absolute; top:8px; right:8px; }
-
-    .square-card{ position:relative; overflow:visible; }
-    .cat-corner{ position:absolute; top:10px; left:10px; z-index:10; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:0 1px 3px rgba(0,0,0,.14); font-size:16px; line-height:1; pointer-events:none; }
-    @media (max-width:480px){ .cat-corner{ top:8px; left:8px; width:24px; height:24px; font-size:15px; } }
 
     /* C/VC badge — bigger & bottom-centered */
     .cv-badge{
@@ -189,15 +162,15 @@
 
               <div class="rule-row" id="roleRulesRow" style="display:none;">
                 <span class="rule-title">Role rules:</span>
-                <span class="rule-chip tooltipped" id="ruleWK" data-tooltip="">WK: —</span>
-                <span class="rule-chip tooltipped" id="ruleBAT" data-tooltip="">BAT: —</span>
-                <span class="rule-chip tooltipped" id="ruleAR" data-tooltip="">AR: —</span>
+                <span class="rule-chip tooltipped" id="ruleWK"   data-tooltip="">WK: —</span>
+                <span class="rule-chip tooltipped" id="ruleBAT"  data-tooltip="">BAT: —</span>
+                <span class="rule-chip tooltipped" id="ruleAR"   data-tooltip="">AR: —</span>
                 <span class="rule-chip tooltipped" id="ruleBOWL" data-tooltip="">BOWL: —</span>
               </div>
 
               <div class="rule-row" id="catRulesRow" style="display:none;">
                 <span class="rule-title">Category rules:</span>
-                <span class="rule-chip tooltipped" id="ruleForeign" data-tooltip="">FOREIGN: —</span>
+                <span class="rule-chip tooltipped" id="ruleForeign"  data-tooltip="">FOREIGN: —</span>
                 <span class="rule-chip tooltipped" id="ruleUncapped" data-tooltip="">UNCAPPED: —</span>
               </div>
 
@@ -222,14 +195,7 @@
                     <option value="FOREIGN">Foreign</option>
                   </select>
                 </span>
-                <span class="filter-chip">
-                  <i class="material-icons">attach_money</i>
-                  <span class="budget-chip-wrap">
-                    <label>Budget ≤ <b id="budgetMaxLabel">—</b></label>
-                    <input id="budgetMax" type="range" min="0" max="100" value="100" step="1">
-                  </span>
-                </span>
-                <div class="input-field search-box" style="margin:0;">
+                <div class="input-field" style="margin:0; max-width:260px;">
                   <i class="material-icons prefix">search</i>
                   <input id="searchInput" type="text" placeholder="Search player..." />
                 </div>
@@ -256,7 +222,7 @@
                 <span class="card-title">My XI Preview</span>
                 <div>
                   <a id="resetToLast" class="btn-flat"><i class="material-icons left">history</i>Reset to Last XI</a>
-                  <a id="clearAll" class="btn-flat"><i class="material-icons left">backspace</i>Clear All</a>
+                  <a id="clearAll"   class="btn-flat"><i class="material-icons left">backspace</i>Clear All</a>
                 </div>
               </div>
 
@@ -343,13 +309,8 @@
 
   <script>
     /* --------------------- CONFIG --------------------- */
-    // Replace with YOUR Web App URL from Apps Script deployment if different
-    const API = 'https://script.google.com/macros/s/AKfycbw14RPbSGaJPpzJ3kDyiHbG-0Xh8vgGDJpOauUZNvBrxiBma2x66HqJnMJDbqoeoAcK/exec';
-
-    /* ---------------------- UTILS ---------------------- */
-    function notify(msg){ M.toast({html: msg, displayLength: 4000}); }
-    function formatRole(r){
-      if(!r) return '';
+    // Replace with YOUR Web App URL from Apps Script deployment
+    const API = 'https://script.google.com/macros/s/AKfycbya_1ivNsVQYJ2GDsaE_oixyh39vd4rbyENzVkN6uCuvvkWqJIKMQ1o0NMLQZLRep6i/exec '';
       r = String(r).trim().toUpperCase();
       if(r==='WICKETKEEPER') return 'WK';
       if(r==='BATSMAN' || r==='BATTER') return 'BAT';
@@ -378,8 +339,6 @@
         return d.toLocaleString('en-IN',{ timeZone:'Asia/Kolkata', weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
       }catch(_){ return iso; }
     }
-
-    // Fetch helper: throws on HTTP errors and {ok:false}
     async function fetchJsonWithErrors(url, options){
       const res = await fetch(url, options);
       const text = await res.text();
@@ -428,8 +387,6 @@
     const spentEl=document.getElementById('spentCr');
     const purseLeftEl=document.getElementById('purseLeft');
     const totalBudgetEl=document.getElementById('totalBudgetCr');
-    const budgetMaxEl=document.getElementById('budgetMax');
-    const budgetMaxLabel=document.getElementById('budgetMaxLabel');
     const deadlineBar=document.getElementById('deadlineBar');
     const dlLabel=document.getElementById('dlLabel');
     const dlTime=document.getElementById('dlTime');
@@ -497,6 +454,8 @@
       (list||[]).forEach(n=>{ const p=allPlayers.find(x=>x.name===n)||{}; const cat=categoryOf(p); if(typeof c[cat]==='number') c[cat]++; });
       return c;
     }
+
+    // C/VC validation snapshot against current XI
     function getCvStatus(names){
       const cNames=[], vcNames=[];
       (names||[]).forEach(n=>{
@@ -539,6 +498,11 @@
       (list||[]).forEach(n=>{ const p=allPlayers.find(x=>x.name===n); const r=formatRole((p&&p.role)||''); if(c[r]!==undefined) c[r]++; });
       return c;
     }
+    function tooltipForRole(label, n, min, max){
+      if(n<min) return `Need ${min-n} more ${label} (minimum ${min})`;
+      if(n>max) return `Too many ${label}: reduce by ${n-max} (maximum ${max})`;
+      return `${label} count is within the allowed range (${min}–${max})`;
+    }
     function refreshRuleChips(){
       if(!constraints || !constraints.WK){ ruleRow.style.display='none'; return; }
       ruleRow.style.display='flex';
@@ -548,13 +512,18 @@
         el.classList.remove('ok','bad');
         el.textContent=`${label}: ${n} (min ${v.min}, max ${v.max})`;
         const old=M.Tooltip.getInstance(el); if(old) old.destroy();
-        el.setAttribute('data-tooltip', n<v.min ? `Need ${v.min-n} more ${label}` : (n>v.max ? `Reduce ${n-v.max} ${label}` : `${label} OK`));
+        el.setAttribute('data-tooltip', tooltipForRole(label,n,v.min,v.max));
         M.Tooltip.init(el,{position:'top', margin:6});
         if(n<v.min || n>v.max) el.classList.add('bad'); else el.classList.add('ok');
       };
       setChip(ruleWK,'WK','WK'); setChip(ruleBAT,'BAT','BAT'); setChip(ruleAR,'AR','AR'); setChip(ruleBOWL,'BOWL','BOWL');
     }
 
+    function tooltipForCat(label, n, thr, kind){
+      if(kind==='max') return n>thr ? `Too many ${label}: reduce by ${n-thr} (max ${thr})` : `${label} within limit (≤ ${thr})`;
+      if(kind==='min') return n<thr ? `Need ${thr-n} more ${label} (min ${thr})` : `${label} requirement met (≥ ${thr})`;
+      return '';
+    }
     function refreshCategoryChips(){
       if(!categoryCaps){ catRow.style.display='none'; return; }
       catRow.style.display='flex';
@@ -563,9 +532,9 @@
         el.classList.remove('ok','bad');
         el.textContent=`${label}: ${n} (${kind==='max'?'max '+thr:'min '+thr})`;
         const old=M.Tooltip.getInstance(el); if(old) old.destroy();
-        const bad=(kind==='max'? n>thr : n<thr);
-        el.setAttribute('data-tooltip', bad ? 'Adjust to meet rule' : 'OK');
+        el.setAttribute('data-tooltip', tooltipForCat(label, n, thr, kind));
         M.Tooltip.init(el,{position:'top', margin:6});
+        const bad=(kind==='max'? n>thr : n<thr);
         if(bad) el.classList.add('bad'); else el.classList.add('ok');
       };
       setChip(ruleForeign,'FOREIGN',counts.FOREIGN||0,Number(categoryCaps.maxForeign||0),'max');
@@ -612,7 +581,6 @@
 
         const card=document.createElement('div');
         card.className='square-card';
-        if(role) card.classList.add('accent-'+role);
 
         const pic=document.createElement('div'); pic.className='pic';
         if(p.imageUrl){
@@ -627,22 +595,23 @@
 
         const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name;
 
-        // Team – Role
+        // Team – Role in one line
         const teamRole=document.createElement('div'); teamRole.className='team-role';
         const teamTxt=(p.team||'').toUpperCase();
         teamRole.innerHTML = `<b>${teamTxt || '—'}</b> – ${role || '—'}`;
 
-        // Points below
+        // Points line
         const pts=document.createElement('div'); pts.className='pts-line';
         const ptsVal = pointsOf(p.name);
         pts.innerHTML = `<i class="material-icons" title="Points">stars</i>${(typeof ptsVal==='number') ? ptsVal : '—'}`;
 
         const pr=document.createElement('div'); pr.className='price'; pr.textContent=String(Number(p.price||0));
 
+        // Remove button
         const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>';
-        btn.addEventListener('click',(e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
+        btn.addEventListener('click',(e)=>{ e.preventDefault(); e.stopPropagation(); togglePlayer(p.name,false); });
 
-        // C/VC badge (bottom-centered) — click to cycle
+        // C/VC badge (bottom-centered) — click to cycle None→C→VC→None
         const badge=document.createElement('a'); badge.href='#'; badge.className='cv-badge cv-none';
         const curr=cvMap.get(p.name)||'NONE'; setBadgeVisual(badge,curr);
         badge.title='Click to cycle: None → C → VC → None';
@@ -663,17 +632,6 @@
         card.appendChild(teamRole);
         card.appendChild(pts);
         card.appendChild(pr);
-
-        // category mini-icon
-        try{
-          const _catRaw=(p.category ?? p.Category ?? '');
-          const _ico=catIcon(_catRaw);
-          if(_ico){
-            const prev=card.querySelector('.cat-corner'); if(prev) prev.remove();
-            const cg=document.createElement('div'); cg.className='cat-corner'; cg.title=normalizeCategory(_catRaw)||''; cg.textContent=_ico;
-            card.appendChild(cg);
-          }
-        }catch(_){}
 
         return {card, role};
       }
@@ -714,12 +672,8 @@
     }
 
     function togglePlayer(name, on){
-      if(on){
-        selectedNames.add(name);
-      } else {
-        selectedNames.delete(name);
-        if(cvMap.has(name)) cvMap.delete(name);
-      }
+      if(on){ selectedNames.add(name); }
+      else  { selectedNames.delete(name); cvMap.delete(name); }
       const map=new Map();
       document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb));
       if(map.has(name)) map.get(name).checked=!!on;
@@ -734,6 +688,7 @@
       const ch=countChanges(lastTeamPlayers, names);
       updateBadges(ch);
       renderPreview();
+      refreshRuleChips(); refreshCategoryChips();
 
       const anyRoleBad=document.querySelectorAll('#roleRulesRow .rule-chip.bad').length>0;
       const anyCatBad=document.querySelectorAll('#catRulesRow .rule-chip.bad').length>0;
@@ -783,7 +738,7 @@
       if(!selectedNames || selectedNames.size===0){ selectedNames=new Set(lastTeamPlayers||[]); }
       const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb));
       let checked=0; (selected()||[]).forEach(n=>{ if(map.has(n) && checked<11){ map.get(n).checked=true; checked++; } });
-      cvMap.clear(); // force explicit re-selection
+      cvMap.clear(); // force explicit C/VC selection for the current XI
       updateSelectionUI();
       if(lastTeamPlayers && lastTeamPlayers.length){ document.getElementById('transferBanner').style.display='flex'; }
     }
@@ -793,17 +748,15 @@
       const t=(teamFilter.value||'ALL').toUpperCase();
       const r=(roleFilter.value||'ALL').toUpperCase();
       const q=(searchInput.value||'').trim().toLowerCase();
-      const priceCap=Number(budgetMaxEl.value||Infinity);
       const c=(catFilter.value||'ALL').toUpperCase();
 
       const filtered=allPlayers.filter(p=>{
         const tOk=(t==='ALL') || (String(p.team||'').toUpperCase()===t);
         const rOk=(r==='ALL') || (formatRole(p.role||'')===r);
         const qOk=!q || String(p.name||'').toLowerCase().includes(q);
-        const priceOk=Number(p.price||0)<=priceCap;
         const catRaw=normalizeCategory(p.category ?? p.Category ?? '');
         const cOk=(c==='ALL') || (catRaw===c);
-        return tOk && rOk && cOk && qOk && priceOk;
+        return tOk && rOk && cOk && qOk;
       });
 
       playersList.innerHTML='';
@@ -863,8 +816,8 @@
         const wrap = matchSelectEl.closest('.input-field'); if(wrap) wrap.style.display='none';
 
         deadlineBar.style.display='inline-flex';
-        cutoffAt = m.cutoffAt? new Date(m.cutoffAt): null;
         dlLabel.textContent=m.label||m.id;
+        cutoffAt = m.cutoffAt? new Date(m.cutoffAt): null;
         dlTime.textContent = cutoffAt? formatIst(m.cutoffAt): '—';
         startCountdown();
 
@@ -881,11 +834,6 @@
         const j = await fetchJsonWithErrors(`${API}?action=allplayers`, { method:'GET' });
         if(!j.ok){ playersList.innerHTML=`<span class="red-text">${j.error || 'API error'}</span>`; return; }
         allPlayers=Array.isArray(j.players)? j.players: [];
-        const maxPrice=Math.max(0,...allPlayers.map(p=>Number(p.price||0)));
-        budgetMaxEl.max=String(maxPrice || 100);
-        const savedCap=(()=>{ try{return Number(localStorage.getItem('ml_budget_cap')||'');}catch(_){return NaN;} })();
-        const initialCap=!isNaN(savedCap)&&savedCap>0? Math.min(savedCap,maxPrice): maxPrice;
-        budgetMaxEl.value=String(initialCap); budgetMaxLabel.textContent=String(initialCap);
         renderPlayers();
         if(!allPlayers.length) notify('No players returned. Check Players headers.');
       }catch(e){ playersList.innerHTML=`<span class="red-text">${String(e.message||e)}</span>`; }
@@ -940,7 +888,7 @@
       }catch(e){ lbTable.innerHTML=`<tr><td colspan="3" class="red-text">${String(e.message||e)}</td></tr>`; }
     }
 
-    /* -------------------- SUBMIT FLOWS (POST) -------------------- */
+    /* -------------------- SUBMIT FLOWS (POST JSON) -------------------- */
     function getPlayerInfoByName(name){
       const p=allPlayers.find(x=>x.name===name)||{name,team:'',role:'',price:0};
       return {name:p.name,team:String(p.team||''),role:formatRole(p.role||''), price:Number(p.price||0)};
@@ -1085,11 +1033,6 @@
           statsReady=false; fetchUserStats().then(()=>applyLastXIIfReady());
         }
         if(e.target.id==='searchInput'){ renderPlayers(); }
-        if(e.target.id==='budgetMax'){
-          budgetMaxLabel.textContent=String(budgetMaxEl.value);
-          try{ localStorage.setItem('ml_budget_cap', String(budgetMaxEl.value)); }catch(_){}
-          renderPlayers();
-        }
       });
 
       teamFilter.addEventListener('change', renderPlayers);
@@ -1098,12 +1041,12 @@
       matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); });
 
       document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints(); });
-      document.getElementById('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
-      document.getElementById('buildFirstBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
+      submitBtn  .addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
+      buildFirstBtn.addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
 
       document.getElementById('refreshLb').addEventListener('click', loadLeaderboard);
 
-      clearAllBtn.addEventListener?.('click', (e)=>{
+      clearAllBtn.addEventListener('click', (e)=>{
         e.preventDefault();
         selectedNames.clear();
         cvMap.clear();
@@ -1111,7 +1054,7 @@
         updateSelectionUI();
       });
 
-      resetBtn.addEventListener?.('click', (e)=>{
+      resetBtn.addEventListener('click', (e)=>{
         e.preventDefault();
         if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found to reset.'); return; }
         selectedNames=new Set(lastTeamPlayers||[]);
