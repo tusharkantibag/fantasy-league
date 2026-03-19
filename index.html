@@ -1,10 +1,9 @@
-
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — v6.1.1 (Login Fix)</title>
+  <title>Sports Fever IPL Fantasy 2026 — v6.1.0 (Adds Login)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -53,19 +52,14 @@
     .preview-card { background:#fff; border-radius:12px; border:1px solid #e3e6ea; }
     .preview-header { display:flex; align-items:center; justify-content:space-between; }
     .pill { display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; border-radius:12px; background:#eceff1; font-size:.78rem; color:#37474f; }
+    .login-panel .card-content { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
+    .login-status { font-size:.9rem; color:#37474f; }
     .preview-grid{ display:block; }
     .lineup-row{ margin:12px 0; padding-left:8px; border-left:3px solid #dde5ee; }
     .lineup-row[data-role=WK]{ border-left-color:#1565c0; }
-    .lineup-row[data-role=BAT]{ border-left-color:#2e7d2; }
+    .lineup-row[data-role=BAT]{ border-left-color:#2e7d32; }
     .lineup-row[data-role=AR]{ border-left-color:#7b1fa2; }
     .lineup-row[data-role=BOWL]{ border-left-color:#ff6d00; }
-    .role-header{ position:sticky; top:8px; z-index:5; background:#ffffff; display:inline-flex; align-items:center; gap:.4rem; padding:.22rem .6rem; border:1px solid #e0e0e0; border-radius:12px; font-weight:700; color:#37474f; box-shadow:0 4px 10px rgba(0,0,0,.06); backdrop-filter:saturate(1.2) blur(2px); }
-    .role-header .material-icons{ font-size:18px; opacity:.85; }
-    .role-header.role-WK{ color:#1565c0; border-color:#bbdefb; background:#e3f2fd; }
-    .role-header.role-BAT{ color:#2e7d32; border-color:#c8e6c9; background:#e8f5e9; }
-    .role-header.role-AR{ color:#7b1fa2; border-color:#e1bee7; background:#f3e5f5; }
-    .role-header.role-BOWL{ color:#ff6d00; border-color:#ffe0b2; background:#fff3e0; }
-    .role-cards{ display:flex; flex-wrap:wrap; gap:12px; margin-top:6px; }
     .square-card{ background:#fafcff; border:1px solid #dde5ee; border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; position:relative; width:180px; flex:0 0 180px; overflow:visible; }
     .square-card .pic{ width:100%; aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#fff; border:1px solid #e0e0e0; display:flex; align-items:center; justify-content:center; }
     .square-card .pic img{ width:100%; height:100%; object-fit:cover; }
@@ -76,92 +70,92 @@
     .square-card .remove{ position:absolute; top:8px; right:8px; }
     .cat-corner{ position:absolute; top:10px; left:10px; z-index:10; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:0 1px 3px rgba(0,0,0,.14); font-size:16px; line-height:1; pointer-events:none; }
     @media (max-width:480px){ .cat-corner{ top:8px; left:8px; width:24px; height:24px; font-size:15px; } }
-    .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
     .cvc-tag{ position:absolute; bottom:8px; right:8px; z-index:6; display:inline-flex; align-items:center; justify-content:center; height:22px; min-width:22px; padding:0 .4rem; border-radius:11px; font-size:.72rem; font-weight:700; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,.18); }
     .cvc-C{ background:#ef6c00; }
     .cvc-VC{ background:#00897b; }
     .cvc-panel{ margin-top:.5rem; padding:.6rem .6rem .2rem .6rem; border:1px dashed #cfd8dc; border-radius:10px; background:#fafafa; }
     .cvc-row{ display:flex; gap:12px; flex-wrap:wrap; }
     .cvc-row .input-field{ flex:1 1 220px; margin-top:.5rem; }
-    .cvc-hint{ font-size:.85rem; color:#546e7a; }
+    .cvc-hint{ font-size:.85rem; color:#546e7a; margin-left:.2rem; }
     .cvc-hint.bad{ color:#b71c1c; }
-    .health { font-size:.82rem; color:#546e7a; margin:.25rem 0; }
-    .health b { color:#0d47a1; }
-    .ok-text{ color:#2e7d32; }
-    .error-text{ color:#c62828; }
-    .budget-chip-wrap{ display:inline-flex; align-items:center; gap:.5rem; }
-    .budget-chip-wrap label{ margin:0; font-size:.85rem; color:#37474f; }
-    .budget-chip-wrap input[type=range]{ width:160px; height:22px; }
-    .auth-bar{ display:flex; gap:.5rem; align-items:center; }
-    .auth-badge{ display:inline-flex; gap:.35rem; align-items:center; padding:.25rem .6rem; border-radius:14px; background:#e8f5e9; color:#1b5e20; font-size:.85rem; }
   </style>
 </head>
 <body>
   <nav class="blue">
     <div class="nav-wrapper container">
       <a href="#submit" class="brand-logo"><i class="material-icons left">emoji_events</i> Sports Fever IPL Fantasy 2026</a>
-      <ul class="right">
-        <li>
-          <div class="auth-bar" style="padding-right:.5rem;">
-            <span id="authStatus" class="auth-badge" style="display:none;"><i class="material-icons" style="font-size:18px;">verified_user</i><span id="authName"></span></span>
-            <a id="loginLink" href="#loginModal" class="modal-trigger btn-small waves-effect light-blue darken-2"><i class="material-icons left">login</i>Log in</a>
-            <a id="logoutLink" class="btn-small waves-effect red darken-2" style="display:none;"><i class="material-icons left">logout</i>Log out</a>
-          </div>
-        </li>
-      </ul>
     </div>
   </nav>
   <main class="container" style="margin-top:1.25rem;">
-    <div class="row"><div class="col s12">
-      <ul class="tabs">
-        <li class="tab col s3"><a href="#submit" class="active"><i class="material-icons left">swap_horiz</i>Transfers</a></li>
-        <li class="tab col s3"><a href="#leaderboard"><i class="material-icons left">leaderboard</i>Leaderboard</a></li>
-      </ul>
-    </div></div>
+
+    <div class="row">
+      <div class="col s12">
+        <ul class="tabs">
+          <li class="tab col s3"><a href="#submit" class="active"><i class="material-icons left">swap_horiz</i>Transfers</a></li>
+          <li class="tab col s3"><a href="#leaderboard"><i class="material-icons left">leaderboard</i>Leaderboard</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12">
+        <div class="card login-panel">
+          <div class="card-content">
+            <span class="card-title" style="margin-right:8px;">Login</span>
+            <div class="input-field" style="min-width:220px;">
+              <input id="email" type="email" class="validate" placeholder="you@example.com">
+              <label class="active" for="email">Email (must exist in Users sheet)</label>
+            </div>
+            <div class="input-field" style="min-width:180px;">
+              <input id="password" type="password" class="validate" placeholder="Password from Users sheet">
+              <label class="active" for="password">Password</label>
+            </div>
+            <a id="loginBtn" class="btn blue"><i class="material-icons left">login</i>Login</a>
+            <a id="logoutBtn" class="btn-flat" style="display:none;"><i class="material-icons left">logout</i>Logout</a>
+            <span id="loginStatus" class="login-status" style="margin-left:8px;">Not logged in</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <section id="submit" class="col s12">
       <div class="row">
         <div class="col s12 l5">
           <div class="card"><div class="card-content">
             <span class="card-title">Manage Transfers <span class="new badge blue" id="selCount" data-badge-caption="/11 selected">0</span></span>
-
             <div class="row">
-              <div class="input-field col s12 m6">
-                <input id="email" type="email" class="validate" placeholder="you@example.com" disabled>
-                <label class="active" for="email">Your Email (locked after sign-in)</label>
+              <div class="input-field col s12 m6" style="display:none;">
+                <input id="emailHidden" type="email" class="validate" placeholder="you@example.com">
+                <label class="active" for="emailHidden">Your Email</label>
               </div>
               <div class="input-field col s12 m6">
                 <select id="matchSelect"></select>
                 <label>For Match</label>
               </div>
             </div>
-
             <div id="deadlineBar" class="badge-inline" style="margin:.25rem 0; display:none;">
               <i class="material-icons">schedule</i>
-              <span>Next deadline: <b id="dlLabel">—</b> • <span id="dlTime">—</span> • <span id="dlCountdown" style="font-weight:bold; color:#d32f2f;">—</span></span>
+              <span>
+                Next deadline: <b id="dlLabel">—</b> • <span id="dlTime">—</span> • <span id="dlCountdown" style="font-weight:bold; color:#d32f2f;">—</span>
+              </span>
             </div>
-
             <div class="budget" id="budgetPanel" style="margin-bottom:.25rem;">
               <span class="badge-inline"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b> transfers</span>
               <span class="badge-inline"><i class="material-icons">timelapse</i> Used: <b id="usedSoFar">0</b></span>
               <span class="badge-inline"><i class="material-icons">battery_std</i> Remaining: <b id="remaining">100</b></span>
               <span class="badge-inline"><i class="material-icons">flag</i> Budget: <b id="budget">100</b></span>
             </div>
-
             <div class="budget" id="pursePanel" style="margin:-.25rem 0 .35rem 0;">
               <span class="badge-inline"><i class="material-icons">monetization_on</i> Spent: <b id="spentCr">0</b></span>
               <span class="badge-inline"><i class="material-icons">account_balance_wallet</i> Left: <b id="purseLeft">100</b></span>
               <span class="badge-inline"><i class="material-icons">credit_score</i> Cap: <b id="totalBudgetCr">100</b></span>
             </div>
-
             <div id="capLine" class="cap-line">Team cap: max — per team.</div>
-
             <div class="transfer-banner" id="transferBanner" style="display:none;">
               <span class="pill"><i class="material-icons">people</i> Last XI loaded</span>
               <span class="pill" id="pillAdds"><i class="material-icons">add</i> Adds: 0</span>
               <span class="pill" id="pillDrops"><i class="material-icons">remove</i> Drops: 0</span>
             </div>
-
             <div class="rule-row" id="roleRulesRow" style="display:none;">
               <span class="rule-title">Role rules:</span>
               <span class="rule-chip tooltipped" id="ruleWK" data-tooltip="">WK: —</span>
@@ -174,7 +168,6 @@
               <span class="rule-chip tooltipped" id="ruleForeign" data-tooltip="">FOREIGN: —</span>
               <span class="rule-chip tooltipped" id="ruleUncapped" data-tooltip="">UNCAPPED: —</span>
             </div>
-
             <div class="filters">
               <span class="filter-chip"><i class="material-icons">groups</i>
                 <select id="teamFilter"><option value="ALL" selected>All teams</option></select>
@@ -209,7 +202,6 @@
                 <input id="searchInput" type="text" placeholder="Search player..." />
               </div>
             </div>
-
             <div id="playersList" class="player-list"></div>
             <p class="helper">Tip: Use the Budget slider to show only players priced at or below your target.</p>
             <div class="health" id="healthLine" style="display:none;"></div>
@@ -230,7 +222,6 @@
                 <a id="clearAll" class="btn-flat"><i class="material-icons left">backspace</i>Clear All</a>
               </div>
             </div>
-
             <div style="display:flex; flex-wrap:wrap; gap:.5rem; margin:.25rem 0 .5rem 0;">
               <span class="pill" id="pillWK">WK: 0</span>
               <span class="pill" id="pillBAT">BAT: 0</span>
@@ -239,7 +230,6 @@
               <span class="pill" id="pillTeams">Teams: —</span>
               <span class="pill" id="pillCost">Cost: 0</span>
             </div>
-
             <div id="previewGrid" class="preview-grid">
               <div class="lineup-row" data-role="WK">
                 <div class="role-header role-WK"><i class="material-icons">sports_cricket</i>Wicketkeepers</div>
@@ -258,7 +248,6 @@
                 <div class="role-cards" id="row-BOWL"></div>
               </div>
             </div>
-
             <div id="cvcPanel" class="cvc-panel">
               <div class="cvc-row">
                 <div class="input-field">
@@ -272,7 +261,6 @@
               </div>
               <div class="cvc-hint" id="cvcHint">Pick a Captain & Vice‑Captain. They must be different.</div>
             </div>
-
             <div id="validationMsg" class="helper" style="margin-top:.6rem;"></div>
           </div></div>
         </div>
@@ -316,111 +304,83 @@
     </div>
   </main>
 
-  <!-- Login modal -->
-  <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <h5><i class="material-icons left">login</i>Sign in</h5>
-      <p class="grey-text">Use the email + password defined in the <b>Users</b> sheet. No email OTP is required.</p>
-      <div class="row" style="margin-top:1rem;">
-        <div class="input-field col s12 m6">
-          <input id="loginEmail" type="email" class="validate" placeholder="you@example.com" required>
-          <label class="active" for="loginEmail">Email</label>
-        </div>
-        <div class="input-field col s12 m6">
-          <input id="loginPassword" type="password" class="validate" placeholder="Password" required>
-          <label class="active" for="loginPassword">Password</label>
-          <label style="display:block; margin-top:.25rem;">
-            <input type="checkbox" id="showPwd"><span>Show password</span>
-          </label>
-        </div>
-      </div>
-      <div class="red-text" id="loginError" style="display:none;"></div>
-    </div>
-    <div class="modal-footer">
-      <a id="doLogin" class="btn waves-effect blue"><i class="material-icons left">check</i>Sign in</a>
-      <a class="modal-close btn-flat"><i class="material-icons left">close</i>Cancel</a>
-    </div>
-  </div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script>
-    const API = 'https://script.google.com/macros/s/AKfycbx3nPmtgGbVLGFqS4I-NTGOiHHbiW22DMGXL_aCn6XiExvBijDXm2ZmtjyqN-rGzvFU/exec';
-    const USERS = [
-      { email:'tusharkanti.bag@gmail.com', displayName:'The Purple Knights', role:'Admin', status:'Active', password:'The Purple Knights' },
-      { email:'angshumansahu1990@gmail.com', displayName:'Kamalgazi', role:'User', status:'Active', password:'Kamalgazi' },
-      { email:'bitmixes@gmail.com', displayName:'Kangaroo', role:'User', status:'Active', password:'Kangaroo' },
-      { email:'Dibyojyoti.ulb@gmail.com', displayName:'JJP', role:'User', status:'Active', password:'JJP' },
-      { email:'sarkar.jayanta1905@gmail.com', displayName:'BorDa', role:'User', status:'Active', password:'BorDa' },
-      { email:'kuntal.sse1611@gmail.com', displayName:'Nunu', role:'User', status:'Active', password:'Nunu' },
-      { email:'subhaprasad50@gmail.com', displayName:'Subha', role:'User', status:'Active', password:'Subha' },
-      { email:'subhankar.santra11@gmail.com', displayName:'FruitCake', role:'User', status:'Active', password:'FruitCake' }
-    ];
+    const API = 'https://script.google.com/macros/s/AKfycbwdhPHNkURYMwHlNaOf_woCTN5kdyphYerst9ezr-D9vPdHIpfvcCOaORwOIKHIspSt/exec';
     function notify(msg){ M.toast({html: msg, displayLength: 3500}); }
-    function $(id){ return document.getElementById(id); }
-    function getUserByEmail(email){
-      const e = String(email||'').trim().toLowerCase();
-      return USERS.find(u => String(u.email).toLowerCase()===e && String(u.status).toLowerCase()==='active') || null;
-    }
-    function saveSession(sess){ try{ localStorage.setItem('ml_session', JSON.stringify(sess||{})); }catch(_){} }
-    function loadSession(){ try{ const raw=localStorage.getItem('ml_session')||''; return raw? JSON.parse(raw): {}; }catch(_){ return {}; } }
+    function formatRole(r){ if(!r) return ''; r=String(r).trim().toUpperCase(); if(r==='WICKETKEEPER') return 'WK'; if(r==='BATSMAN'||r==='BATTER') return 'BAT'; if(r==='ALL-ROUNDER'||r==='ALLROUNDER'||r==='ALL_ROUNDER') return 'AR'; if(r==='BOWLER') return 'BOWL'; return r; }
 
-    let SESSION = loadSession();
-    function isLoggedIn(){ return !!(SESSION && SESSION.email); }
+    const emailEl=document.getElementById('email');
+    const passEl=document.getElementById('password');
+    const loginBtn=document.getElementById('loginBtn');
+    const logoutBtn=document.getElementById('logoutBtn');
+    const loginStatus=document.getElementById('loginStatus');
+    const emailHidden=document.getElementById('emailHidden');
+    const matchSelectEl=document.getElementById('matchSelect');
+    const selCount=document.getElementById('selCount');
+    const playersList=document.getElementById('playersList');
+    const teamFilter=document.getElementById('teamFilter');
+    const roleFilter=document.getElementById('roleFilter');
+    const catFilter=document.getElementById('catFilter');
+    const searchInput=document.getElementById('searchInput');
+    const submitBtn=document.getElementById('submitBtn');
+    const buildFirstBtn=document.getElementById('buildFirstBtn');
+    const capLine=document.getElementById('capLine');
+    const healthLine=document.getElementById('healthLine');
+    const ruleRow=document.getElementById('roleRulesRow');
+    const ruleWK=document.getElementById('ruleWK');
+    const ruleBAT=document.getElementById('ruleBAT');
+    const ruleAR=document.getElementById('ruleAR');
+    const ruleBOWL=document.getElementById('ruleBOWL');
+    const catRow=document.getElementById('catRulesRow');
+    const ruleForeign=document.getElementById('ruleForeign');
+    const ruleUncapped=document.getElementById('ruleUncapped');
+    const pillWK=document.getElementById('pillWK');
+    const pillBAT=document.getElementById('pillBAT');
+    const pillAR=document.getElementById('pillAR');
+    const pillBOWL=document.getElementById('pillBOWL');
+    const pillTeams=document.getElementById('pillTeams');
+    const pillCost=document.getElementById('pillCost');
+    const clearAllBtn=document.getElementById('clearAll');
+    const resetBtn=document.getElementById('resetToLast');
+    const lbTable=document.getElementById('lbTable');
+    const spentEl=document.getElementById('spentCr');
+    const purseLeftEl=document.getElementById('purseLeft');
+    const totalBudgetEl=document.getElementById('totalBudgetCr');
+    const budgetMaxEl=document.getElementById('budgetMax');
+    const budgetMaxLabel=document.getElementById('budgetMaxLabel');
+    const deadlineBar=document.getElementById('deadlineBar');
+    const dlLabel=document.getElementById('dlLabel');
+    const dlTime=document.getElementById('dlTime');
+    const dlCountdown=document.getElementById('dlCountdown');
 
-    // DOM refs
-    const emailEl = $('email');
-    const matchSelectEl=$('matchSelect');
-    const selCount=$('selCount');
-    const playersList=$('playersList');
-    const teamFilter=$('teamFilter');
-    const roleFilter=$('roleFilter');
-    const catFilter=$('catFilter');
-    const searchInput=$('searchInput');
-    const submitBtn=$('submitBtn');
-    const buildFirstBtn=$('buildFirstBtn');
-    const capLine=$('capLine');
-    const healthLine=$('healthLine');
-    const ruleRow=$('roleRulesRow');
-    const ruleWK=$('ruleWK');
-    const ruleBAT=$('ruleBAT');
-    const ruleAR=$('ruleAR');
-    const ruleBOWL=$('ruleBOWL');
-    const catRow=$('catRulesRow');
-    const ruleForeign=$('ruleForeign');
-    const ruleUncapped=$('ruleUncapped');
-    const pillWK=$('pillWK');
-    const pillBAT=$('pillBAT');
-    const pillAR=$('pillAR');
-    const pillBOWL=$('pillBOWL');
-    const pillTeams=$('pillTeams');
-    const pillCost=$('pillCost');
-    const clearAllBtn=$('clearAll');
-    const resetBtn=$('resetToLast');
-    const lbTable=$('lbTable');
-    const spentEl=$('spentCr');
-    const purseLeftEl=$('purseLeft');
-    const totalBudgetEl=$('totalBudgetCr');
-    const budgetMaxEl=$('budgetMax');
-    const budgetMaxLabel=$('budgetMaxLabel');
-    const deadlineBar=$('deadlineBar');
-    const dlLabel=$('dlLabel');
-    const dlTime=$('dlTime');
-    const dlCountdown=$('dlCountdown');
-
-    const authStatus=$('authStatus');
-    const authName=$('authName');
-    const loginLink=$('loginLink');
-    const logoutLink=$('logoutLink');
-
-    const captainSelect = $('captainSelect');
-    const viceCaptainSelect = $('viceCaptainSelect');
-    const cvcHint = $('cvcHint');
+    const captainSelect = document.getElementById('captainSelect');
+    const viceCaptainSelect = document.getElementById('viceCaptainSelect');
+    const cvcHint = document.getElementById('cvcHint');
     let selectedCaptain = '';
     let selectedViceCaptain = '';
-
     let isLocked=false, cutoffAt=null, countdownTimer=null;
+
+    let authEmail = '';
+    let authToken = '';
+    function setLoggedInState(email, token, displayName){
+      authEmail = email || '';
+      authToken = token || '';
+      emailEl.value = authEmail; M.updateTextFields();
+      emailHidden.value = authEmail; 
+      const ok = !!authEmail && !!authToken;
+      emailEl.disabled = ok; passEl.value = ''; passEl.disabled = ok;
+      loginBtn.style.display = ok? 'none' : 'inline-flex';
+      logoutBtn.style.display = ok? 'inline-flex' : 'none';
+      loginStatus.textContent = ok? `Logged in as ${displayName||authEmail}` : 'Not logged in';
+      try{ localStorage.setItem('ml_email', authEmail); localStorage.setItem('ml_auth', authToken); }catch(_){ }
+      statsReady=false; fetchUserStats();
+      updateSelectionUI();
+    }
+    function isLoggedIn(){ return !!authEmail && !!authToken; }
+
     function formatIst(iso){ try{ const d=new Date(iso); return d.toLocaleString('en-IN',{ timeZone:'Asia/Kolkata', weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}); }catch(_){ return iso; } }
-    function startCountdown(){ if(countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; } if(!cutoffAt){ dlCountdown.textContent='—'; return; } function tick(){ const ms=cutoffAt - new Date(); if(ms<=0){ isLocked=true; dlCountdown.textContent='LOCKED'; submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); const msg=$('validationMsg'); msg.className='helper error-text'; msg.textContent='Deadline passed for this match.'; clearInterval(countdownTimer); countdownTimer=null; return; } const s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; dlCountdown.textContent=`${h}h ${m}m ${sec}s`; } tick(); countdownTimer=setInterval(tick,1000);}    
+    function startCountdown(){ if(countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; } if(!cutoffAt){ dlCountdown.textContent='—'; return; } function tick(){ const ms=cutoffAt - new Date(); if(ms<=0){ isLocked=true; dlCountdown.textContent='LOCKED'; submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); const msg=document.getElementById('validationMsg'); msg.className='helper error-text'; msg.textContent='Deadline passed for this match.'; clearInterval(countdownTimer); countdownTimer=null; return; } const s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; dlCountdown.textContent=`${h}h ${m}m ${sec}s`; } tick(); countdownTimer=setInterval(tick,1000);}    
 
     let pointsMap = {}; let allPlayers=[]; let lastTeamPlayers=[]; let userBudget=100, userUsed=0, maxFromTeam=7; let constraints={WK:{min:1,max:2}, BAT:{min:3,max:6}, AR:{min:1,max:4}, BOWL:{min:3,max:6}}; let categoryCaps={maxForeign:4, minUncapped:1}; let playersReady=false, statsReady=false; let totalBudget=100; let selectedNames = new Set();
     function selected(){ return Array.from(selectedNames); }
@@ -432,22 +392,23 @@
     function pointsOf(name){ const v=pointsMap[name]; return typeof v==='number' && !isNaN(v) ? v : null; }
     function categoryOf(p){ return String((p&&p.category)||(p&&p.Category)||'').trim().toUpperCase(); }
     function categoryCounts(list){ const c={FOREIGN:0, UNCAPPED:0, CAPPED:0}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name)||{}; const cat=categoryOf(p); if(typeof c[cat]==='number') c[cat]++; }); return c; }
+
     function updateBadges(chg){ const remain=Math.max(0, userBudget-(userUsed+chg));
-      $('todayChanges').textContent=String(chg);
-      $('usedSoFar').textContent=String(userUsed+chg);
-      $('remaining').textContent=String(remain);
-      $('budget').textContent=String(userBudget);
-      const panel=$('budgetPanel');
+      document.getElementById('todayChanges').textContent=String(chg);
+      document.getElementById('usedSoFar').textContent=String(userUsed+chg);
+      document.getElementById('remaining').textContent=String(remain);
+      document.getElementById('budget').textContent=String(userBudget);
+      const panel=document.getElementById('budgetPanel');
       panel.querySelectorAll('.badge-inline').forEach(b=>{ b.classList.remove('badge-ok','badge-warn','badge-alert'); if(remain<0) b.classList.add('badge-alert'); else if(remain<=10) b.classList.add('badge-warn'); else b.classList.add('badge-ok'); });
       const cost=totalCostOf(selected());
       spentEl.textContent=String(cost);
       totalBudgetEl.textContent=String(totalBudget);
       const left=Math.max(0, totalBudget - cost);
       purseLeftEl.textContent=String(left);
-      const panel2=$('pursePanel');
+      const panel2=document.getElementById('pursePanel');
       panel2.querySelectorAll('.badge-inline').forEach(b=>{ b.classList.remove('badge-ok','badge-warn','badge-alert'); if(cost>totalBudget) b.classList.add('badge-alert'); else if(left<=10) b.classList.add('badge-warn'); else b.classList.add('badge-ok'); });
     }
-    function formatRole(r){ if(!r) return ''; r=String(r).trim().toUpperCase(); if(r==='WICKETKEEPER') return 'WK'; if(r==='BATSMAN' || r==='BATTER') return 'BAT'; if(r==='ALL-ROUNDER' || r==='ALLROUNDER' || r==='ALL_ROUNDER') return 'AR'; if(r==='BOWLER') return 'BOWL'; return r; }
+
     function roleCounts(list){ const c={WK:0,BAT:0,AR:0,BOWL:0}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name); const r=formatRole((p&&p.role)||''); if(c[r]!==undefined) c[r]++; }); return c; }
     function tooltipForRole(label, n, min, max){ if(n<min) return `Need ${min-n} more ${label} (minimum ${min})`; if(n>max) return `Too many ${label}: reduce by ${n-max} (maximum ${max})`; return `${label} count is within the allowed range (${min}–${max})`; }
     function refreshRuleChips(){ if(!constraints||!constraints.WK){ ruleRow.style.display='none'; return; } ruleRow.style.display='flex'; const counts=roleCounts(selected()); const setChip=(el,key,label)=>{ const v=constraints[key]||{min:0,max:0}; const n=counts[key]||0; el.classList.remove('ok','bad'); el.textContent=`${label}: ${n} (min ${v.min}, max ${v.max})`; const old=M.Tooltip.getInstance(el); if(old) old.destroy(); el.setAttribute('data-tooltip', tooltipForRole(label, n, v.min, v.max)); M.Tooltip.init(el,{position:'top', margin:6}); if(n<v.min || n>v.max) el.classList.add('bad'); else el.classList.add('ok'); };
@@ -460,18 +421,20 @@
     }
     function cvcIsValid(){ const ok = !!selectedCaptain && !!selectedViceCaptain && selectedCaptain!==selectedViceCaptain; cvcHint.classList.toggle('bad', !ok); cvcHint.textContent = ok ? `C: ${selectedCaptain} • VC: ${selectedViceCaptain}` : 'Pick a Captain & Vice‑Captain. They must be different.'; return ok; }
     function populateCvcOptions(){ const names = selected(); const capPrev=selectedCaptain, vcPrev=selectedViceCaptain; const opts = ['<option value="" disabled selected>Select player</option>'].concat(names.map(n=>`<option value="${n}">${n}</option>`)).join('');
-      captainSelect.innerHTML = opts; viceCaptainSelect.innerHTML = opts; [captainSelect, viceCaptainSelect].forEach(el=>{ const old=M.FormSelect.getInstance(el); if(old) old.destroy(); M.FormSelect.init(el); });
+      captainSelect.innerHTML = opts; viceCaptainSelect.innerHTML = opts;
+      [captainSelect, viceCaptainSelect].forEach(el=>{ const old=M.FormSelect.getInstance(el); if(old) old.destroy(); M.FormSelect.init(el); });
       if(names.includes(capPrev)) selectedCaptain = capPrev; else selectedCaptain = '';
       if(names.includes(vcPrev)) selectedViceCaptain = vcPrev; else selectedViceCaptain = '';
       if(selectedCaptain){ captainSelect.value = selectedCaptain; const inst=M.FormSelect.getInstance(captainSelect); inst && inst.destroy(); M.FormSelect.init(captainSelect); }
       if(selectedViceCaptain){ viceCaptainSelect.value = selectedViceCaptain; const inst2=M.FormSelect.getInstance(viceCaptainSelect); inst2 && inst2.destroy(); M.FormSelect.init(viceCaptainSelect); }
       cvcIsValid();
     }
+
     function renderPreview(){ const names=selected();
       const rc=roleCounts(names);
       pillWK.textContent=`WK: ${rc.WK}`; pillBAT.textContent=`BAT: ${rc.BAT}`; pillAR.textContent=`AR: ${rc.AR}`; pillBOWL.textContent=`BOWL: ${rc.BOWL}`;
       const tc=teamCountsOf(names); const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—'; pillTeams.textContent=`Teams: ${teamsStr}`; pillCost.textContent=`Cost: ${totalCostOf(names)}`;
-      const rowWK=$('row-WK'); const rowBAT=$('row-BAT'); const rowAR=$('row-AR'); const rowBOWL=$('row-BOWL');
+      const rowWK=document.getElementById('row-WK'); const rowBAT=document.getElementById('row-BAT'); const rowAR=document.getElementById('row-AR'); const rowBOWL=document.getElementById('row-BOWL');
       rowWK.innerHTML=''; rowBAT.innerHTML=''; rowAR.innerHTML=''; rowBOWL.innerHTML='';
       function normalizeCategory(raw){ const s=String(raw ?? '').trim().toUpperCase(); if(!s) return ''; if(s==='FOREIGN'||s==='OVERSEAS') return 'FOREIGN'; if(s==='UNCAPPED') return 'UNCAPPED'; if(s==='CAPPED'||s==='INDIAN'||s==='DOMESTIC') return 'CAPPED'; return s; }
       function catIcon(raw){ const c=normalizeCategory(raw); if(c==='FOREIGN') return '🌍'; if(c==='UNCAPPED') return '🧑‍🎓'; if(c==='CAPPED') return '🛡️'; return ''; }
@@ -489,110 +452,109 @@
         return {card, role};
       }
       names.forEach(n=>{ const p=allPlayers.find(x=>x.name===n)||{name:n,team:'',role:'',imageUrl:'',price:0}; const {card,role}=makeCard(p); if(role==='WK') rowWK.appendChild(card); else if(role==='BAT') rowBAT.appendChild(card); else if(role==='AR') rowAR.appendChild(card); else if(role==='BOWL') rowBOWL.appendChild(card); else rowBAT.appendChild(card); });
-      const msg=$('validationMsg');
+      const msg=document.getElementById('validationMsg');
       const cap=capStatus(names); const withinCap=cap.overTeams.length===0; const overBudget=totalCostOf(names)>totalBudget; const cat=categoryCounts(names); const catForeignOk=(cat.FOREIGN||0)<=Number(categoryCaps.maxForeign||0); const catUncappedOk=(cat.UNCAPPED||0)>=Number(categoryCaps.minUncapped||0);
       if(!withinCap){ msg.className='helper error-text'; msg.textContent='Team cap exceeded: ' + cap.overTeams.join(', ');} else if(overBudget){ msg.className='helper error-text'; msg.textContent=`Over budget! Reduce cost to ≤ ${totalBudget}.`; } else if(!catForeignOk){ msg.className='helper error-text'; msg.textContent=`Too many FOREIGN players. Max allowed = ${categoryCaps.maxForeign}.`; } else if(!catUncappedOk){ msg.className='helper error-text'; msg.textContent=`Not enough UNCAPPED players. Min required = ${categoryCaps.minUncapped}.`; } else { msg.className='helper ok-text'; msg.textContent='Looks good!'; }
       refreshRuleChips(); refreshCategoryChips();
       populateCvcOptions();
     }
+
     function togglePlayer(name, on){ if(on){ selectedNames.add(name); } else { selectedNames.delete(name); if(selectedCaptain===name) selectedCaptain=''; if(selectedViceCaptain===name) selectedViceCaptain=''; } const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb)); if(map.has(name)) map.get(name).checked=!!on; updateSelectionUI(); }
+
     function updateSelectionUI(){ const names=selected(); const n=names.length; selCount.setAttribute('data-badge-caption','/11 selected'); selCount.textContent=n; const ch=countChanges(lastTeamPlayers, names); updateBadges(ch); renderPreview();
       const anyRoleBad=document.querySelectorAll('#roleRulesRow .rule-chip.bad').length>0; const anyCatBad=document.querySelectorAll('#catRulesRow .rule-chip.bad').length>0; const cap=capStatus(names); const withinCap=cap.overTeams.length===0; const cost=totalCostOf(names); const withinBudget=cost<=totalBudget; const hasBase=!!(lastTeamPlayers && lastTeamPlayers.length);
       const cvcOk = cvcIsValid();
+      const logged = isLoggedIn();
       submitBtn.style.display=hasBase?'inline-flex':'none';
       buildFirstBtn.style.display=hasBase?'none':'inline-flex';
-      const logged = isLoggedIn();
-      if(!logged || !matchSelectEl.value || n!==11 || (!withinCap) || anyRoleBad || anyCatBad || (!withinBudget) || !cvcOk){ submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); }
+      const disableReason = (!logged) || (!matchSelectEl.value) || n!==11 || (!withinCap) || anyRoleBad || anyCatBad || (!withinBudget) || (!cvcOk) || isLocked;
+      if(disableReason){ submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); }
       else { if(hasBase){ if((userUsed+ch)>userBudget) submitBtn.classList.add('disabled'); else submitBtn.classList.remove('disabled'); } else { buildFirstBtn.classList.remove('disabled'); } }
-      if(isLocked){ submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); }
+      if(!logged){ const msg=document.getElementById('validationMsg'); msg.className='helper error-text'; msg.textContent='Login required to submit.'; }
     }
+
     function buildFilters(list){ const prevTeam=teamFilter.value||'ALL'; const prevRole=roleFilter.value||'ALL'; const teams=Array.from(new Set(list.map(p=>String(p.team||'').toUpperCase()).filter(Boolean))).sort();
       teamFilter.innerHTML='<option value="ALL">All teams</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join('');
       const teamToSet=teams.includes(prevTeam)? prevTeam==='ALL'?prevTeam:'ALL' : 'ALL'; teamFilter.value=teamToSet; const inst1=M.FormSelect.getInstance(teamFilter); if(inst1) inst1.destroy(); M.FormSelect.init(teamFilter);
       roleFilter.value=prevRole||'ALL'; const inst2=M.FormSelect.getInstance(roleFilter); if(inst2) inst2.destroy(); M.FormSelect.init(roleFilter);
       const inst3=M.FormSelect.getInstance(catFilter); if(inst3) inst3.destroy(); M.FormSelect.init(catFilter);
     }
+
     function applyLastXIIfReady(){ if(!(playersReady && statsReady)) return; if(!selectedNames || selectedNames.size===0){ selectedNames=new Set(lastTeamPlayers||[]); }
       const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb)); let checked=0; (selected()||[]).forEach(n=>{ if(map.has(n) && checked<11){ map.get(n).checked=true; checked++; } });
-      updateSelectionUI(); if(lastTeamPlayers && lastTeamPlayers.length){ $('transferBanner').style.display='flex'; }
+      updateSelectionUI(); if(lastTeamPlayers && lastTeamPlayers.length){ document.getElementById('transferBanner').style.display='flex'; }
     }
+
     function normalizeCategory(raw){ const s=String(raw ?? '').trim().toUpperCase(); if(!s) return ''; if(s==='FOREIGN'||s==='OVERSEAS') return 'FOREIGN'; if(s==='UNCAPPED') return 'UNCAPPED'; if(s==='CAPPED'||s==='INDIAN'||s==='DOMESTIC') return 'CAPPED'; return s; }
     function catIcon(raw){ const c=normalizeCategory(raw); if(c==='FOREIGN') return '🌍'; if(c==='UNCAPPED') return '🧑‍🎓'; if(c==='CAPPED') return '🛡️'; return ''; }
-    function renderPlayers(){ const t=(teamFilter.value||'ALL').toUpperCase(); const r=(roleFilter.value||'ALL').toUpperCase(); const q=(searchInput.value||'').trim().toLowerCase(); const priceCap=Number(budgetMaxEl.value || Infinity); const c=(catFilter.value||'ALL').toUpperCase();
-      const filtered=allPlayers.filter(p=>{ const tOk=(t==='ALL')||String(p.team||'').toUpperCase()===t; const rOk=(r==='ALL')||(formatRole(p.role||'')===r); const qOk=!q||String(p.name||'').toLowerCase().includes(q); const priceOk=Number(p.price||0)<=priceCap; const catRaw=normalizeCategory(p.category ?? p.Category ?? ''); const cOk=(c==='ALL')||(catRaw===c); return tOk && rOk && cOk && qOk && priceOk; });
-      playersList.innerHTML='';
-      filtered.forEach(p=>{ const card=document.createElement('div'); card.className='player-card'; const role=formatRole(p.role||''); if(role) card.classList.add('accent-'+role);
-        const img=document.createElement(p.imageUrl?'img':'i'); if(p.imageUrl){ img.className='avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); } } else { img.className='material-icons grey-text'; img.textContent='person'; }
-        const label=document.createElement('label'); label.className='player-check'; label.innerHTML='<input type="checkbox"/><span></span>'; const cb=label.querySelector('input'); cb.value=p.name; cb.checked=selectedNames.has(p.name); cb.addEventListener('change', ()=>{ if(cb.checked){ selectedNames.add(p.name);} else { selectedNames.delete(p.name);} updateSelectionUI(); });
-        const info=document.createElement('div'); info.className='player-info'; const roleShort=role||'—';
-        const ptsVal=pointsOf(p.name); const ptsChip=typeof ptsVal==='number'?`<span class="points-chip" title="Points to date"><i class="material-icons" style="font-size:16px;">stars</i>${ptsVal}</span>`:`<span class="points-chip" title="Points unavailable"><i class="material-icons" style="font-size:16px;">stars</i>—</span>`;
-        info.innerHTML = `<span class="player-name">${p.name}<span class="role-chip">${roleShort}</span></span>`+
-        `<span class="player-meta"><span class="team-chip">${p.team||''}</span>`+
-        `<span class="price-chip"><i class="material-icons" style="font-size:16px;">monetization_on</i>${Number(p.price||0)}</span>`+ptsChip+`</span>`;
-        try{ const catRaw=(p.category ?? p.Category ?? ''); const catIco=catIcon(catRaw); const catTitle=normalizeCategory(catRaw)||''; if(catIco){ const meta=info.querySelector('.player-meta'); if(meta){ const span=document.createElement('span'); span.className='cat-ico'; span.title=catTitle; span.textContent=catIco; meta.prepend(span);} } }catch(_){ }
-        card.appendChild(label); card.appendChild(img); card.appendChild(info); playersList.appendChild(card); });
-      buildFilters(allPlayers);
-      playersReady=true; applyLastXIIfReady();
-    }
-    async function fetchNextMatch(){ try{ const res=await fetch(`${API}?action=nextmatch`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON (nextmatch)'); return; } if(!j.ok || !j.next){ notify('No matches configured'); return; } const m=j.next; isLocked=!!j.locked; matchSelectEl.innerHTML = `<option value="${m.id}" selected>${m.label || m.id}</option>`; matchSelectEl.value = String(m.id); M.FormSelect.init(matchSelectEl); const wrap = matchSelectEl.closest('.input-field'); if(wrap) wrap.style.display='none'; deadlineBar.style.display='inline-flex'; dlLabel.textContent=m.label||m.id; cutoffAt = m.cutoffAt? new Date(m.cutoffAt): null; dlTime.textContent = cutoffAt? formatIst(m.cutoffAt): '—'; startCountdown(); healthLine.style.display='block'; healthLine.innerHTML = `<b>Health</b>: next=${m.id || '—'}`; updateSelectionUI(); }catch(e){ notify('Network error (nextmatch)'); } }
+
+    async function fetchNextMatch(){ try{ const res=await fetch(`${API}?action=nextmatch`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON (nextmatch)'); return; } if(!j.ok || !j.next){ notify('No matches configured'); return; } const m=j.next; isLocked=!!j.locked; matchSelectEl.innerHTML = `<option value="${m.id}" selected>${m.label || m.id}</option>`; matchSelectEl.value = String(m.id); M.FormSelect.init(matchSelectEl); const wrap = matchSelectEl.closest('.input-field'); if(wrap) wrap.style.display=''; deadlineBar.style.display='inline-flex'; dlLabel.textContent=m.label||m.id; cutoffAt = m.cutoffAt? new Date(m.cutoffAt): null; dlTime.textContent = cutoffAt? formatIst(m.cutoffAt): '—'; startCountdown(); healthLine.style.display='block'; healthLine.innerHTML = `<b>Health</b>: next=${m.id || '—'}`; updateSelectionUI(); }catch(e){ notify('Network error (nextmatch)'); } }
+
     async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class="red-text">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class="red-text">${j.error||'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; const maxPrice=Math.max(0,...allPlayers.map(p=>Number(p.price||0))); budgetMaxEl.max=String(maxPrice||100); const savedCap=(()=>{ try{return Number(localStorage.getItem('ml_budget_cap')||'');}catch(_){return NaN;} })(); const initialCap=!isNaN(savedCap)&&savedCap>0? Math.min(savedCap,maxPrice): maxPrice; budgetMaxEl.value=String(initialCap); budgetMaxLabel.textContent=String(initialCap); renderPlayers(); if(!allPlayers.length) notify('No players returned. Check Players headers.'); }catch(e){ playersList.innerHTML='<span class="red-text">Network error</span>'; } }
+
     async function fetchPoints(){ try{ const res=await fetch(`${API}?action=points`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Points response not JSON'); return; } if(!j.ok){ notify(j.error||'API error (points)'); return; } if(Array.isArray(j.points)){ const m={}; j.points.forEach(row=>{ const n=String((row.name||row.player||'')).trim(); const v=Number(row.points||row.pts||row.total||0); if(n) m[n]=v; }); pointsMap=m; } else if(j.points && typeof j.points==='object'){ const m={}; Object.keys(j.points).forEach(k=>{ const n=String(k).trim(); const v=Number(j.points[k]); if(n) m[n]=v; }); pointsMap=m; } else { pointsMap={}; } if(allPlayers && allPlayers.length){ renderPlayers(); } }catch(e){ notify('Network error (points)'); } }
-    async function fetchUserStats(){ if(!isLoggedIn()) return; const email=(SESSION.email||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; } userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; totalBudget=Number(j.totalBudget||100); categoryCaps = j.categoryCaps || { maxForeign: Number(j.maxForeign||4), minUncapped: Number(j.minUncapped||1) }; if(j.lastCaptain) selectedCaptain = j.lastCaptain; if(j.lastViceCaptain) selectedViceCaptain = j.lastViceCaptain; selectedNames=new Set(lastTeamPlayers||[]); updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team. Foreign ≤ ${categoryCaps.maxForeign}; Uncapped ≥ ${categoryCaps.minUncapped}.`; statsReady=true; applyLastXIIfReady(); }catch(e){ notify('Network error (stats)'); } }
+
+    async function fetchUserStats(){ const email=(authEmail||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; }
+      userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; totalBudget=Number(j.totalBudget||100); categoryCaps = j.categoryCaps || { maxForeign: Number(j.maxForeign||4), minUncapped: Number(j.minUncapped||1) };
+      if(j.lastCaptain) selectedCaptain = j.lastCaptain; if(j.lastViceCaptain) selectedViceCaptain = j.lastViceCaptain;
+      selectedNames=new Set(lastTeamPlayers||[]);
+      updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team. Foreign ≤ ${categoryCaps.maxForeign}; Uncapped ≥ ${categoryCaps.minUncapped}.`;
+      statsReady=true; applyLastXIIfReady();
+    }catch(e){ notify('Network error (stats)'); }
+    }
+
     async function loadLeaderboard(){ lbTable.innerHTML='<tr><td colspan="3">Loading…</td></tr>'; try{ const res=await fetch(`${API}?action=leaderboard`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Response not JSON</td></tr>'; return; } if(!j.ok){ lbTable.innerHTML = `<tr><td colspan="3" class="red-text">${j.error||'API error'}</td></tr>`; return; } lbTable.innerHTML=(j.leaderboard||[]).map((r,i)=>`<tr><td>${i+1}</td><td>${r.name||''}</td><td><span class="new badge green" data-badge-caption="">${r.total}</span></td></tr>`).join('') || '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>'; }catch(e){ lbTable.innerHTML='<tr><td colspan="3" class="red-text">Failed</td></tr>'; } }
+
     function computeTransfers(){ const prev=new Set(lastTeamPlayers||[]); const curr=new Set(selected()); const adds=Array.from(curr).filter(x=>!prev.has(x)); const drops=Array.from(prev).filter(x=>!curr.has(x)); return {adds, drops}; }
-    async function submitTransfers(){ if(!isLoggedIn()){ notify('Please log in first.'); return; } const email=(SESSION.email||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found; please build your first XI.'); return; } if(names.length!==11){ notify('Your XI must have exactly 11 after transfers'); return; } if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; } const {adds,drops}=computeTransfers(); submitBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submittransfers'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('adds', JSON.stringify(adds)); qs.set('drops', JSON.stringify(drops)); qs.set('captain', selectedCaptain); qs.set('viceCaptain', selectedViceCaptain); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON'); return; } if(j.ok){ notify(`Transfers applied: +${adds.length}/-${drops.length}`); await fetchUserStats(); lastTeamPlayers=names.slice(); selectedNames=new Set(lastTeamPlayers); } else { notify(j.error||'Failed to apply transfers'); } }catch(e){ notify('Network error'); } finally{ submitBtn.classList.remove('disabled'); updateSelectionUI(); } }
-    async function buildFirstXI(){ if(!isLoggedIn()){ notify('Please log in first.'); return; } const email=(SESSION.email||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(names.length!==11){ notify('Pick exactly 11 to build your first XI'); return; } if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; } buildFirstBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(names)); qs.set('captain', selectedCaptain); qs.set('viceCaptain', selectedViceCaptain); const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON (submitteam)'); return; } if(j.ok){ notify('First XI saved! You can now do transfers.'); await fetchUserStats(); lastTeamPlayers=names.slice(); selectedNames=new Set(lastTeamPlayers); } else { notify(j.error||'Failed to build first XI'); } }catch(e){ notify('Network error'); } finally{ buildFirstBtn.classList.remove('disabled'); updateSelectionUI(); } }
+
+    async function submitTransfers(){ const email=(authEmail||'').trim(); const names=selected(); if(!isLoggedIn()){ notify('Login required'); return; } if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found; please build your first XI.'); return; } if(names.length!==11){ notify('Your XI must have exactly 11 after transfers'); return; } if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; }
+      const {adds,drops}=computeTransfers(); submitBtn.classList.add('disabled');
+      try{ const qs=new URLSearchParams(); qs.set('action','submittransfers'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('adds', JSON.stringify(adds)); qs.set('drops', JSON.stringify(drops)); qs.set('captain', selectedCaptain); qs.set('viceCaptain', selectedViceCaptain); qs.set('auth', authToken);
+        const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON'); return; }
+        if(j.ok){ notify(`Transfers applied: +${adds.length}/-${drops.length}`); await fetchUserStats(); lastTeamPlayers=names.slice(); selectedNames=new Set(lastTeamPlayers); } else { notify(j.error||'Failed to apply transfers'); }
+      }catch(e){ notify('Network error'); } finally{ submitBtn.classList.remove('disabled'); updateSelectionUI(); }
+    }
+
+    async function buildFirstXI(){ const email=(authEmail||'').trim(); const names=selected(); if(!isLoggedIn()){ notify('Login required'); return; } if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(names.length!==11){ notify('Pick exactly 11 to build your first XI'); return; } if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; }
+      buildFirstBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(names)); qs.set('captain', selectedCaptain); qs.set('viceCaptain', selectedViceCaptain); qs.set('auth', authToken);
+        const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON (submitteam)'); return; } if(j.ok){ notify('First XI saved! You can now do transfers.'); await fetchUserStats(); lastTeamPlayers=names.slice(); selectedNames=new Set(lastTeamPlayers); } else { notify(j.error||'Failed to build first XI'); }
+      }catch(e){ notify('Network error'); } finally{ buildFirstBtn.classList.remove('disabled'); updateSelectionUI(); }
+    }
+
     function getPlayerInfoByName(name){ const p=allPlayers.find(x=>x.name===name)||{name,team:'',role:'',price:0}; return {name:p.name,team:String(p.team||''),role:formatRole(p.role||''), price:Number(p.price||0)}; }
     function renderList(listEl,names,kind){ listEl.innerHTML=''; if(!names.length){ listEl.innerHTML='<li class="collection-item grey-text">None</li>'; return; } names.forEach(n=>{ const p=getPlayerInfoByName(n); const pts=pointsOf(n); const li=document.createElement('li'); li.className='collection-item '+(kind==='out'?'out':(kind==='in'?'in':'')); li.innerHTML=`<span><b>${p.name}</b> <span class="role-tag">${p.role||'—'}</span><span class="price-tag">${p.price}</span>${typeof pts==='number'?`<span class="price-tag" title="Points">⭐ ${pts}</span>`:''}</span><div class="secondary-content grey-text">${p.team||''}</div>`; listEl.appendChild(li); }); }
     function showSuccessTicker(modalEl){ try{ const host=modalEl.querySelector('.modal-content'); if(!host) return; const bar=document.createElement('div'); bar.className='success-ticker'; host.appendChild(bar); setTimeout(()=>{ try{ bar.remove(); }catch(e){} },1500);}catch(e){} }
-    function openConfirmModal(mode='transfers'){ if(!isLoggedIn()){ notify('Please log in first.'); return; } const names=selected(); const titleEl=$('confirmTitle'); const summaryEl=$('confirmSummary'); const listAdds=$('listAdds'); const listDrops=$('listDrops'); const confirmBtn=$('confirmSubmitBtn'); const confirmLabel=$('confirmSubmitLabel'); let adds=[],drops=[],cost=0; if(mode==='firstxi'){ adds=names.slice(); drops=[]; cost=totalCostOf(adds); titleEl.textContent='Confirm First XI'; confirmLabel.textContent='Confirm & Save XI'; } else { const diff=computeTransfers(); adds=diff.adds; drops=diff.drops; cost=totalCostOf(names); const tcount=adds.length; titleEl.textContent='Confirm Transfers'; confirmLabel.textContent=`Confirm & Submit (${tcount} transfer${tcount===1?'':'s'})`; } renderList(listAdds,adds,'in'); renderList(listDrops,drops,'out'); const overBudget=cost>totalBudget; summaryEl.innerHTML=`<div class="grey-text">Total cost: <b>${cost}</b> / Cap <b>${totalBudget}</b>${overBudget?' — <span class="red-text">Over budget</span>':''}<br/>Captain: <b>${selectedCaptain||'—'}</b> • Vice‑Captain: <b>${selectedViceCaptain||'—'}</b></div>`; const modalEl=$('confirmModal'); const instance=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true}); function attachOneShotFetchHook(){ const originalFetch=window.fetch; let done=false; window.fetch=async function(url,opts){ const res=await originalFetch(url,opts); try{ const u=String(url||''); const isSubmit=/action=(submittransfers|submitteam)/i.test(u); if(isSubmit){ const txt=await res.clone().text(); let ok=false; try{ const j=JSON.parse(txt); ok=!!(j&&j.ok);}catch(_){ } if(ok && !done){ showSuccessTicker(modalEl); setTimeout(()=>{ try{ const inst=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true}); inst && inst.close(); }catch(e){} },1500); done=true; setTimeout(()=>{ window.fetch=originalFetch; },1600); } } }catch(_){ } return res; }; return ()=>{ window.fetch=originalFetch; }; } confirmBtn.onclick=async()=>{ if(confirmBtn.classList.contains('disabled')) return; if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; } confirmBtn.classList.add('disabled'); const detach=attachOneShotFetchHook(); try{ if(mode==='firstxi'){ await buildFirstXI(); } else { await submitTransfers(); } } finally{ confirmBtn.classList.remove('disabled'); detach(); } }; instance.open(); }
 
-    function refreshAuthUI(){ if(isLoggedIn()){ authStatus.style.display='inline-flex'; authName.textContent = `${SESSION.displayName||SESSION.email}`; loginLink.style.display='none'; logoutLink.style.display='inline-flex'; emailEl.value = SESSION.email; emailEl.disabled = true; M.updateTextFields(); } else { authStatus.style.display='none'; loginLink.style.display='inline-flex'; logoutLink.style.display='none'; emailEl.value=''; emailEl.disabled=true; M.updateTextFields(); } }
+    function openConfirmModal(mode='transfers'){ const names=selected(); const titleEl=document.getElementById('confirmTitle'); const summaryEl=document.getElementById('confirmSummary'); const listAdds=document.getElementById('listAdds'); const listDrops=document.getElementById('listDrops'); const confirmBtn=document.getElementById('confirmSubmitBtn'); const confirmLabel=document.getElementById('confirmSubmitLabel'); let adds=[],drops=[],cost=0; if(mode==='firstxi'){ adds=names.slice(); drops=[]; cost=totalCostOf(adds); titleEl.textContent='Confirm First XI'; confirmLabel.textContent='Confirm & Save XI'; } else { const diff=computeTransfers(); adds=diff.adds; drops=diff.drops; cost=totalCostOf(names); const tcount=adds.length; titleEl.textContent='Confirm Transfers'; confirmLabel.textContent=`Confirm & Submit (${tcount} transfer${tcount===1?'':'s'})`; }
+      renderList(listAdds,adds,'in'); renderList(listDrops,drops,'out'); const overBudget=cost>totalBudget; summaryEl.innerHTML=`<div class="grey-text">Total cost: <b>${cost}</b> / Cap <b>${totalBudget}</b>${overBudget?' — <span class="red-text">Over budget</span>':''}<br/>Captain: <b>${selectedCaptain||'—'}</b> • Vice‑Captain: <b>${selectedViceCaptain||'—'}</b></div>`;
+      const modalEl=document.getElementById('confirmModal'); const instance=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true});
+      function attachOneShotFetchHook(){ const originalFetch=window.fetch; let done=false; window.fetch=async function(url,opts){ const res=await originalFetch(url,opts); try{ const u=String(url||''); const isSubmit=/action=(submittransfers|submitteam)/i.test(u); if(isSubmit){ const txt=await res.clone().text(); let ok=false; try{ const j=JSON.parse(txt); ok=!!(j&&j.ok);}catch(_){ } if(ok && !done){ showSuccessTicker(modalEl); setTimeout(()=>{ try{ const inst=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true}); inst && inst.close(); }catch(e){} },1500); done=true; setTimeout(()=>{ window.fetch=originalFetch; },1600); } } }catch(_){ } return res; }; return ()=>{ window.fetch=originalFetch; }; }
+      confirmBtn.onclick=async()=>{ if(confirmBtn.classList.contains('disabled')) return; if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; } if(!isLoggedIn()){ notify('Login required'); return; } confirmBtn.classList.add('disabled'); const detach=attachOneShotFetchHook(); try{ if(mode==='firstxi'){ await buildFirstXI(); } else { await submitTransfers(); } } finally{ confirmBtn.classList.remove('disabled'); detach(); } };
+      instance.open();
+    }
 
-    document.addEventListener('DOMContentLoaded', async function(){
-      M.AutoInit();
-      // Explicitly init Login modal for reliability
-      const loginModalEl = document.getElementById('loginModal');
-      M.Modal.getInstance(loginModalEl) || M.Modal.init(loginModalEl, {dismissible:true});
-      // Make sure clicking the login button opens the modal reliably
-      loginLink.addEventListener('click', (e)=>{
-        e.preventDefault();
-        (M.Modal.getInstance(loginModalEl) || M.Modal.init(loginModalEl, {dismissible:true})).open();
-      });
-      logoutLink.addEventListener('click', ()=>{ SESSION={}; saveSession(SESSION); notify('Signed out'); location.reload(); });
-      $('showPwd').addEventListener('change', (e)=>{ $('loginPassword').type = e.target.checked ? 'text' : 'password'; });
-      $('doLogin').addEventListener('click', async ()=>{
-        const email = ($('loginEmail').value||'').trim(); const pwd = $('loginPassword').value||''; const u = getUserByEmail(email);
-        if(!u){ $('loginError').textContent='Unknown or inactive user'; $('loginError').style.display='block'; return; }
-        if(String(u.password) != String(pwd)){ $('loginError').textContent='Incorrect password'; $('loginError').style.display='block'; return; }
-        SESSION = { email: u.email, displayName: u.displayName, role: u.role };
-        saveSession(SESSION);
-        $('loginError').style.display='none';
-        const inst=M.Modal.getInstance(loginModalEl) || M.Modal.init(loginModalEl);
-        inst.close();
-        refreshAuthUI();
-        statsReady=false; await fetchUserStats(); applyLastXIIfReady(); updateSelectionUI(); notify(`Welcome, ${SESSION.displayName||SESSION.email}!`);
-      });
+    document.addEventListener('DOMContentLoaded', async function(){ M.AutoInit();
+      try{ const savedEmail = localStorage.getItem('ml_email')||''; const savedAuth = localStorage.getItem('ml_auth')||''; if(savedEmail && savedAuth){ setLoggedInState(savedEmail, savedAuth, savedEmail); } }catch(_){ }
+      if(!authEmail){ const storedEmail = (()=>{ try{return localStorage.getItem('ml_email')||'';}catch(_){return'';} })(); if(storedEmail){ emailEl.value=storedEmail; M.updateTextFields(); } }
 
-      refreshAuthUI();
-      await fetchNextMatch(); await fetchAllPlayers(); await loadLeaderboard(); await fetchPoints();
-      if(isLoggedIn()){ await fetchUserStats(); }
+      await fetchNextMatch(); await fetchAllPlayers(); await fetchUserStats(); await loadLeaderboard(); await fetchPoints();
 
       document.addEventListener('input',(e)=>{ if(e.target.id==='searchInput'){ renderPlayers(); } if(e.target.id==='budgetMax'){ budgetMaxLabel.textContent=String(budgetMaxEl.value); try{ localStorage.setItem('ml_budget_cap', String(budgetMaxEl.value)); }catch(_){ } renderPlayers(); } });
       teamFilter.addEventListener('change', renderPlayers); roleFilter.addEventListener('change', renderPlayers); catFilter.addEventListener('change', renderPlayers);
       matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); });
-      $('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints(); });
-      $('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
-      $('buildFirstBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
-      $('refreshLb').addEventListener('click', loadLeaderboard);
+      document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints(); });
+      document.getElementById('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
+      document.getElementById('buildFirstBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
+      document.getElementById('refreshLb').addEventListener('click', loadLeaderboard);
       clearAllBtn.addEventListener('click', (e)=>{ e.preventDefault(); selectedNames.clear(); selectedCaptain=''; selectedViceCaptain=''; document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked=false); updateSelectionUI(); });
       resetBtn.addEventListener('click', (e)=>{ e.preventDefault(); if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found to reset.'); return; } selectedNames=new Set(lastTeamPlayers||[]); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked = selectedNames.has(cb.value)); updateSelectionUI(); notify('Reverted to your last saved XI.'); });
       captainSelect.addEventListener('change', ()=>{ selectedCaptain = captainSelect.value; updateSelectionUI(); });
       viceCaptainSelect.addEventListener('change', ()=>{ selectedViceCaptain = viceCaptainSelect.value; updateSelectionUI(); });
 
-      if(!isLoggedIn()){
-        setTimeout(()=>{ (M.Modal.getInstance(loginModalEl) || M.Modal.init(loginModalEl, {dismissible:true})).open(); }, 600);
-      }
+      loginBtn.addEventListener('click', async ()=>{ const email=(emailEl.value||'').trim().toLowerCase(); const password=String(passEl.value||''); if(!email||!password){ notify('Email and password required'); return; }
+        loginBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','login'); qs.set('email', email); qs.set('password', password); const res=await fetch(`${API}?${qs.toString()}`); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Login: response not JSON'); return; } if(j.ok){ notify('Login successful'); setLoggedInState(j.email, j.token, j.displayName); } else { notify(j.error||'Login failed'); } }catch(e){ notify('Network error'); } finally{ loginBtn.classList.remove('disabled'); updateSelectionUI(); }
+      });
+      logoutBtn.addEventListener('click', ()=>{ authEmail=''; authToken=''; emailEl.disabled=false; passEl.disabled=false; loginBtn.style.display='inline-flex'; logoutBtn.style.display='none'; loginStatus.textContent='Not logged in'; try{ localStorage.removeItem('ml_auth'); }catch(_){ } updateSelectionUI(); });
     });
   </script>
 </body>
