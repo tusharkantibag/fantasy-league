@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sports Fever IPL Fantasy 2026 — v6.0.0 (C/VC + preview tweaks)</title>
+  <title>Sports Fever IPL Fantasy 2026 — v6.1.0 (Login + Lock Email)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -12,7 +12,6 @@
     .tabs .tab a { color:#1976d2; }
     .tabs .tab a.active { color:#0d47a1; }
     .tabs .indicator { background-color:#1976d2; }
-
     .player-list { display:flex; flex-direction:column; gap:10px; max-height:70vh; overflow:auto; }
     .player-card { background:#fff; border-radius:12px; padding:10px; display:flex; align-items:center; gap:12px; border:1px solid #e3e6ea; transition: box-shadow .15s ease, transform .05s linear; }
     .player-card:hover { box-shadow:0 6px 16px rgba(0,0,0,0.12); transform: translateY(-1px); }
@@ -25,7 +24,6 @@
     .price-chip { font-size:.72rem; padding:.08rem .4rem; border-radius:10px; background:#fff3e0; color:#e65100; display:inline-flex; gap:.25rem; align-items:center; }
     .points-chip { font-size:.72rem; padding:.08rem .4rem; border-radius:10px; background:#ede7f6; color:#4a148c; display:inline-flex; gap:.25rem; align-items:center; }
     .player-check { transform:scale(1.25); }
-
     .sticky-actions { position: sticky; bottom: 0; background:#fff; padding:.75rem; border-top:1px solid #eee; display:flex; flex-wrap:wrap; gap:.75rem; justify-content:space-between; align-items:center; }
     .budget { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
     .badge-inline { display:inline-flex; align-items:center; gap:.35rem; padding:.3rem .6rem; border-radius:14px; background:#eceff1; color:#263238; font-size:.85rem; }
@@ -33,48 +31,39 @@
     .badge-ok { background:#e8f5e9; color:#1b5e20; }
     .badge-warn { background:#fff8e1; color:#e65100; }
     .badge-alert { background:#ffebee; color:#b71c1c; }
-
     .filters { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin:.5rem 0 1rem 0; }
     .filter-chip { background:#fff; border:1px solid #e0e0e0; border-radius:18px; padding:.25rem .6rem; display:inline-flex; align-items:center; gap:.5rem; }
     .filter-chip select { border:none; background:transparent; outline:none; }
     .search-box { max-width:260px; }
-
     .cap-line { font-size:.9rem; color:#37474f; margin:.25rem 0 .25rem 0; }
     .transfer-banner { display:flex; align-items:center; gap:.5rem; font-size:.88rem; margin:.25rem 0 .5rem 0; }
     .transfer-banner .pill { display:inline-flex; gap:.3rem; align-items:center; padding:.18rem .5rem; border-radius:14px; background:#e3f2fd; color:#0d47a1; }
-
     .rule-row { display:flex; flex-wrap:wrap; gap:.5rem; margin:.35rem 0 0 0; align-items:center; }
     .rule-title { font-weight:700; color:#37474f; margin-right:.3rem; }
     .rule-chip { display:inline-flex; align-items:center; gap:.35rem; padding:.22rem .55rem; border-radius:16px; border:1px solid #e0e0e0; font-size:.84rem; background:#fafafa; color:#37474f; cursor:help; }
     .rule-chip.ok { background:#e8f5e9; color:#1b5e20; border-color:#2e7d32; box-shadow:0 0 0 2px rgba(46,125,50,.15) inset; }
     .rule-chip.bad { background:#ffebee; color:#b71c1c; border-color:#c62828; box-shadow:0 0 0 2px rgba(198,40,40,.18) inset; }
-
     @keyframes tickerFill{from{width:0}to{width:100%}}
     .success-ticker{position:absolute;left:0;top:0;height:3px;width:0;background:#2e7d32;animation:tickerFill 1.5s linear forwards;border-top-left-radius:3px;border-top-right-radius:3px;}
-
     .accent-WK { border-color:#1565c0 !important; box-shadow:0 0 0 2px rgba(21,101,192,.22) inset; }
     .accent-BAT { border-color:#2e7d32 !important; box-shadow:0 0 0 2px rgba(46,125,50,.22) inset; }
     .accent-AR { border-color:#7b1fa2 !important; box-shadow:0 0 0 2px rgba(123,31,162,.24) inset; }
     .accent-BOWL { border-color:#ff6d00 !important; box-shadow:0 0 0 2px rgba(255,109,0,.26) inset; }
-
     .preview-card { background:#fff; border-radius:12px; border:1px solid #e3e6ea; }
     .preview-header { display:flex; align-items:center; justify-content:space-between; }
     .pill { display:inline-flex; align-items:center; gap:.3rem; padding:.18rem .5rem; border-radius:12px; background:#eceff1; font-size:.78rem; color:#37474f; }
-
     .preview-grid{ display:block; }
     .lineup-row{ margin:12px 0; padding-left:8px; border-left:3px solid #dde5ee; }
     .lineup-row[data-role=WK]{ border-left-color:#1565c0; }
     .lineup-row[data-role=BAT]{ border-left-color:#2e7d32; }
     .lineup-row[data-role=AR]{ border-left-color:#7b1fa2; }
     .lineup-row[data-role=BOWL]{ border-left-color:#ff6d00; }
-
     .role-header{ position:sticky; top:8px; z-index:5; background:#ffffff; display:inline-flex; align-items:center; gap:.4rem; padding:.22rem .6rem; border:1px solid #e0e0e0; border-radius:12px; font-weight:700; color:#37474f; box-shadow:0 4px 10px rgba(0,0,0,.06); backdrop-filter:saturate(1.2) blur(2px); }
     .role-header .material-icons{ font-size:18px; opacity:.85; }
     .role-header.role-WK{ color:#1565c0; border-color:#bbdefb; background:#e3f2fd; }
     .role-header.role-BAT{ color:#2e7d32; border-color:#c8e6c9; background:#e8f5e9; }
     .role-header.role-AR{ color:#7b1fa2; border-color:#e1bee7; background:#f3e5f5; }
     .role-header.role-BOWL{ color:#ff6d00; border-color:#ffe0b2; background:#fff3e0; }
-
     .role-cards{ display:flex; flex-wrap:wrap; gap:12px; margin-top:6px; }
     .square-card{ background:#fafcff; border:1px solid #dde5ee; border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; position:relative; width:180px; flex:0 0 180px; overflow:visible; }
     .square-card .pic{ width:100%; aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#fff; border:1px solid #e0e0e0; display:flex; align-items:center; justify-content:center; }
@@ -84,71 +73,50 @@
     .square-card .meta{ font-size:.8rem; color:#607d8b; text-align:center; margin-top:.15rem; }
     .square-card .price{ font-size:.8rem; text-align:center; margin-top:.25rem; padding:.12rem .5rem; border-radius:12px; background:#fff3e0; color:#e65100; display:inline-block; }
     .square-card .remove{ position:absolute; top:8px; right:8px; }
-
     .cat-corner{ position:absolute; top:10px; left:10px; z-index:10; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:0 1px 3px rgba(0,0,0,.14); font-size:16px; line-height:1; pointer-events:none; }
     @media (max-width:480px){ .cat-corner{ top:8px; left:8px; width:24px; height:24px; font-size:15px; } }
     .cat-ico { font-size: 1rem; line-height: 1; display:inline-flex; align-items:center; justify-content:center; }
-
     /* Captain/VC overlay tag on preview cards */
     .cvc-tag{ position:absolute; bottom:8px; right:8px; z-index:6; display:inline-flex; align-items:center; justify-content:center; height:22px; min-width:22px; padding:0 .4rem; border-radius:11px; font-size:.72rem; font-weight:700; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,.18); }
     .cvc-C{ background:#ef6c00; } /* orange */
     .cvc-VC{ background:#00897b; } /* teal */
-
     /* C/VC panel */
     .cvc-panel{ margin-top:.5rem; padding:.6rem .6rem .2rem .6rem; border:1px dashed #cfd8dc; border-radius:10px; background:#fafafa; }
     .cvc-row{ display:flex; gap:12px; flex-wrap:wrap; }
     .cvc-row .input-field{ flex:1 1 220px; margin-top:.5rem; }
-    .cvc-hint{ font-size:.85rem; color:#546e7a; margin-left:.2rem; }
+    .cvc-hint{ font-size:.85rem; color:#546e7a; }
     .cvc-hint.bad{ color:#b71c1c; }
-
     .health { font-size:.82rem; color:#546e7a; margin:.25rem 0; }
     .health b { color:#0d47a1; }
     .ok-text{ color:#2e7d32; }
     .error-text{ color:#c62828; }
-
-    @media (max-width:480px){ .square-card{ width:150px; flex-basis:150px; } }
-
     .budget-chip-wrap{ display:inline-flex; align-items:center; gap:.5rem; }
     .budget-chip-wrap label{ margin:0; font-size:.85rem; color:#37474f; }
     .budget-chip-wrap input[type=range]{ width:160px; height:22px; }
+
+    /* Auth bar */
+    .auth-bar{ display:flex; gap:.5rem; align-items:center; }
+    .auth-badge{ display:inline-flex; gap:.35rem; align-items:center; padding:.25rem .6rem; border-radius:14px; background:#e8f5e9; color:#1b5e20; font-size:.85rem; }
+    .auth-actions a{ margin-left:.5rem; }
   </style>
 </head>
 <body>
   <nav class="blue">
     <div class="nav-wrapper container">
       <a href="#submit" class="brand-logo"><i class="material-icons left">emoji_events</i> Sports Fever IPL Fantasy 2026</a>
+      <ul class="right">
+        <li>
+          <div class="auth-bar" style="padding-right:.5rem;">
+            <span id="authStatus" class="auth-badge" style="display:none;"><i class="material-icons" style="font-size:18px;">verified_user</i><span id="authName"></span></span>
+            <a id="loginLink" class="btn-small waves-effect light-blue darken-2"><i class="material-icons left">login</i>Log in</a>
+            <a id="logoutLink" class="btn-small waves-effect red darken-2" style="display:none;"><i class="material-icons left">logout</i>Log out</a>
+          </div>
+        </li>
+      </ul>
     </div>
   </nav>
 
   <main class="container" style="margin-top:1.25rem;">
-  <!-- LOGIN PANEL (NEW) -->
-  <div id="loginPanel" class="card" style="display:none; margin-top:12px;">
-    <div class="card-content">
-      <span class="card-title">Sign in</span>
-      <div class="row">
-        <div class="input-field col s12 m5">
-          <input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="username">
-          <label class="active" for="loginEmail">Email</label>
-        </div>
-        <div class="input-field col s12 m5">
-          <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password">
-          <label class="active" for="loginPassword">Password</label>
-        </div>
-        <div class="input-field col s12 m2" style="display:flex;align-items:center;">
-          <a id="loginBtn" class="btn waves-effect blue" style="width:100%"><i class="material-icons left">login</i>Sign in</a>
-        </div>
-      </div>
-      <div id="loginMsg" class="red-text"></div>
-    </div>
-  </div>
-  <!-- WHOAMI chip (NEW) -->
-  <div id="whoPanel" class="card" style="display:none;">
-    <div class="card-content" style="display:flex;align-items:center;gap:.5rem;">
-      <span class="pill"><i class="material-icons">person</i> Logged in as: <b id="whoEmail"></b></span>
-      <a id="signOutBtn" class="btn-flat"><i class="material-icons left">logout</i>Sign out</a>
-    </div>
-  </div>
-
     <div class="row"><div class="col s12">
       <ul class="tabs">
         <li class="tab col s3"><a href="#submit" class="active"><i class="material-icons left">swap_horiz</i>Transfers</a></li>
@@ -161,10 +129,11 @@
         <div class="col s12 l5">
           <div class="card"><div class="card-content">
             <span class="card-title">Manage Transfers <span class="new badge blue" id="selCount" data-badge-caption="/11 selected">0</span></span>
+
             <div class="row">
               <div class="input-field col s12 m6">
-                <input id="email" type="email" class="validate" placeholder="you@example.com" readonly disabled>
-                <label class="active" for="email">Your Email (auto)</label>
+                <input id="email" type="email" class="validate" placeholder="you@example.com" disabled>
+                <label class="active" for="email">Your Email (locked after sign-in)</label>
               </div>
               <div class="input-field col s12 m6">
                 <select id="matchSelect"></select>
@@ -207,7 +176,6 @@
               <span class="rule-chip tooltipped" id="ruleAR" data-tooltip="">AR: —</span>
               <span class="rule-chip tooltipped" id="ruleBOWL" data-tooltip="">BOWL: —</span>
             </div>
-
             <div class="rule-row" id="catRulesRow" style="display:none;">
               <span class="rule-title">Category rules:</span>
               <span class="rule-chip tooltipped" id="ruleForeign" data-tooltip="">FOREIGN: —</span>
@@ -269,6 +237,7 @@
                 <a id="clearAll" class="btn-flat"><i class="material-icons left">backspace</i>Clear All</a>
               </div>
             </div>
+
             <div style="display:flex; flex-wrap:wrap; gap:.5rem; margin:.25rem 0 .5rem 0;">
               <span class="pill" id="pillWK">WK: 0</span>
               <span class="pill" id="pillBAT">BAT: 0</span>
@@ -277,6 +246,7 @@
               <span class="pill" id="pillTeams">Teams: —</span>
               <span class="pill" id="pillCost">Cost: 0</span>
             </div>
+
             <div id="previewGrid" class="preview-grid">
               <div class="lineup-row" data-role="WK">
                 <div class="role-header role-WK"><i class="material-icons">sports_cricket</i>Wicketkeepers</div>
@@ -352,79 +322,128 @@
         <a href="#" class="modal-close btn-flat"><i class="material-icons left">close</i>Cancel</a>
       </div>
     </div>
-
   </main>
+
+  <!-- Login modal -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <h5><i class="material-icons left">login</i>Sign in</h5>
+      <p class="grey-text">Use the email + password defined in the <b>Users</b> sheet. No email OTP is required.</p>
+      <div class="row" style="margin-top:1rem;">
+        <div class="input-field col s12 m6">
+          <input id="loginEmail" type="email" class="validate" placeholder="you@example.com" required>
+          <label class="active" for="loginEmail">Email</label>
+        </div>
+        <div class="input-field col s12 m6">
+          <input id="loginPassword" type="password" class="validate" placeholder="Password" required>
+          <label class="active" for="loginPassword">Password</label>
+          <label style="display:block; margin-top:.25rem;">
+            <input type="checkbox" id="showPwd"><span>Show password</span>
+          </label>
+        </div>
+      </div>
+      <div class="red-text" id="loginError" style="display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <a id="doLogin" class="btn waves-effect blue"><i class="material-icons left">check</i>Sign in</a>
+      <a class="modal-close btn-flat"><i class="material-icons left">close</i>Cancel</a>
+    </div>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script>
-    const API = 'https://script.google.com/macros/s/AKfycbzh6M4BKTgW7Np4UFibxrV3Znoln74b4GO8uNB8PaqNaom6zY2wx3ExrSyoILB1aHEb/exec';
-const AUTH_ENABLED = true;
-let AUTH_TOKEN = null;
-    function notify(msg){ M.toast({html: msg, displayLength: 3500}); }
-    function formatRole(r){ if(!r) return ''; r=String(r).trim().toUpperCase(); if(r==='WICKETKEEPER') return 'WK'; if(r==='BATSMAN'||r==='BATTER') return 'BAT'; if(r==='ALL-ROUNDER'||r==='ALLROUNDER'||r==='ALL_ROUNDER') return 'AR'; if(r==='BOWLER') return 'BOWL'; return r; }
+    // --- CONFIG ---
+    const API = 'https://script.google.com/macros/s/AKfycbx3nPmtgGbVLGFqS4I-NTGOiHHbiW22DMGXL_aCn6XiExvBijDXm2ZmtjyqN-rGzvFU/exec';
 
-    const emailEl=document.getElementById('email');
-    const matchSelectEl=document.getElementById('matchSelect');
-    const selCount=document.getElementById('selCount');
-    const playersList=document.getElementById('playersList');
-    const teamFilter=document.getElementById('teamFilter');
-    const roleFilter=document.getElementById('roleFilter');
-    const catFilter=document.getElementById('catFilter');
-    const searchInput=document.getElementById('searchInput');
-    const submitBtn=document.getElementById('submitBtn');
-    const buildFirstBtn=document.getElementById('buildFirstBtn');
-    const capLine=document.getElementById('capLine');
-    const healthLine=document.getElementById('healthLine');
-    const ruleRow=document.getElementById('roleRulesRow');
-    const ruleWK=document.getElementById('ruleWK');
-    const ruleBAT=document.getElementById('ruleBAT');
-    const ruleAR=document.getElementById('ruleAR');
-    const ruleBOWL=document.getElementById('ruleBOWL');
-    const catRow=document.getElementById('catRulesRow');
-    const ruleForeign=document.getElementById('ruleForeign');
-    const ruleUncapped=document.getElementById('ruleUncapped');
-    const pillWK=document.getElementById('pillWK');
-    const pillBAT=document.getElementById('pillBAT');
-    const pillAR=document.getElementById('pillAR');
-    const pillBOWL=document.getElementById('pillBOWL');
-    const pillTeams=document.getElementById('pillTeams');
-    const pillCost=document.getElementById('pillCost');
-    const clearAllBtn=document.getElementById('clearAll');
-    const resetBtn=document.getElementById('resetToLast');
-    const lbTable=document.getElementById('lbTable');
-    const spentEl=document.getElementById('spentCr');
-    const purseLeftEl=document.getElementById('purseLeft');
-    const totalBudgetEl=document.getElementById('totalBudgetCr');
-    const budgetMaxEl=document.getElementById('budgetMax');
-    const budgetMaxLabel=document.getElementById('budgetMaxLabel');
-    const deadlineBar=document.getElementById('deadlineBar');
-    const dlLabel=document.getElementById('dlLabel');
-    const dlTime=document.getElementById('dlTime');
-    const dlCountdown=document.getElementById('dlCountdown');
+    // Client-side users list (pulled from your Users sheet)
+    // NOTE: For a stronger setup, move auth to server (optional Code.gs provided).
+    const USERS = [
+      { email:'tusharkanti.bag@gmail.com', displayName:'The Purple Knights', role:'Admin', status:'Active', password:'The Purple Knights' },
+      { email:'angshumansahu1990@gmail.com', displayName:'Kamalgazi', role:'User', status:'Active', password:'Kamalgazi' },
+      { email:'bitmixes@gmail.com', displayName:'Kangaroo', role:'User', status:'Active', password:'Kangaroo' },
+      { email:'Dibyojyoti.ulb@gmail.com', displayName:'JJP', role:'User', status:'Active', password:'JJP' },
+      { email:'sarkar.jayanta1905@gmail.com', displayName:'BorDa', role:'User', status:'Active', password:'BorDa' },
+      { email:'kuntal.sse1611@gmail.com', displayName:'Nunu', role:'User', status:'Active', password:'Nunu' },
+      { email:'subhaprasad50@gmail.com', displayName:'Subha', role:'User', status:'Active', password:'Subha' },
+      { email:'subhankar.santra11@gmail.com', displayName:'FruitCake', role:'User', status:'Active', password:'FruitCake' },
+    ];
+
+    // --- helpers ---
+    function notify(msg){ M.toast({html: msg, displayLength: 3500}); }
+    function $(id){ return document.getElementById(id); }
+    function getUserByEmail(email){
+      const e = String(email||'').trim().toLowerCase();
+      return USERS.find(u => String(u.email).toLowerCase()===e && String(u.status).toLowerCase()==='active') || null;
+    }
+    function saveSession(sess){
+      try{ localStorage.setItem('ml_session', JSON.stringify(sess||{})); }catch(_){}
+    }
+    function loadSession(){
+      try{ const raw=localStorage.getItem('ml_session')||''; return raw? JSON.parse(raw): {}; }catch(_){ return {}; }
+    }
+
+    let SESSION = loadSession();
+    function isLoggedIn(){ return !!(SESSION && SESSION.email); }
+
+    // --- existing DOM els ---
+    const emailEl = $('email');
+    const matchSelectEl=$('matchSelect');
+    const selCount=$('selCount');
+    const playersList=$('playersList');
+    const teamFilter=$('teamFilter');
+    const roleFilter=$('roleFilter');
+    const catFilter=$('catFilter');
+    const searchInput=$('searchInput');
+    const submitBtn=$('submitBtn');
+    const buildFirstBtn=$('buildFirstBtn');
+    const capLine=$('capLine');
+    const healthLine=$('healthLine');
+    const ruleRow=$('roleRulesRow');
+    const ruleWK=$('ruleWK');
+    const ruleBAT=$('ruleBAT');
+    const ruleAR=$('ruleAR');
+    const ruleBOWL=$('ruleBOWL');
+    const catRow=$('catRulesRow');
+    const ruleForeign=$('ruleForeign');
+    const ruleUncapped=$('ruleUncapped');
+    const pillWK=$('pillWK');
+    const pillBAT=$('pillBAT');
+    const pillAR=$('pillAR');
+    const pillBOWL=$('pillBOWL');
+    const pillTeams=$('pillTeams');
+    const pillCost=$('pillCost');
+    const clearAllBtn=$('clearAll');
+    const resetBtn=$('resetToLast');
+    const lbTable=$('lbTable');
+    const spentEl=$('spentCr');
+    const purseLeftEl=$('purseLeft');
+    const totalBudgetEl=$('totalBudgetCr');
+    const budgetMaxEl=$('budgetMax');
+    const budgetMaxLabel=$('budgetMaxLabel');
+    const deadlineBar=$('deadlineBar');
+    const dlLabel=$('dlLabel');
+    const dlTime=$('dlTime');
+    const dlCountdown=$('dlCountdown');
+
+    // Auth controls
+    const authStatus=$('authStatus');
+    const authName=$('authName');
+    const loginLink=$('loginLink');
+    const logoutLink=$('logoutLink');
 
     // C/VC elements
-    const captainSelect = document.getElementById('captainSelect');
-    const viceCaptainSelect = document.getElementById('viceCaptainSelect');
-    const cvcHint = document.getElementById('cvcHint');
-// --- Auth UI (NEW) ---
-const loginPanel = document.getElementById('loginPanel');
-const whoPanel   = document.getElementById('whoPanel');
-const whoEmailEl = document.getElementById('whoEmail');
-const loginEmail = document.getElementById('loginEmail');
-const loginPassword = document.getElementById('loginPassword');
-const loginBtn = document.getElementById('loginBtn');
-const loginMsg = document.getElementById('loginMsg');
-const signOutBtn = document.getElementById('signOutBtn');
-
+    const captainSelect = $('captainSelect');
+    const viceCaptainSelect = $('viceCaptainSelect');
+    const cvcHint = $('cvcHint');
     let selectedCaptain = '';
     let selectedViceCaptain = '';
 
+    // --- state & utility (existing) ---
     let isLocked=false, cutoffAt=null, countdownTimer=null;
     function formatIst(iso){ try{ const d=new Date(iso); return d.toLocaleString('en-IN',{ timeZone:'Asia/Kolkata', weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}); }catch(_){ return iso; } }
-    function startCountdown(){ if(countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; } if(!cutoffAt){ dlCountdown.textContent='—'; return; } function tick(){ const ms=cutoffAt - new Date(); if(ms<=0){ isLocked=true; dlCountdown.textContent='LOCKED'; submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); const msg=document.getElementById('validationMsg'); msg.className='helper error-text'; msg.textContent='Deadline passed for this match.'; clearInterval(countdownTimer); countdownTimer=null; return; } const s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; dlCountdown.textContent=`${h}h ${m}m ${sec}s`; } tick(); countdownTimer=setInterval(tick,1000);}    
+    function startCountdown(){ if(countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; } if(!cutoffAt){ dlCountdown.textContent='—'; return; } function tick(){ const ms=cutoffAt - new Date(); if(ms<=0){ isLocked=true; dlCountdown.textContent='LOCKED'; submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); const msg=$('validationMsg'); msg.className='helper error-text'; msg.textContent='Deadline passed for this match.'; clearInterval(countdownTimer); countdownTimer=null; return; } const s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; dlCountdown.textContent=`${h}h ${m}m ${sec}s`; } tick(); countdownTimer=setInterval(tick,1000);}    
 
     let pointsMap = {}; let allPlayers=[]; let lastTeamPlayers=[]; let userBudget=100, userUsed=0, maxFromTeam=7; let constraints={WK:{min:1,max:2}, BAT:{min:3,max:6}, AR:{min:1,max:4}, BOWL:{min:3,max:6}}; let categoryCaps={maxForeign:4, minUncapped:1}; let playersReady=false, statsReady=false; let totalBudget=100; let selectedNames = new Set();
-
     function selected(){ return Array.from(selectedNames); }
     function countChanges(prev, curr){ const s=new Set(prev||[]); let overlap=0; (curr||[]).forEach(p=>{ if(s.has(p)) overlap++; }); return 11-overlap; }
     function teamCountsOf(list){ const c={}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name); const t=String((p&&p.team)||''); if(t) c[t]=(c[t]||0)+1; }); return c; }
@@ -434,29 +453,27 @@ const signOutBtn = document.getElementById('signOutBtn');
     function pointsOf(name){ const v=pointsMap[name]; return typeof v==='number' && !isNaN(v) ? v : null; }
     function categoryOf(p){ return String((p&&p.category)||(p&&p.Category)||'').trim().toUpperCase(); }
     function categoryCounts(list){ const c={FOREIGN:0, UNCAPPED:0, CAPPED:0}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name)||{}; const cat=categoryOf(p); if(typeof c[cat]==='number') c[cat]++; }); return c; }
-
     function updateBadges(chg){ const remain=Math.max(0, userBudget-(userUsed+chg));
-      document.getElementById('todayChanges').textContent=String(chg);
-      document.getElementById('usedSoFar').textContent=String(userUsed+chg);
-      document.getElementById('remaining').textContent=String(remain);
-      document.getElementById('budget').textContent=String(userBudget);
-      const panel=document.getElementById('budgetPanel');
+      $('todayChanges').textContent=String(chg);
+      $('usedSoFar').textContent=String(userUsed+chg);
+      $('remaining').textContent=String(remain);
+      $('budget').textContent=String(userBudget);
+      const panel=$('budgetPanel');
       panel.querySelectorAll('.badge-inline').forEach(b=>{ b.classList.remove('badge-ok','badge-warn','badge-alert'); if(remain<0) b.classList.add('badge-alert'); else if(remain<=10) b.classList.add('badge-warn'); else b.classList.add('badge-ok'); });
       const cost=totalCostOf(selected());
       spentEl.textContent=String(cost);
       totalBudgetEl.textContent=String(totalBudget);
       const left=Math.max(0, totalBudget - cost);
       purseLeftEl.textContent=String(left);
-      const panel2=document.getElementById('pursePanel');
+      const panel2=$('pursePanel');
       panel2.querySelectorAll('.badge-inline').forEach(b=>{ b.classList.remove('badge-ok','badge-warn','badge-alert'); if(cost>totalBudget) b.classList.add('badge-alert'); else if(left<=10) b.classList.add('badge-warn'); else b.classList.add('badge-ok'); });
     }
-
+    function formatRole(r){ if(!r) return ''; r=String(r).trim().toUpperCase(); if(r==='WICKETKEEPER') return 'WK'; if(r==='BATSMAN' || r==='BATTER') return 'BAT'; if(r==='ALL-ROUNDER' || r==='ALLROUNDER' || r==='ALL_ROUNDER') return 'AR'; if(r==='BOWLER') return 'BOWL'; return r; }
     function roleCounts(list){ const c={WK:0,BAT:0,AR:0,BOWL:0}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name); const r=formatRole((p&&p.role)||''); if(c[r]!==undefined) c[r]++; }); return c; }
     function tooltipForRole(label, n, min, max){ if(n<min) return `Need ${min-n} more ${label} (minimum ${min})`; if(n>max) return `Too many ${label}: reduce by ${n-max} (maximum ${max})`; return `${label} count is within the allowed range (${min}–${max})`; }
     function refreshRuleChips(){ if(!constraints||!constraints.WK){ ruleRow.style.display='none'; return; } ruleRow.style.display='flex'; const counts=roleCounts(selected()); const setChip=(el,key,label)=>{ const v=constraints[key]||{min:0,max:0}; const n=counts[key]||0; el.classList.remove('ok','bad'); el.textContent=`${label}: ${n} (min ${v.min}, max ${v.max})`; const old=M.Tooltip.getInstance(el); if(old) old.destroy(); el.setAttribute('data-tooltip', tooltipForRole(label, n, v.min, v.max)); M.Tooltip.init(el,{position:'top', margin:6}); if(n<v.min || n>v.max) el.classList.add('bad'); else el.classList.add('ok'); };
       setChip(ruleWK,'WK','WK'); setChip(ruleBAT,'BAT','BAT'); setChip(ruleAR,'AR','AR'); setChip(ruleBOWL,'BOWL','BOWL');
     }
-
     function tooltipForCat(label, n, thr, kind){ if(kind==='max') return n>thr ? `Too many ${label}: reduce by ${n-thr} (max ${thr})` : `${label} within limit (≤ ${thr})`; if(kind==='min') return n<thr ? `Need ${thr-n} more ${label} (min ${thr})` : `${label} requirement met (≥ ${thr})`; return ''; }
     function refreshCategoryChips(){ if(!categoryCaps){ catRow.style.display='none'; return; } catRow.style.display='flex'; const counts=categoryCounts(selected()); const setChip=(el,label,n,thr,kind)=>{ el.classList.remove('ok','bad'); el.textContent=`${label}: ${n} (${kind==='max'?'max '+thr:'min '+thr})`; const old=M.Tooltip.getInstance(el); if(old) old.destroy(); el.setAttribute('data-tooltip', tooltipForCat(label, n, thr, kind)); M.Tooltip.init(el,{position:'top', margin:6}); const bad=(kind==='max'? n>thr : n<thr); if(bad) el.classList.add('bad'); else el.classList.add('ok'); };
       setChip(ruleForeign,'FOREIGN',counts.FOREIGN||0,Number(categoryCaps.maxForeign||0),'max');
@@ -464,12 +481,9 @@ const signOutBtn = document.getElementById('signOutBtn');
     }
 
     function cvcIsValid(){ const ok = !!selectedCaptain && !!selectedViceCaptain && selectedCaptain!==selectedViceCaptain; cvcHint.classList.toggle('bad', !ok); cvcHint.textContent = ok ? `C: ${selectedCaptain} • VC: ${selectedViceCaptain}` : 'Pick a Captain & Vice‑Captain. They must be different.'; return ok; }
-
     function populateCvcOptions(){ const names = selected(); const capPrev=selectedCaptain, vcPrev=selectedViceCaptain; const opts = ['<option value="" disabled selected>Select player</option>'].concat(names.map(n=>`<option value="${n}">${n}</option>`)).join('');
       captainSelect.innerHTML = opts; viceCaptainSelect.innerHTML = opts;
-      // Re-init select UI
       [captainSelect, viceCaptainSelect].forEach(el=>{ const old=M.FormSelect.getInstance(el); if(old) old.destroy(); M.FormSelect.init(el); });
-      // Restore choices if still valid
       if(names.includes(capPrev)) selectedCaptain = capPrev; else selectedCaptain = '';
       if(names.includes(vcPrev)) selectedViceCaptain = vcPrev; else selectedViceCaptain = '';
       if(selectedCaptain){ captainSelect.value = selectedCaptain; const inst=M.FormSelect.getInstance(captainSelect); inst && inst.destroy(); M.FormSelect.init(captainSelect); }
@@ -481,24 +495,25 @@ const signOutBtn = document.getElementById('signOutBtn');
       const rc=roleCounts(names);
       pillWK.textContent=`WK: ${rc.WK}`; pillBAT.textContent=`BAT: ${rc.BAT}`; pillAR.textContent=`AR: ${rc.AR}`; pillBOWL.textContent=`BOWL: ${rc.BOWL}`;
       const tc=teamCountsOf(names); const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—'; pillTeams.textContent=`Teams: ${teamsStr}`; pillCost.textContent=`Cost: ${totalCostOf(names)}`;
-      const rowWK=document.getElementById('row-WK'); const rowBAT=document.getElementById('row-BAT'); const rowAR=document.getElementById('row-AR'); const rowBOWL=document.getElementById('row-BOWL');
+      const rowWK=$('row-WK'); const rowBAT=$('row-BAT'); const rowAR=$('row-AR'); const rowBOWL=$('row-BOWL');
       rowWK.innerHTML=''; rowBAT.innerHTML=''; rowAR.innerHTML=''; rowBOWL.innerHTML='';
+      function normalizeCategory(raw){ const s=String(raw ?? '').trim().toUpperCase(); if(!s) return ''; if(s==='FOREIGN'||s==='OVERSEAS') return 'FOREIGN'; if(s==='UNCAPPED') return 'UNCAPPED'; if(s==='CAPPED'||s==='INDIAN'||s==='DOMESTIC') return 'CAPPED'; return s; }
+      function catIcon(raw){ const c=normalizeCategory(raw); if(c==='FOREIGN') return '🌍'; if(c==='UNCAPPED') return '🧑‍🎓'; if(c==='CAPPED') return '🛡️'; return ''; }
       function makeCard(p){ const role=formatRole(p.role||'');
         const card=document.createElement('div'); card.className='square-card'; if(role) card.classList.add('accent-'+role);
         const pic=document.createElement('div'); pic.className='pic';
-        if(p.imageUrl){ const img=document.createElement('img'); img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); pic.innerHTML='<i class="material-icons">person</i>'; }; pic.appendChild(img);} else { const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon);}        
+        if(p.imageUrl){ const img=document.createElement('img'); img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); pic.innerHTML='<i class="material-icons">person</i>'; }; pic.appendChild(img);} else { const icon=document.createElement('i'); icon.className='material-icons'; icon.textContent='person'; pic.appendChild(icon);} 
         const nm=document.createElement('div'); nm.className='name'; nm.textContent=p.name;
         const meta=document.createElement('div'); meta.className='meta'; meta.textContent=`${p.team||''}${role? (p.team?' • ':'')+role : ''}`;
         const pr=document.createElement('div'); pr.className='price'; pr.textContent=String(Number(p.price||0));
         const btn=document.createElement('a'); btn.href='#'; btn.className='btn-flat remove'; btn.innerHTML='<i class="material-icons">close</i>'; btn.addEventListener('click',(e)=>{ e.preventDefault(); togglePlayer(p.name,false); });
         card.appendChild(btn); card.appendChild(pic); card.appendChild(nm); card.appendChild(meta); card.appendChild(pr);
         try{ const _catRaw=(p.category ?? p.Category ?? ''); const _ico=catIcon(_catRaw); if(_ico){ const prev=card.querySelector('.cat-corner'); if(prev) prev.remove(); const badge=document.createElement('div'); badge.className='cat-corner'; badge.title=normalizeCategory(_catRaw)||''; badge.textContent=_ico; card.appendChild(badge);} }catch(_){ }
-        // C/VC tag
         if(p.name===selectedCaptain || p.name===selectedViceCaptain){ const tag=document.createElement('div'); tag.className='cvc-tag ' + (p.name===selectedCaptain?'cvc-C':'cvc-VC'); tag.textContent=(p.name===selectedCaptain?'C':'VC'); card.appendChild(tag); }
         return {card, role};
       }
       names.forEach(n=>{ const p=allPlayers.find(x=>x.name===n)||{name:n,team:'',role:'',imageUrl:'',price:0}; const {card,role}=makeCard(p); if(role==='WK') rowWK.appendChild(card); else if(role==='BAT') rowBAT.appendChild(card); else if(role==='AR') rowAR.appendChild(card); else if(role==='BOWL') rowBOWL.appendChild(card); else rowBAT.appendChild(card); });
-      const msg=document.getElementById('validationMsg');
+      const msg=$('validationMsg');
       const cap=capStatus(names); const withinCap=cap.overTeams.length===0; const overBudget=totalCostOf(names)>totalBudget; const cat=categoryCounts(names); const catForeignOk=(cat.FOREIGN||0)<=Number(categoryCaps.maxForeign||0); const catUncappedOk=(cat.UNCAPPED||0)>=Number(categoryCaps.minUncapped||0);
       if(!withinCap){ msg.className='helper error-text'; msg.textContent='Team cap exceeded: ' + cap.overTeams.join(', ');} else if(overBudget){ msg.className='helper error-text'; msg.textContent=`Over budget! Reduce cost to ≤ ${totalBudget}.`; } else if(!catForeignOk){ msg.className='helper error-text'; msg.textContent=`Too many FOREIGN players. Max allowed = ${categoryCaps.maxForeign}.`; } else if(!catUncappedOk){ msg.className='helper error-text'; msg.textContent=`Not enough UNCAPPED players. Min required = ${categoryCaps.minUncapped}.`; } else { msg.className='helper ok-text'; msg.textContent='Looks good!'; }
       refreshRuleChips(); refreshCategoryChips();
@@ -512,7 +527,8 @@ const signOutBtn = document.getElementById('signOutBtn');
       const cvcOk = cvcIsValid();
       submitBtn.style.display=hasBase?'inline-flex':'none';
       buildFirstBtn.style.display=hasBase?'none':'inline-flex';
-      if(!emailEl.value || !matchSelectEl.value || n!==11 || (!withinCap) || anyRoleBad || anyCatBad || (!withinBudget) || !cvcOk){ submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); }
+      const logged = isLoggedIn();
+      if(!logged || !matchSelectEl.value || n!==11 || (!withinCap) || anyRoleBad || anyCatBad || (!withinBudget) || !cvcOk){ submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); }
       else { if(hasBase){ if((userUsed+ch)>userBudget) submitBtn.classList.add('disabled'); else submitBtn.classList.remove('disabled'); } else { buildFirstBtn.classList.remove('disabled'); } }
       if(isLocked){ submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); }
     }
@@ -526,11 +542,11 @@ const signOutBtn = document.getElementById('signOutBtn');
 
     function applyLastXIIfReady(){ if(!(playersReady && statsReady)) return; if(!selectedNames || selectedNames.size===0){ selectedNames=new Set(lastTeamPlayers||[]); }
       const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb)); let checked=0; (selected()||[]).forEach(n=>{ if(map.has(n) && checked<11){ map.get(n).checked=true; checked++; } });
-      updateSelectionUI(); if(lastTeamPlayers && lastTeamPlayers.length){ document.getElementById('transferBanner').style.display='flex'; }
+      updateSelectionUI(); if(lastTeamPlayers && lastTeamPlayers.length){ $('transferBanner').style.display='flex'; }
     }
 
     function normalizeCategory(raw){ const s=String(raw ?? '').trim().toUpperCase(); if(!s) return ''; if(s==='FOREIGN'||s==='OVERSEAS') return 'FOREIGN'; if(s==='UNCAPPED') return 'UNCAPPED'; if(s==='CAPPED'||s==='INDIAN'||s==='DOMESTIC') return 'CAPPED'; return s; }
-    function catIcon(raw){ const c=normalizeCategory(raw); if(c==='FOREIGN') return '🌍'; if(c==='UNCAPPED') return '🧒'; if(c==='CAPPED') return '🛡️'; return ''; }
+    function catIcon(raw){ const c=normalizeCategory(raw); if(c==='FOREIGN') return '🌍'; if(c==='UNCAPPED') return '🧑‍🎓'; if(c==='CAPPED') return '🛡️'; return ''; }
 
     function renderPlayers(){ const t=(teamFilter.value||'ALL').toUpperCase(); const r=(roleFilter.value||'ALL').toUpperCase(); const q=(searchInput.value||'').trim().toLowerCase(); const priceCap=Number(budgetMaxEl.value || Infinity); const c=(catFilter.value||'ALL').toUpperCase();
       const filtered=allPlayers.filter(p=>{ const tOk=(t==='ALL')||String(p.team||'').toUpperCase()===t; const rOk=(r==='ALL')||(formatRole(p.role||'')===r); const qOk=!q||String(p.name||'').toLowerCase().includes(q); const priceOk=Number(p.price||0)<=priceCap; const catRaw=normalizeCategory(p.category ?? p.Category ?? ''); const cOk=(c==='ALL')||(catRaw===c); return tOk && rOk && cOk && qOk && priceOk; });
@@ -541,15 +557,15 @@ const signOutBtn = document.getElementById('signOutBtn');
         const info=document.createElement('div'); info.className='player-info'; const roleShort=role||'—';
         const ptsVal=pointsOf(p.name); const ptsChip=typeof ptsVal==='number'?`<span class="points-chip" title="Points to date"><i class="material-icons" style="font-size:16px;">stars</i>${ptsVal}</span>`:`<span class="points-chip" title="Points unavailable"><i class="material-icons" style="font-size:16px;">stars</i>—</span>`;
         info.innerHTML = `<span class="player-name">${p.name}<span class="role-chip">${roleShort}</span></span>`+
-          `<span class="player-meta"><span class="team-chip">${p.team||''}</span>`+
-          `<span class="price-chip"><i class="material-icons" style="font-size:16px;">monetization_on</i>${Number(p.price||0)}</span>`+ptsChip+`</span>`;
+        `<span class="player-meta"><span class="team-chip">${p.team||''}</span>`+
+        `<span class="price-chip"><i class="material-icons" style="font-size:16px;">monetization_on</i>${Number(p.price||0)}</span>`+ptsChip+`</span>`;
         try{ const catRaw=(p.category ?? p.Category ?? ''); const catIco=catIcon(catRaw); const catTitle=normalizeCategory(catRaw)||''; if(catIco){ const meta=info.querySelector('.player-meta'); if(meta){ const span=document.createElement('span'); span.className='cat-ico'; span.title=catTitle; span.textContent=catIco; meta.prepend(span);} } }catch(_){ }
         card.appendChild(label); card.appendChild(img); card.appendChild(info); playersList.appendChild(card); });
       buildFilters(allPlayers);
       playersReady=true; applyLastXIIfReady();
     }
 
-    async function fetchNextMatch(){ try{ const res=await fetch(`${API}?action=nextmatch`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON (nextmatch)'); return; } if(!j.ok || !j.next){ notify('No matches configured'); return; } const m=j.next; isLocked=!!j.locked; // Ensure the select has an OPTION with this value so .value is not empty
+    async function fetchNextMatch(){ try{ const res=await fetch(`${API}?action=nextmatch`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Response not JSON (nextmatch)'); return; } if(!j.ok || !j.next){ notify('No matches configured'); return; } const m=j.next; isLocked=!!j.locked;
       matchSelectEl.innerHTML = `<option value="${m.id}" selected>${m.label || m.id}</option>`; matchSelectEl.value = String(m.id); M.FormSelect.init(matchSelectEl);
       const wrap = matchSelectEl.closest('.input-field'); if(wrap) wrap.style.display='none';
       deadlineBar.style.display='inline-flex'; dlLabel.textContent=m.label||m.id; cutoffAt = m.cutoffAt? new Date(m.cutoffAt): null; dlTime.textContent = cutoffAt? formatIst(m.cutoffAt): '—'; startCountdown();
@@ -558,11 +574,11 @@ const signOutBtn = document.getElementById('signOutBtn');
 
     async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class="red-text">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class="red-text">${j.error||'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; const maxPrice=Math.max(0,...allPlayers.map(p=>Number(p.price||0))); budgetMaxEl.max=String(maxPrice||100); const savedCap=(()=>{ try{return Number(localStorage.getItem('ml_budget_cap')||'');}catch(_){return NaN;} })(); const initialCap=!isNaN(savedCap)&&savedCap>0? Math.min(savedCap,maxPrice): maxPrice; budgetMaxEl.value=String(initialCap); budgetMaxLabel.textContent=String(initialCap); renderPlayers(); if(!allPlayers.length) notify('No players returned. Check Players headers.'); }catch(e){ playersList.innerHTML='<span class="red-text">Network error</span>'; } }
 
-    async function fetchPoints(){ try{ const res=await fetch(`${API}?action=points`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Points response not JSON'); return; } if(!j.ok){ notify(j.error||'API error (points)'); return; } if(Array.isArray(j.points)){ const m={}; j.points.forEach(row=>{ const n=String((row.name||row.player||'')).trim(); const v=Number(row.points||row.pts||row.total||0); if(n) m[n]=v; }); pointsMap=m; } else if(j.points && typeof j.points==='object'){ const m={}; Object.keys(j.points).forEach(k=>{ const n=String(k).trim(); const v=Number(j.points[k]); if(n) m[n]=v; }); pointsMap=m; } else { pointsMap={}; } if(allPlayers && allPlayers.length){ renderPlayers(); } }catch(e){ notify('Network error (points)'); } }
+    async function fetchPoints(){ try{ const res=await fetch(`${API}?action=points`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Points response not JSON'); return; } if(!j.ok){ notify(j.error||'API error (points)'); return; } if(Array.isArray(j.points)){ const m={}; j.points.forEach(row=>{ const n=String((row.name||row.player||'')).trim(); const v=Number(row.points||row.pts||row.total||0); if(n) m[n]=v; }); pointsMap=m; } else if(j.points && typeof j.points==='object'){ const m={}; Object.keys(j.points).forEach(k=>{ const n=String(k).trim(); const v=Number(j.points[k]); if(n) m[n]=v; }); pointsMap=m; } else { pointsMap={}; } if(allPlayers && allPlayers.length){ renderPlayers(); }
+    }catch(e){ notify('Network error (points)'); } }
 
-    async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&token=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; }
+    async function fetchUserStats(){ if(!isLoggedIn()) return; const email=(SESSION.email||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; }
       userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; totalBudget=Number(j.totalBudget||100); categoryCaps = j.categoryCaps || { maxForeign: Number(j.maxForeign||4), minUncapped: Number(j.minUncapped||1) };
-      // restore last captain/vice if provided
       if(j.lastCaptain) selectedCaptain = j.lastCaptain; if(j.lastViceCaptain) selectedViceCaptain = j.lastViceCaptain;
       selectedNames=new Set(lastTeamPlayers||[]);
       updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team. Foreign ≤ ${categoryCaps.maxForeign}; Uncapped ≥ ${categoryCaps.minUncapped}.`;
@@ -574,16 +590,16 @@ const signOutBtn = document.getElementById('signOutBtn');
 
     function computeTransfers(){ const prev=new Set(lastTeamPlayers||[]); const curr=new Set(selected()); const adds=Array.from(curr).filter(x=>!prev.has(x)); const drops=Array.from(prev).filter(x=>!curr.has(x)); return {adds, drops}; }
 
-    async function submitTransfers(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found; please build your first XI.'); return; } if(names.length!==11){ notify('Your XI must have exactly 11 after transfers'); return; } if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; }
+    async function submitTransfers(){ if(!isLoggedIn()){ notify('Please log in first.'); return; } const email=(SESSION.email||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found; please build your first XI.'); return; } if(names.length!==11){ notify('Your XI must have exactly 11 after transfers'); return; } if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; }
       const {adds,drops}=computeTransfers(); submitBtn.classList.add('disabled');
-      try{ const qs=new URLSearchParams(); qs.set('action','submittransfers'); qs.set('token', AUTH_TOKEN); qs.set('matchId',matchSelectEl.value); qs.set('adds', JSON.stringify(adds)); qs.set('drops', JSON.stringify(drops)); qs.set('captain', selectedCaptain); qs.set('viceCaptain', selectedViceCaptain);
+      try{ const qs=new URLSearchParams(); qs.set('action','submittransfers'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('adds', JSON.stringify(adds)); qs.set('drops', JSON.stringify(drops)); qs.set('captain', selectedCaptain); qs.set('viceCaptain', selectedViceCaptain);
         const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON'); return; }
         if(j.ok){ notify(`Transfers applied: +${adds.length}/-${drops.length}`); await fetchUserStats(); lastTeamPlayers=names.slice(); selectedNames=new Set(lastTeamPlayers); } else { notify(j.error||'Failed to apply transfers'); }
       }catch(e){ notify('Network error'); } finally{ submitBtn.classList.remove('disabled'); updateSelectionUI(); }
     }
 
-    async function buildFirstXI(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(names.length!==11){ notify('Pick exactly 11 to build your first XI'); return; } if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; }
-      buildFirstBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('token', AUTH_TOKEN); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(names)); qs.set('captain', selectedCaptain); qs.set('viceCaptain', selectedViceCaptain);
+    async function buildFirstXI(){ if(!isLoggedIn()){ notify('Please log in first.'); return; } const email=(SESSION.email||'').trim(); const names=selected(); if(!email||!matchSelectEl.value){ notify('Email & Match required'); return; } if(names.length!==11){ notify('Pick exactly 11 to build your first XI'); return; } if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; }
+      buildFirstBtn.classList.add('disabled'); try{ const qs=new URLSearchParams(); qs.set('action','submitteam'); qs.set('email',email); qs.set('matchId',matchSelectEl.value); qs.set('players', JSON.stringify(names)); qs.set('captain', selectedCaptain); qs.set('viceCaptain', selectedViceCaptain);
         const res=await fetch(`${API}?${qs.toString()}`,{method:'GET'}); const raw=await res.text(); let j; try{ j=JSON.parse(raw);}catch(e){ notify('Response not JSON (submitteam)'); return; } if(j.ok){ notify('First XI saved! You can now do transfers.'); await fetchUserStats(); lastTeamPlayers=names.slice(); selectedNames=new Set(lastTeamPlayers); } else { notify(j.error||'Failed to build first XI'); }
       }catch(e){ notify('Network error'); } finally{ buildFirstBtn.classList.remove('disabled'); updateSelectionUI(); }
     }
@@ -592,26 +608,60 @@ const signOutBtn = document.getElementById('signOutBtn');
     function renderList(listEl,names,kind){ listEl.innerHTML=''; if(!names.length){ listEl.innerHTML='<li class="collection-item grey-text">None</li>'; return; } names.forEach(n=>{ const p=getPlayerInfoByName(n); const pts=pointsOf(n); const li=document.createElement('li'); li.className='collection-item '+(kind==='out'?'out':(kind==='in'?'in':'')); li.innerHTML=`<span><b>${p.name}</b> <span class="role-tag">${p.role||'—'}</span><span class="price-tag">${p.price}</span>${typeof pts==='number'?`<span class="price-tag" title="Points">⭐ ${pts}</span>`:''}</span><div class="secondary-content grey-text">${p.team||''}</div>`; listEl.appendChild(li); }); }
 
     function showSuccessTicker(modalEl){ try{ const host=modalEl.querySelector('.modal-content'); if(!host) return; const bar=document.createElement('div'); bar.className='success-ticker'; host.appendChild(bar); setTimeout(()=>{ try{ bar.remove(); }catch(e){} },1500);}catch(e){} }
-
-    function openConfirmModal(mode='transfers'){ const names=selected(); const titleEl=document.getElementById('confirmTitle'); const summaryEl=document.getElementById('confirmSummary'); const listAdds=document.getElementById('listAdds'); const listDrops=document.getElementById('listDrops'); const confirmBtn=document.getElementById('confirmSubmitBtn'); const confirmLabel=document.getElementById('confirmSubmitLabel'); let adds=[],drops=[],cost=0; if(mode==='firstxi'){ adds=names.slice(); drops=[]; cost=totalCostOf(adds); titleEl.textContent='Confirm First XI'; confirmLabel.textContent='Confirm & Save XI'; } else { const diff=computeTransfers(); adds=diff.adds; drops=diff.drops; cost=totalCostOf(names); const tcount=adds.length; titleEl.textContent='Confirm Transfers'; confirmLabel.textContent=`Confirm & Submit (${tcount} transfer${tcount===1?'':'s'})`; }
+    function openConfirmModal(mode='transfers'){ if(!isLoggedIn()){ notify('Please log in first.'); return; } const names=selected(); const titleEl=$('confirmTitle'); const summaryEl=$('confirmSummary'); const listAdds=$('listAdds'); const listDrops=$('listDrops'); const confirmBtn=$('confirmSubmitBtn'); const confirmLabel=$('confirmSubmitLabel'); let adds=[],drops=[],cost=0; if(mode==='firstxi'){ adds=names.slice(); drops=[]; cost=totalCostOf(adds); titleEl.textContent='Confirm First XI'; confirmLabel.textContent='Confirm & Save XI'; } else { const diff=computeTransfers(); adds=diff.adds; drops=diff.drops; cost=totalCostOf(names); const tcount=adds.length; titleEl.textContent='Confirm Transfers'; confirmLabel.textContent=`Confirm & Submit (${tcount} transfer${tcount===1?'':'s'})`; }
       renderList(listAdds,adds,'in'); renderList(listDrops,drops,'out'); const overBudget=cost>totalBudget; summaryEl.innerHTML=`<div class="grey-text">Total cost: <b>${cost}</b> / Cap <b>${totalBudget}</b>${overBudget?' — <span class="red-text">Over budget</span>':''}<br/>Captain: <b>${selectedCaptain||'—'}</b> • Vice‑Captain: <b>${selectedViceCaptain||'—'}</b></div>`;
-      const modalEl=document.getElementById('confirmModal'); const instance=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true});
+      const modalEl=$('confirmModal'); const instance=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true});
       function attachOneShotFetchHook(){ const originalFetch=window.fetch; let done=false; window.fetch=async function(url,opts){ const res=await originalFetch(url,opts); try{ const u=String(url||''); const isSubmit=/action=(submittransfers|submitteam)/i.test(u); if(isSubmit){ const txt=await res.clone().text(); let ok=false; try{ const j=JSON.parse(txt); ok=!!(j&&j.ok);}catch(_){ } if(ok && !done){ showSuccessTicker(modalEl); setTimeout(()=>{ try{ const inst=M.Modal.getInstance(modalEl)||M.Modal.init(modalEl,{dismissible:true}); inst && inst.close(); }catch(e){} },1500); done=true; setTimeout(()=>{ window.fetch=originalFetch; },1600); } } }catch(_){ } return res; }; return ()=>{ window.fetch=originalFetch; }; }
       confirmBtn.onclick=async()=>{ if(confirmBtn.classList.contains('disabled')) return; if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; } confirmBtn.classList.add('disabled'); const detach=attachOneShotFetchHook(); try{ if(mode==='firstxi'){ await buildFirstXI(); } else { await submitTransfers(); } } finally{ confirmBtn.classList.remove('disabled'); detach(); } };
       instance.open();
     }
 
-    document.addEventListener('DOMContentLoaded', async function(){ M.AutoInit();
-  if (AUTH_ENABLED){
-    try{ AUTH_TOKEN = localStorage.getItem('ml_token') || null; }catch(_){ }
-    if (AUTH_TOKEN) { const me = await whoAmI(); if (me) { emailEl.value = me.email; whoEmailEl.textContent = me.email; showLoginUI(false); M.updateTextFields(); await bootAfterLogin(); return; } }
-    showLoginUI(true); M.updateTextFields();
-  } else {
-    showLoginUI(false); M.updateTextFields(); await bootAfterLogin();
-  }
-});
+    // --- auth UI logic ---
+    function refreshAuthUI(){ if(isLoggedIn()){ authStatus.style.display='inline-flex'; authName.textContent = `${SESSION.displayName||SESSION.email}`; loginLink.style.display='none'; logoutLink.style.display='inline-flex'; emailEl.value = SESSION.email; emailEl.disabled = true; M.updateTextFields(); } else { authStatus.style.display='none'; loginLink.style.display='inline-flex'; logoutLink.style.display='none'; emailEl.value=''; emailEl.disabled=true; M.updateTextFields(); } }
 
-async function bootAfterLogin(){ await fetchNextMatch(); await fetchAllPlayers(); await fetchUserStats(); await loadLeaderboard(); await fetchPoints(); }
-</script>
+    document.addEventListener('DOMContentLoaded', async function(){ M.AutoInit();
+      // Auth events
+      loginLink.addEventListener('click', ()=>{ const inst=M.Modal.getInstance($('loginModal'))||M.Modal.init($('loginModal')); $('loginError').style.display='none'; inst.open(); });
+      logoutLink.addEventListener('click', ()=>{ SESSION={}; saveSession(SESSION); notify('Signed out'); location.reload(); });
+      $('showPwd').addEventListener('change', (e)=>{ $('loginPassword').type = e.target.checked ? 'text' : 'password'; });
+      $('doLogin').addEventListener('click', ()=>{
+        const email = ($('loginEmail').value||'').trim(); const pwd = $('loginPassword').value||''; const u = getUserByEmail(email);
+        if(!u){ $('loginError').textContent='Unknown or inactive user'; $('loginError').style.display='block'; return; }
+        if(String(u.password) !== String(pwd)){ $('loginError').textContent='Incorrect password'; $('loginError').style.display='block'; return; }
+        SESSION = { email: u.email, displayName: u.displayName, role: u.role };
+        saveSession(SESSION);
+        $('loginError').style.display='none';
+        const inst=M.Modal.getInstance($('loginModal'))||M.Modal.init($('loginModal')); inst.close();
+        refreshAuthUI();
+        // Load stats for this user
+        statsReady=false; await fetchUserStats(); applyLastXIIfReady(); updateSelectionUI(); notify(`Welcome, ${SESSION.displayName||SESSION.email}!`);
+      });
+
+      // Initial UI
+      refreshAuthUI();
+
+      // Initial loads
+      await fetchNextMatch(); await fetchAllPlayers(); await loadLeaderboard(); await fetchPoints();
+      if(isLoggedIn()){ await fetchUserStats(); }
+
+      // Filters and actions
+      document.addEventListener('input',(e)=>{ if(e.target.id==='searchInput'){ renderPlayers(); } if(e.target.id==='budgetMax'){ budgetMaxLabel.textContent=String(budgetMaxEl.value); try{ localStorage.setItem('ml_budget_cap', String(budgetMaxEl.value)); }catch(_){ } renderPlayers(); } });
+      teamFilter.addEventListener('change', renderPlayers); roleFilter.addEventListener('change', renderPlayers); catFilter.addEventListener('change', renderPlayers);
+      matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); });
+      $('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints(); });
+      $('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
+      $('buildFirstBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
+      $('refreshLb').addEventListener('click', loadLeaderboard);
+      clearAllBtn.addEventListener('click', (e)=>{ e.preventDefault(); selectedNames.clear(); selectedCaptain=''; selectedViceCaptain=''; document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked=false); updateSelectionUI(); });
+      resetBtn.addEventListener('click', (e)=>{ e.preventDefault(); if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found to reset.'); return; } selectedNames=new Set(lastTeamPlayers||[]); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked = selectedNames.has(cb.value)); updateSelectionUI(); notify('Reverted to your last saved XI.'); });
+      captainSelect.addEventListener('change', ()=>{ selectedCaptain = captainSelect.value; updateSelectionUI(); });
+      viceCaptainSelect.addEventListener('change', ()=>{ selectedViceCaptain = viceCaptainSelect.value; updateSelectionUI(); });
+
+      // If not signed in, politely nudge
+      if(!isLoggedIn()){
+        setTimeout(()=>{ const inst=M.Modal.getInstance($('loginModal'))||M.Modal.init($('loginModal')); inst.open(); }, 400);
+      }
+    });
+  </script>
 </body>
 </html>
