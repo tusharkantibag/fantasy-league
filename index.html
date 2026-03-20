@@ -121,6 +121,7 @@
   .small-muted{ font-size:.86rem; color:#607d8b; }
   .hide { display:none !important; }
   .readonly { opacity:.85; pointer-events:none; }
+
   </style>
 </head>
 <body>
@@ -623,20 +624,67 @@
   const sessKey = 'fantasy_session';
   function getSession(){ try{ const raw=localStorage.getItem(sessKey); return raw? JSON.parse(raw): null; }catch(_){ return null; } }
   function saveSession(obj){ try{ localStorage.setItem(sessKey, JSON.stringify(obj||{})); }catch(_){ } }
-  function clearSession(){ try{ localStorage.removeItem(sessKey); localStorage.removeItem('ml_email'); }catch(_){ } }
+  function clearSession(){ try{ localStorage.removeItem(sessKey); }catch(_){ } }
   function setMlEmail(email){ try{ localStorage.setItem('ml_email', email||''); }catch(_){ } }
   function showMask(flag){ const m=document.getElementById('loginMask'); if(!m) return; m.classList.toggle('hide', !flag); m.setAttribute('aria-hidden', String(!flag)); }
+
   async function doLogin(){
     const email=(document.getElementById('loginEmail').value||'').trim().toLowerCase();
     const pass=(document.getElementById('loginPassword').value||'').trim();
-    const err=document.getElementById('loginError'); err.style.display='none'; err.textContent='';
+    const err=document.getElementById('loginError');
+    err.style.display='none'; err.textContent='';
     if(!email||!pass){ err.textContent='Please enter email & password'; err.style.display='inline'; return; }
-    try{ const qs=new URLSearchParams({action:'login', email:email, password:pass}); const res=await fetch(`${API}?${qs.toString()}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(_){ err.textContent='Login response not JSON'; err.style.display='inline'; return; } if(j && j.ok){ saveSession({ email:j.email||email, displayName:j.displayName||'', role:j.role||'', ts:Date.now() }); setMlEmail(j.email||email); const emailEl=document.getElementById('email'); if(emailEl){ emailEl.value=j.email||email; emailEl.setAttribute('readonly','readonly'); emailEl.classList.add('readonly'); if(window.M&&M.updateTextFields) M.updateTextFields(); } const logout=document.getElementById('logoutLink'); if(logout){ logout.classList.remove('hide'); } showMask(false); if(window.notify) notify(`Welcome ${j.displayName?j.displayName:email}!`); try{ await (window.fetchUserStats && fetchUserStats()); await (window.loadLeaderboard && loadLeaderboard()); }catch(_){ } } else { err.textContent = (j&&j.error)? String(j.error): 'Login failed'; err.style.display='inline'; } }catch(e){ err.textContent='Network error during login'; err.style.display='inline'; }
+    try{
+      const qs=new URLSearchParams({action:'login', email:email, password:pass});
+      const res=await fetch(`${API}?${qs.toString()}`);
+      const txt=await res.text();
+      let j; try{ j=JSON.parse(txt);}catch(_){ err.textContent='Login response not JSON'; err.style.display='inline'; return; }
+      if(j && j.ok){
+        // store small session and set portal email
+        saveSession({ email:j.email||email, displayName:j.displayName||'', role:j.role||'', ts:Date.now() });
+        setMlEmail(j.email||email);
+        const emailEl=document.getElementById('email');
+        if(emailEl){ emailEl.value=j.email||email; emailEl.setAttribute('readonly','readonly'); emailEl.classList.add('readonly'); if(window.M&&M.updateTextFields) M.updateTextFields(); }
+        const logout=document.getElementById('logoutLink'); if(logout){ logout.classList.remove('hide'); }
+        showMask(false);
+        if(window.notify) notify(`Welcome ${j.displayName?j.displayName:email}!`);
+        try{ await (window.fetchUserStats && fetchUserStats()); await (window.loadLeaderboard && loadLeaderboard()); }catch(_){ }
+      } else {
+        err.textContent = (j&&j.error)? String(j.error): 'Login failed'; err.style.display='inline';
+      }
+    }catch(e){ err.textContent='Network error during login'; err.style.display='inline'; }
   }
-  function applySessionIfAny(){ const s=getSession(); const logout=document.getElementById('logoutLink'); if(s && s.email){ const emailEl=document.getElementById('email'); if(emailEl){ emailEl.value=s.email; emailEl.setAttribute('readonly','readonly'); emailEl.classList.add('readonly'); if(window.M&&M.updateTextFields) M.updateTextFields(); } setMlEmail(s.email); if(logout){ logout.classList.remove('hide'); } showMask(false); } else { showMask(true); setTimeout(()=>{ try{ document.getElementById('loginEmail').focus(); }catch(_){ } },50); } }
-  function doLogout(){ clearSession(); showMask(true); const emailEl=document.getElementById('email'); if(emailEl){ emailEl.removeAttribute('readonly'); emailEl.classList.remove('readonly'); emailEl.value=''; if(window.M&&M.updateTextFields) M.updateTextFields(); } const logout=document.getElementById('logoutLink'); if(logout){ logout.classList.add('hide'); } if(window.notify) notify('Logged out'); }
-  window.addEventListener('DOMContentLoaded', function(){ const btn=document.getElementById('loginBtn'); const le=document.getElementById('loginEmail'); const lp=document.getElementById('loginPassword'); const logoutTop=document.getElementById('logoutLink'); const logoutInner=document.getElementById('logoutBtnInner'); if(btn) btn.addEventListener('click', (e)=>{ e.preventDefault(); doLogin(); }); [le,lp].forEach(el=>{ if(!el) return; el.addEventListener('keyup', (ev)=>{ if(ev.key==='Enter'){ doLogin(); } }); }); if(logoutTop){ logoutTop.addEventListener('click', (e)=>{ e.preventDefault(); doLogout(); }); } if(logoutInner){ logoutInner.addEventListener('click', (e)=>{ e.preventDefault(); doLogout(); }); } applySessionIfAny(); });
+
+  function applySessionIfAny(){
+    const s=getSession();
+    const logout=document.getElementById('logoutLink');
+    if(s && s.email){
+      const emailEl=document.getElementById('email');
+      if(emailEl){ emailEl.value=s.email; emailEl.setAttribute('readonly','readonly'); emailEl.classList.add('readonly'); if(window.M&&M.updateTextFields) M.updateTextFields(); }
+      setMlEmail(s.email);
+      if(logout){ logout.classList.remove('hide'); }
+      showMask(false);
+    } else {
+      showMask(true);
+      setTimeout(()=>{ try{ document.getElementById('loginEmail').focus(); }catch(_){ } },50);
+    }
+  }
+
+  // Hook up events on load (after portal's DOMContentLoaded also runs)
+  window.addEventListener('DOMContentLoaded', function(){
+    const btn=document.getElementById('loginBtn');
+    const le=document.getElementById('loginEmail');
+    const lp=document.getElementById('loginPassword');
+    const logout=document.getElementById('logoutLink');
+    if(btn) btn.addEventListener('click', (e)=>{ e.preventDefault(); doLogin(); });
+    [le,lp].forEach(el=>{ if(!el) return; el.addEventListener('keyup', (ev)=>{ if(ev.key==='Enter'){ doLogin(); } }); });
+    if(logout){ logout.addEventListener('click', (e)=>{ e.preventDefault(); clearSession(); showMask(true); const emailEl=document.getElementById('email'); if(emailEl){ emailEl.removeAttribute('readonly'); emailEl.classList.remove('readonly'); emailEl.value=''; if(window.M&&M.updateTextFields) M.updateTextFields(); } logout.classList.add('hide'); if(window.notify) notify('Logged out'); }); }
+    // finally, apply existing session (if any)
+      const logoutInner=document.getElementById('logoutBtnInner'); if(logoutInner){ logoutInner.addEventListener('click', (e)=>{ e.preventDefault(); clearSession(); showMask(true); const emailEl=document.getElementById('email'); if(emailEl){ emailEl.removeAttribute('readonly'); emailEl.classList.remove('readonly'); emailEl.value=''; if(window.M&&M.updateTextFields) M.updateTextFields(); } if(logout){ logout.classList.add('hide'); } if(window.notify) notify('Logged out'); }); }
+  applySessionIfAny();
+  });
 })();
 </script>
+
 </body>
 </html>
