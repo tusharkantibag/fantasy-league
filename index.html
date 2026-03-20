@@ -118,6 +118,28 @@
     .small-muted{ font-size:.86rem; color:#607d8b; }
     .hide { display:none !important; }
     .readonly { opacity:.85; pointer-events:none; }
+  
+  /* ===== Leaderboard+ (visual polish) ===== */
+  .lb-wrap { display:flex; align-items:center; justify-content:space-between; gap:.75rem; }
+  .lb-actions { display:flex; gap:.5rem; align-items:center; }
+  .lb-actions .chip { margin:0; cursor:pointer; }
+  table.leaderboard { border:1px solid #e3e6ea; border-radius:12px; overflow:hidden; }
+  table.leaderboard thead { background:#f6f9fc; position:sticky; top:0; z-index:1; }
+  table.leaderboard th { font-weight:700; color:#37474f; }
+  table.leaderboard td, table.leaderboard th { padding:10px 12px; }
+  .rank-medal{ font-size:18px; }
+  .rank-1{ color:#f9a825; } /* gold */
+  .rank-2{ color:#90a4ae; } /* silver */
+  .rank-3{ color:#8d6e63; } /* bronze */
+  .user-cell { display:flex; align-items:center; gap:.6rem; }
+  .avatar-init { width:28px; height:28px; border-radius:50%; background:#e3f2fd; color:#0d47a1; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:.9rem; border:1px solid #bbdefb; }
+  .pts-cell { white-space:nowrap; }
+  .bar-wrap { position:relative; height:10px; background:#eceff1; border-radius:6px; overflow:hidden; }
+  .bar-fill { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg,#42a5f5,#1976d2); }
+  .bar-fill.top { background:linear-gradient(90deg,#ffd54f,#ffb300); }
+  .lb-foot { display:flex; justify-content:flex-end; gap:.5rem; margin-top:.5rem; }
+  .btn-flat.small { padding:0 .5rem; height:28px; line-height:28px; }
+
   </style>
 </head>
 <body>
@@ -567,14 +589,14 @@
     }
     document.addEventListener('DOMContentLoaded', async function(){ M.AutoInit();
       const stored=(()=>{ try{return localStorage.getItem('ml_email')||'';}catch(_){return'';} })(); if(stored){ emailEl.value=stored; } M.updateTextFields();
-      await fetchNextMatch(); await fetchAllPlayers(); await fetchUserStats(); await loadLeaderboard(); await fetchPoints();
+      await fetchNextMatch(); await fetchAllPlayers(); await fetchUserStats(); await loadLeaderboard("points","top10"); await fetchPoints();
       document.addEventListener('input',(e)=>{ if(e.target.id==='email'){ try{localStorage.setItem('ml_email', e.target.value||'');}catch(_){ } statsReady=false; fetchUserStats().then(()=>applyLastXIIfReady()); } if(e.target.id==='searchInput'){ renderPlayers(); } if(e.target.id==='budgetMax'){ budgetMaxLabel.textContent=String(budgetMaxEl.value); try{ localStorage.setItem('ml_budget_cap', String(budgetMaxEl.value)); }catch(_){ } renderPlayers(); } });
       teamFilter.addEventListener('change', renderPlayers); roleFilter.addEventListener('change', renderPlayers); catFilter.addEventListener('change', renderPlayers);
       matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); });
       document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints(); });
       document.getElementById('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
       document.getElementById('buildFirstBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
-      document.getElementById('refreshLb').addEventListener('click', loadLeaderboard);
+      document.getElementById('refreshLb').addEventListener('click', ()=>loadLeaderboard(window._lbSort||"points", window._lbLimit||"top10"));
       clearAllBtn.addEventListener('click', (e)=>{ e.preventDefault(); selectedNames.clear(); selectedCaptain=''; selectedViceCaptain=''; document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked=false); updateSelectionUI(); });
       resetBtn.addEventListener('click', (e)=>{ e.preventDefault(); if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found to reset.'); return; } selectedNames=new Set(lastTeamPlayers||[]); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>cb.checked = selectedNames.has(cb.value)); updateSelectionUI(); notify('Reverted to your last saved XI.'); });
       captainSelect.addEventListener('change', ()=>{ selectedCaptain = captainSelect.value; updateSelectionUI(); });
