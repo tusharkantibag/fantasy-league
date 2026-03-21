@@ -9,86 +9,70 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
   <style>
-/* Dark (default) — lighter, clearer */
-:root{
-  --bg:        #1a2236;   /* page background / gutters */
-  --surface:   #212a4a;   /* cards, panels */
-  --surface-2: #1c2544;   /* inner surfaces / preview canvas */
-  --text:      #f7f8ff;   /* primary text */
-  --muted:     #d2dbff;   /* secondary text / labels */
+    :root{
+  /* Vibrant Light Theme (default, no dark mode) */
+  --bg:#f7f9ff;                 /* page background */
+  --surface:#ffffff;             /* cards */
+  --surface-2:#f1f5ff;          /* inner surfaces / preview canvas */
+  --text:#0a1020;               /* primary text */
+  --muted:#465a75;              /* secondary text */
 
-  /* accents unchanged; tweak if you want a touch brighter */
-  --primary:   #7c4dff; --primary-2:#4f2dd4; --accent:#00e5ff;
-  --wk:#6ab8ff; --bat:#66c26a; --ar:#c776d6; --bowl:#ffae52;
+  /* brand vibrants */
+  --primary:#2d6cff;            /* azure blue */
+  --primary-2:#0d47a1;          /* deep blue */
+  --accent:#00c8d7;             /* cyan */
 
-  /* chips & borders slightly stronger for separation */
-  --chip-bg:   rgba(255,255,255,.12);
-  --chip-br:   1px solid rgba(255,255,255,.22);
+  /* status */
+  --success:#2e7d32; --warning:#ff9800; --danger:#d32f2f;
 
-  /* softer, crisper elevation */
-  --elev:      0 10px 34px rgba(0,0,0,.22);
-  --elev-sm:   0 6px 18px  rgba(0,0,0,.20);
+  /* role accents (punchier for chips/rails) */
+  --wk:#1976d2; --bat:#2e7d32; --ar:#8e24aa; --bowl:#ef6c00;
+
+  /* UI elements */
+  --chip-bg:#eef3ff;            /* light pill bg */
+  --chip-br:1px solid #d8e2ff;  /* light pill border */
+  --elev:0 10px 24px rgba(2,6,23,.08);
+  --elev-sm:0 6px 14px rgba(2,6,23,.06);
 }
-
-/* Light — clean white surfaces with cool blue background tint */
-[data-theme="light"]{
-  --bg:        #f7f9fc;   /* page background */
-  --surface:   #ffffff;   /* cards */
-  --surface-2: #f2f5fb;   /* inner surfaces / preview canvas */
-  --text:      #0b1020;   /* primary text */
-  --muted:     #475569;   /* secondary text */
-
-  --primary:#2962ff; --primary-2:#0d47a1; --accent:#00bcd4;
-
-  --chip-bg:   #f3f6fa;   /* chips/pills bg */
-  --chip-br:   1px solid #dde3ee;
-
-  --elev:      0 10px 28px rgba(2,6,23,.07);
-  --elev-sm:   0 6px 16px  rgba(2,6,23,.06);
-}
-
-/* Optional: background glow tuning (keeps the gradient look, but lighter) */
-body{
+    html,body{
   background:
-    radial-gradient(1200px 700px at 70% -10%, rgba(124,77,255,.18), transparent 60%),
-    radial-gradient(1000px 600px at -10% 10%, rgba(0,229,255,.12), transparent 60%),
+    radial-gradient(1200px 700px at 70% -10%, rgba(45,108,255,.12), transparent 60%),
+    radial-gradient(1000px 600px at -10% 10%, rgba(0,200,215,.10), transparent 60%),
     var(--bg);
+  color:var(--text);
+  font-family:'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
-[data-theme="light"] body{
+    body{
   background:
-    radial-gradient(1200px 700px at 70% -10%, rgba(124,77,255,.10), transparent 60%),
-    radial-gradient(1000px 600px at -10% 10%, rgba(0,229,255,.08), transparent 60%),
+    radial-gradient(1200px 700px at 70% -10%, rgba(45,108,255,.12), transparent 60%),
+    radial-gradient(1000px 600px at -10% 10%, rgba(0,200,215,.10), transparent 60%),
     var(--bg);
+  color:var(--text);
+  font-family:'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
-
-    html,body{height:100%;}
-    body{ background: radial-gradient(1200px 700px at 70% -10%, rgba(124,77,255,.35), transparent 60%),
-                       radial-gradient(1000px 600px at -10% 10%, rgba(0,229,255,.25), transparent 60%),
-                       var(--bg);
-          color:var(--text); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
     nav{ background: linear-gradient(90deg, var(--primary), var(--accent)); box-shadow: var(--elev); }
     nav .brand-logo{ font-family:'Outfit', sans-serif; font-weight:800; letter-spacing:.2px; }
 
     /* Tab bar */
-    .tabs{ background:transparent; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,.12); }
+    .tabs{ background:transparent; border-radius:12px; overflow:hidden; border:1px solid #e3e9f6; }
     .tabs .tab a{ color:var(--muted); font-weight:600; }
     .tabs .tab a.active{ color:var(--text); }
     .tabs .indicator{ background: linear-gradient(90deg, var(--accent), var(--primary)); height:3px; }
 
     /* Cards */
-    .card{ background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.12); border-radius:16px; box-shadow: var(--elev); backdrop-filter: saturate(1.2) blur(3px); }
+    .card{ background:#ffffff; border:1px solid #e3e9f6; border-radius:16px; box-shadow: var(--elev); backdrop-filter: saturate(1.2) blur(3px); }
     .card .card-title{ font-weight:800; letter-spacing:.2px; }
 
     /* Left column: player list */
     .player-list{ display:flex; flex-direction:column; gap:12px; max-height:70vh; overflow:auto; scrollbar-width:thin; }
-    .player-card{ background: var(--surface); border-radius:14px; padding:10px; display:flex; align-items:center; gap:12px; border:1px solid rgba(255,255,255,.12); transition: transform .15s ease, box-shadow .2s ease; box-shadow: var(--elev-sm); }
+    .player-card{ background:#ffffff; border-radius:14px; padding:10px; display:flex; align-items:center; gap:12px; border:1px solid #e3e9f6; transition: transform .15s ease, box-shadow .2s ease; box-shadow: var(--elev-sm); }
     .player-card:hover{ transform:translateY(-2px); box-shadow:0 12px 30px rgba(0,0,0,.35); }
-    .avatar{ width:48px; height:48px; border-radius:10px; object-fit:cover; background:#0b1024; border:1px solid rgba(255,255,255,.12); }
+    .avatar{ width:48px; height:48px; border-radius:10px; object-fit:cover; background:#0b1024; border:1px solid #e3e9f6; }
     .player-info{ flex:1; display:flex; flex-direction:column; }
     .player-name{ font-weight:700; font-size:1rem; }
     .player-meta{ font-size:.85rem; color:var(--muted); display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
 
-    .role-chip, .team-chip, .price-chip, .points-chip, .pill{ background:var(--chip-bg); border: var(--chip-br); color:var(--text); border-radius:999px; padding:.18rem .55rem; display:inline-flex; align-items:center; gap:.35rem; }
+    .role-chip, .team-chip, .price-chip, .points-chip, .pill{ background:var(--chip-bg); border:var(--chip-br); color:#0a1020; border-radius:999px; padding:.18rem .55rem; display:inline-flex; align-items:center; gap:.35rem;}
     .price-chip{ color:#ffd166; }
     .points-chip{ color:#bdb2ff; }
 
@@ -97,7 +81,7 @@ body{
     .accent-AR{  box-shadow:0 0 0 2px color-mix(in srgb, var(--ar) 45%, transparent) inset; }
     .accent-BOWL{box-shadow:0 0 0 2px color-mix(in srgb, var(--bowl)45%, transparent) inset; }
 
-    .sticky-actions{ position:sticky; bottom:0; background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.35)), var(--surface); padding:.75rem; border-top:1px solid rgba(255,255,255,.12); display:flex; flex-wrap:wrap; gap:.75rem; justify-content:space-between; align-items:center; }
+    .sticky-actions{ position:sticky; bottom:0; background:linear-gradient(180deg, rgba(255,255,255,.85), #ffffff); padding:.75rem; border-top:1px solid #e5eaf5; display:flex; flex-wrap:wrap; gap:.75rem; justify-content:space-between; align-items:center; }
 
     .badge-inline{ background:var(--chip-bg); border:var(--chip-br); color:var(--text); border-radius:14px; padding:.32rem .6rem; display:inline-flex; align-items:center; gap:.35rem; font-weight:600; }
     .badge-ok{ box-shadow:0 0 0 2px color-mix(in srgb, var(--success) 35%, transparent) inset; }
@@ -105,34 +89,34 @@ body{
     .badge-alert{ box-shadow:0 0 0 2px color-mix(in srgb, var(--danger) 45%, transparent) inset; }
 
     .filters{ display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin:.5rem 0 1rem 0; }
-    .filter-chip{ background:var(--surface); border:1px solid rgba(255,255,255,.14); border-radius:18px; padding:.25rem .6rem; display:inline-flex; align-items:center; gap:.5rem; box-shadow:var(--elev-sm); }
+    .filter-chip{ background:#ffffff; border:1px solid #e1e7f4; border-radius:18px; padding:.25rem .6rem; display:inline-flex; align-items:center; gap:.5rem; box-shadow:var(--elev-sm); }
     .filter-chip select{ border:none; background:transparent; outline:none; color:var(--text); }
     .search-box input{ color:var(--text); }
 
     /* Preview column */
-    .preview-card{ background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.12); border-radius:16px; }
+    .preview-card{ background:#ffffff; border:1px solid #e3e9f6; border-radius:16px; }
     .preview-header{ display:flex; align-items:center; justify-content:space-between; }
-    .preview-grid{ display:block; }
-    .lineup-row{ margin:12px 0; padding-left:10px; border-left:3px solid rgba(255,255,255,.2); }
+    .preview-grid{ display:block; background:var(--surface-2); border:1px solid #dbe6ff; border-radius:12px; padding:8px; }
+    .lineup-row{ margin:12px 0; padding-left:10px; border-left:3px solid rgba(2,6,23,.10); }
     .lineup-row[data-role=WK]{ border-left-color: var(--wk);}  
     .lineup-row[data-role=BAT]{ border-left-color: var(--bat);} 
     .lineup-row[data-role=AR]{  border-left-color: var(--ar);} 
     .lineup-row[data-role=BOWL]{border-left-color: var(--bowl);} 
 
-    .role-header{ position:sticky; top:8px; z-index:5; background:var(--surface); display:inline-flex; align-items:center; gap:.4rem; padding:.22rem .6rem; border:1px solid rgba(255,255,255,.14); border-radius:12px; font-weight:800; color:var(--text); box-shadow:var(--elev-sm); }
+    .role-header{ position:sticky; top:8px; z-index:5; background:#ffffff; display:inline-flex; align-items:center; gap:.4rem; padding:.22rem .6rem; border:1px solid #e1e7f4; border-radius:12px; font-weight:800; color:#0a1020; box-shadow:var(--elev-sm);}
     .role-header .material-icons{ font-size:18px; opacity:.9; }
     .role-header.role-WK{ color:var(--wk);} .role-header.role-BAT{ color:var(--bat);} .role-header.role-AR{ color:var(--ar);} .role-header.role-BOWL{ color:var(--bowl);} 
 
     .role-cards{ display:flex; flex-wrap:wrap; gap:12px; margin-top:6px; }
-    .square-card{ background:var(--surface); border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:10px; display:flex; flex-direction:column; align-items:center; position:relative; width:180px; flex:0 0 180px; overflow:visible; box-shadow:var(--elev-sm); }
-    .square-card .pic{ width:100%; aspect-ratio:1/1; border-radius:12px; overflow:hidden; background:var(--surface-2); border:1px solid rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; }
+    .square-card{ background:#ffffff; border:1px solid #e3e9f6; border-radius:14px; padding:10px; display:flex; flex-direction:column; align-items:center; position:relative; width:180px; flex:0 0 180px; overflow:visible; box-shadow:var(--elev-sm); }
+    .square-card .pic{ width:100%; aspect-ratio:1/1; border-radius:12px; overflow:hidden; background:var(--surface-2); border:1px solid #dde6ff; display:flex; align-items:center; justify-content:center; }
     .square-card .pic img{ width:100%; height:100%; object-fit:cover; }
     .square-card .pic i{ font-size:42px; color:#9aa6ff; }
     .square-card .name{ margin-top:.55rem; font-weight:800; font-size:.98rem; text-align:center; }
     .square-card .meta{ font-size:.82rem; color:var(--muted); text-align:center; margin-top:.12rem; }
     .square-card .price{ font-size:.8rem; text-align:center; margin-top:.25rem; padding:.12rem .5rem; border-radius:12px; background:var(--chip-bg); border:var(--chip-br); color:#ffd166; display:inline-block; }
     .square-card .remove{ position:absolute; top:8px; right:8px; }
-    .cat-corner{ position:absolute; top:10px; left:10px; z-index:10; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:var(--surface); border:1px solid rgba(255,255,255,.14); box-shadow:var(--elev-sm); font-size:16px; line-height:1; pointer-events:none; }
+    .cat-corner{ position:absolute; top:10px; left:10px; z-index:10; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#ffffff; border:1px solid #e1e7f4; box-shadow:var(--elev-sm); font-size:16px; line-height:1; pointer-events:none; }
     @media (max-width:480px){ .square-card{ width:150px; flex-basis:150px; } .cat-corner{ top:8px; left:8px; width:24px; height:24px; font-size:15px;} }
 
     /* Captain/VC tags */
@@ -152,7 +136,7 @@ body{
 
     /* Login mask */
     .login-mask{ position:fixed; inset:0; z-index:9999; background: radial-gradient(900px 600px at 80% -10%, rgba(124,77,255,.35), transparent 60%), radial-gradient(900px 600px at 0% 100%, rgba(0,229,255,.25), transparent 60%), var(--bg); display:flex; align-items:center; justify-content:center; padding:18px; }
-    .login-card{ width:min(560px,96vw); background:var(--surface); border-radius:16px; border:1px solid rgba(255,255,255,.12); box-shadow: var(--elev); }
+    .login-card{ width:min(560px,96vw); background:#ffffff; border-radius:16px; border:1px solid #e3e9f6; box-shadow: var(--elev); }
     .login-card .card-content{ padding:24px 20px 8px; }
     .login-brand{ display:flex; align-items:center; gap:.6rem; font-family:'Outfit',sans-serif; font-weight:800; color:#fff; }
     .login-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px; border-top:1px solid rgba(255,255,255,.12); background:var(--surface-2); border-radius:0 0 16px 16px; }
@@ -202,9 +186,7 @@ body{
     <div class="nav-wrapper container">
       <a href="#submit" class="brand-logo"><i class="material-icons left">emoji_events</i> Sports Fever IPL Fantasy 2026</a>
       <ul class="right">
-        <li>
-          <a id="themeToggle" class="theme-toggle" title="Toggle theme"><i class="material-icons">dark_mode</i><span class="hide-on-small-only">Theme</span></a>
-        </li>
+        
       </ul>
     </div>
   </nav>
@@ -419,17 +401,6 @@ body{
 
   <!-- Same JS logic/IDs as your file will be included below by pasting your original scripts. To keep this sample self-contained, we only add small theme helpers. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <script>
-    // Theme toggle (non-breaking) — remembers preference
-    (function(){
-      const key='fantasy_theme';
-      function apply(t){ document.documentElement.setAttribute('data-theme', t); try{localStorage.setItem(key,t);}catch(_){} }
-      const saved=(()=>{ try{return localStorage.getItem(key)||'dark';}catch(_){return 'dark';} })();
-      apply(saved);
-      document.getElementById('themeToggle').addEventListener('click',()=>{ apply((document.documentElement.getAttribute('data-theme')||'dark')==='dark'?'light':'dark'); });
-    })();
-  </script>
-
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
