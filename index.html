@@ -10,11 +10,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
   <style>
     :root{
-      --bg: #6668f2;                /* stadium-night */
-      --surface: #212a4a;           /* cards */
-      --surface-2: #1c2544;         /* darker */
-      --text: #f7f8ff;
-      --muted: #d2dbff;
+      --bg: #0b1020;                /* stadium-night */
+      --surface: #121832;           /* cards */
+      --surface-2: #0f1530;         /* darker */
+      --text: #e6ebff;
+      --muted: #9fb2ff;
       --primary: #7c4dff;           /* purple */
       --primary-2:#4f2dd4;
       --accent: #00e5ff;            /* teal-neon */
@@ -27,58 +27,17 @@
       --elev: 0 10px 30px rgba(0,0,0,.35);
       --elev-sm: 0 4px 16px rgba(0,0,0,.25);
     }
-    
-[data-theme="light"]{
-  --bg:#f7f9fc; 
-  --surface:#ffffff; 
-  --surface-2:#f2f5fb; 
-  --text:#0b1020; 
-  --muted:#475569; 
-  --primary:#2962ff; 
-  --primary-2:#0d47a1; 
-  --accent:#00bcd4; 
-  --success:#2e7d32; 
-  --warning:#ffa000; 
-  --danger:#c62828; 
-  --chip-bg:#f3f6fa; 
-  --chip-br:1px solid #dde3ee; 
-  --elev:0 10px 28px rgba(2,6,23,.07); 
-  --elev-sm:0 6px 16px rgba(2,6,23,.06);
-}
+    [data-theme="light"]{
+      --bg:#f6f7fb; --surface:#ffffff; --surface-2:#f0f3fa; --text:#0b1020; --muted:#546e7a;
+      --primary:#2962ff; --primary-2:#0d47a1; --accent:#00bcd4; --success:#2e7d32; --warning:#ffa000; --danger:#c62828;
+      --chip-bg:#eef2f7; --chip-br:1px solid #dde3ee; --elev:0 10px 30px rgba(0,0,0,.09); --elev-sm:0 4px 12px rgba(0,0,0,.08);
+    }
 
-
-    html,
-body{ 
-  background:
-    radial-gradient(1200px 700px at 70% -10%, rgba(124,77,255,.18), transparent 60%),
-    radial-gradient(1000px 600px at -10% 10%, rgba(0,229,255,.12), transparent 60%),
-    var(--bg);
-  color:var(--text);
-  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-}
-[data-theme="light"] body, body[data-theme="light"]{ 
-  background:
-    radial-gradient(1200px 700px at 70% -10%, rgba(124,77,255,.10), transparent 60%),
-    radial-gradient(1000px 600px at -10% 10%, rgba(0,229,255,.08), transparent 60%),
-    var(--bg);
-}
-
-    
-body{ 
-  background:
-    radial-gradient(1200px 700px at 70% -10%, rgba(124,77,255,.18), transparent 60%),
-    radial-gradient(1000px 600px at -10% 10%, rgba(0,229,255,.12), transparent 60%),
-    var(--bg);
-  color:var(--text);
-  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-}
-[data-theme="light"] body, body[data-theme="light"]{ 
-  background:
-    radial-gradient(1200px 700px at 70% -10%, rgba(124,77,255,.10), transparent 60%),
-    radial-gradient(1000px 600px at -10% 10%, rgba(0,229,255,.08), transparent 60%),
-    var(--bg);
-}
-
+    html,body{height:100%;}
+    body{ background: radial-gradient(1200px 700px at 70% -10%, rgba(124,77,255,.35), transparent 60%),
+                       radial-gradient(1000px 600px at -10% 10%, rgba(0,229,255,.25), transparent 60%),
+                       var(--bg);
+          color:var(--text); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
     nav{ background: linear-gradient(90deg, var(--primary), var(--accent)); box-shadow: var(--elev); }
     nav .brand-logo{ font-family:'Outfit', sans-serif; font-weight:800; letter-spacing:.2px; }
 
@@ -181,38 +140,7 @@ body{
     .btn.blue, .btn.green{ position:relative; overflow:hidden; }
     .btn.blue::after, .btn.green::after{ content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none; background: radial-gradient(120px 60px at var(--x,50%) 120%, rgba(124,77,255,.35), transparent 40%); transition: .25s ease; }
     .btn.blue:hover::after, .btn.green:hover::after{ --x: 50%; filter: saturate(1.2); }
-
-/* Light-specific component overrides for clear readability */
-[data-theme="light"] .card,
-[data-theme="light"] .preview-card,
-[data-theme="light"] .player-card{
-  background:#ffffff !important;
-  border:1px solid #e5eaf2 !important;
-  box-shadow: var(--elev);
-}
-[data-theme="light"] .preview-grid{
-  background:#ffffff !important;
-  border:1px solid #e5eaf2 !important;
-}
-[data-theme="light"] .sticky-actions{
-  background: linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.95)) , #ffffff !important;
-  border-top:1px solid #e5eaf2 !important;
-}
-[data-theme="light"] .tabs{ border-color:#e5eaf2 !important; }
-[data-theme="light"] .tabs .indicator{ background: linear-gradient(90deg, var(--primary), var(--accent)); }
-[data-theme="light"] .lineup-row{ border-left:3px solid rgba(2,6,23,.12) !important; }
-[data-theme="light"] .role-header{ background:#ffffff; border:1px solid #e5eaf2; color:#0b1020; }
-[data-theme="light"] .pill,
-[data-theme="light"] .badge-inline,
-[data-theme="light"] .role-chip,
-[data-theme="light"] .team-chip,
-[data-theme="light"] .price-chip,
-[data-theme="light"] .points-chip{
-  background: var(--chip-bg) !important; border: var(--chip-br) !important; color: #0b1020 !important;
-}
-[data-theme="light"] .points-chip{ color:#4a4a4a !important; }
-
-</style>
+  </style>
 </head>
 <body>
   <!-- Login Mask -->
