@@ -189,7 +189,7 @@
 .team-chip[data-team="GT"]{ background:#1b2133; }
 .square-card[data-team="GT"]{ border-color:#b08d57; }
 
-/* === Stronger subtle gradients for preview === */
+/* === Subtle gradients in preview === */
 .preview-card .card-content .preview-grid{
   display:block;
   background: linear-gradient(180deg, rgba(45,108,255,.08), rgba(0,200,215,.05)), var(--surface-2) !important;
@@ -204,20 +204,40 @@
 .preview-card .card-content .preview-grid .role-header,
 .preview-card .card-content .preview-grid .role-cards{ position:relative; z-index:1; }
 
-/* Image well soft wash + team tints (subtle) */
+/* === Image well soft wash + team tint === */
 .square-card .pic{
+  position:relative;
   background: linear-gradient(180deg, rgba(45,108,255,.08), rgba(255,255,255,0)), var(--surface-2) !important;
 }
-.square-card[data-team="CSK"] .pic{ background: linear-gradient(180deg, rgba(241,205,0,.20), rgba(255,255,255,0)), var(--surface-2) !important; }
-.square-card[data-team="MI"]  .pic{ background: linear-gradient(180deg, rgba(0,75,160,.20),  rgba(255,255,255,0)), var(--surface-2) !important; }
-.square-card[data-team="RCB"] .pic{ background: linear-gradient(180deg, rgba(204,0,0,.20),   rgba(255,255,255,0)), var(--surface-2) !important; }
-.square-card[data-team="KKR"] .pic{ background: linear-gradient(180deg, rgba(58,34,93,.20),   rgba(255,255,255,0)), var(--surface-2) !important; }
-.square-card[data-team="RR"]  .pic{ background: linear-gradient(180deg, rgba(234,26,142,.20),  rgba(255,255,255,0)), var(--surface-2) !important; }
-.square-card[data-team="SRH"] .pic{ background: linear-gradient(180deg, rgba(242,106,27,.20),  rgba(255,255,255,0)), var(--surface-2) !important; }
-.square-card[data-team="DC"]  .pic{ background: linear-gradient(180deg, rgba(0,76,147,.20),    rgba(255,255,255,0)), var(--surface-2) !important; }
-.square-card[data-team="LSG"] .pic{ background: linear-gradient(180deg, rgba(0,160,164,.20),   rgba(255,255,255,0)), var(--surface-2) !important; }
-.square-card[data-team="PBKS"] .pic{ background: linear-gradient(180deg, rgba(183,28,28,.20),   rgba(255,255,255,0)), var(--surface-2) !important; }
-.square-card[data-team="GT"]  .pic{ background: linear-gradient(180deg, rgba(27,33,51,.20),    rgba(255,255,255,0)), var(--surface-2) !important; }
+.square-card[data-team="CSK"] .pic{ background: linear-gradient(180deg, rgba(241,205,0,.18), rgba(255,255,255,0)), var(--surface-2) !important; }
+.square-card[data-team="MI"]  .pic{ background: linear-gradient(180deg, rgba(0,75,160,.18),  rgba(255,255,255,0)), var(--surface-2) !important; }
+.square-card[data-team="RCB"] .pic{ background: linear-gradient(180deg, rgba(204,0,0,.18),   rgba(255,255,255,0)), var(--surface-2) !important; }
+.square-card[data-team="KKR"] .pic{ background: linear-gradient(180deg, rgba(58,34,93,.18),   rgba(255,255,255,0)), var(--surface-2) !important; }
+.square-card[data-team="RR"]  .pic{ background: linear-gradient(180deg, rgba(234,26,142,.18),  rgba(255,255,255,0)), var(--surface-2) !important; }
+.square-card[data-team="SRH"] .pic{ background: linear-gradient(180deg, rgba(242,106,27,.18),  rgba(255,255,255,0)), var(--surface-2) !important; }
+.square-card[data-team="DC"]  .pic{ background: linear-gradient(180deg, rgba(0,76,147,.18),    rgba(255,255,255,0)), var(--surface-2) !important; }
+.square-card[data-team="LSG"] .pic{ background: linear-gradient(180deg, rgba(0,160,164,.18),   rgba(255,255,255,0)), var(--surface-2) !important; }
+.square-card[data-team="PBKS"] .pic{ background: linear-gradient(180deg, rgba(183,28,28,.18),   rgba(255,255,255,0)), var(--surface-2) !important; }
+.square-card[data-team="GT"]  .pic{ background: linear-gradient(180deg, rgba(27,33,51,.18),    rgba(255,255,255,0)), var(--surface-2) !important; }
+
+/* === Team 'logo' watermark (large team code) === */
+.square-card .pic::after{
+  content: attr(data-team);
+  position:absolute; inset:0; pointer-events:none; display:flex; align-items:center; justify-content:center;
+  font-family:'Outfit', sans-serif; font-weight:800; letter-spacing:.5px; font-size:64px;
+  color: rgba(0,0,0,.06);
+}
+/* Per-team tint for watermark text */
+.square-card[data-team="CSK"] .pic::after{ color: rgba(241,205,0,.16); }
+.square-card[data-team="MI"]  .pic::after{ color: rgba(0,75,160,.16); }
+.square-card[data-team="RCB"] .pic::after{ color: rgba(204,0,0,.16); }
+.square-card[data-team="KKR"] .pic::after{ color: rgba(58,34,93,.16); }
+.square-card[data-team="RR"]  .pic::after{ color: rgba(234,26,142,.16); }
+.square-card[data-team="SRH"] .pic::after{ color: rgba(242,106,27,.16); }
+.square-card[data-team="DC"]  .pic::after{ color: rgba(0,76,147,.16); }
+.square-card[data-team="LSG"] .pic::after{ color: rgba(0,160,164,.16); }
+.square-card[data-team="PBKS"] .pic::after{ color: rgba(183,28,28,.16); }
+.square-card[data-team="GT"]  .pic::after{ color: rgba(27,33,51,.16); }
 
 </style>
 </head>
@@ -471,7 +491,7 @@
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbzNh_XaYZ2n4LqUsRgA_zGi3ShXUN2nyQlowN47dd5ZlGip3sfN5MXmGM4kWVZjoEzw/exec';
+const API = 'https://script.google.com/macros/s/AKfycbzugX4eavkkGAsfa9jOZBpBZa5AwthcZwmnwigs0lRX5zyQBJv1I1Lv7FI0hbFQn-un/exec';
     function notify(msg){ M.toast({html: msg, displayLength: 3500}); }
     function formatRole(r){ if(!r) return ''; r=String(r).trim().toUpperCase(); if(r==='WICKETKEEPER') return 'WK'; if(r==='BATSMAN'||r==='BATTER') return 'BAT'; if(r==='ALL-ROUNDER'||r==='ALLROUNDER'||r==='ALL_ROUNDER') return 'AR'; if(r==='BOWLER') return 'BOWL'; return r; }
     const emailEl=document.getElementById('email');
@@ -523,7 +543,7 @@ const API = 'https://script.google.com/macros/s/AKfycbzNh_XaYZ2n4LqUsRgA_zGi3ShX
     function startCountdown(){ if(countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; } if(!cutoffAt){ dlCountdown.textContent='—'; return; } function tick(){ const ms=cutoffAt - new Date(); if(ms<=0){ isLocked=true; dlCountdown.textContent='LOCKED'; submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); const msg=document.getElementById('validationMsg'); msg.className='helper error-text'; msg.textContent='Deadline passed for this match.'; clearInterval(countdownTimer); countdownTimer=null; return; } const s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; dlCountdown.textContent=`${h}h ${m}m ${sec}s`; } tick(); countdownTimer=setInterval(tick,1000);}
     let pointsMap = {}; let allPlayers=[]; let lastTeamPlayers=[]; let userBudget=100, userUsed=0, maxFromTeam=7; let constraints={WK:{min:1,max:2}, BAT:{min:3,max:6}, AR:{min:1,max:4}, BOWL:{min:3,max:6}}; let categoryCaps={maxForeign:4, minUncapped:1}; let playersReady=false, statsReady=false; let totalBudget=100; let selectedNames = new Set();
 
-// === Team tint helpers ===
+// === Team tint + watermark helpers ===
 function teamSlug(raw){
   if(!raw) return '';
   const s=String(raw).trim().toUpperCase();
@@ -553,7 +573,9 @@ function applyTeamTints(root){
         const meta = card.querySelector('.meta');
         const teamTxt = meta? meta.textContent.split('•')[0].trim():'';
         const slug = teamSlug(teamTxt);
-        if(slug){ card.setAttribute('data-team', slug); }
+        if(slug){ card.setAttribute('data-team', slug);
+          const pic = card.querySelector('.pic'); if(pic){ pic.setAttribute('data-team', slug); }
+        }
       }catch(_){ }
     });
   }catch(_){ }
