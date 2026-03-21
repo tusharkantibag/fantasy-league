@@ -9,29 +9,57 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
   <style>
-    :root{
-      --bg: #0b1020;                /* stadium-night */
-      --surface: #121832;           /* cards */
-      --surface-2: #0f1530;         /* darker */
-      --text: #e6ebff;
-      --muted: #9fb2ff;
-      --primary: #7c4dff;           /* purple */
-      --primary-2:#4f2dd4;
-      --accent: #00e5ff;            /* teal-neon */
-      --success:#2ee59d;
-      --warning:#ffd166;
-      --danger:#ff5c7a;
-      --wk:#42a5f5; --bat:#43a047; --ar:#ab47bc; --bowl:#ff8f00;
-      --chip-bg: rgba(255,255,255,.06);
-      --chip-br: 1px solid rgba(255,255,255,.12);
-      --elev: 0 10px 30px rgba(0,0,0,.35);
-      --elev-sm: 0 4px 16px rgba(0,0,0,.25);
-    }
-    [data-theme="light"]{
-      --bg:#f6f7fb; --surface:#ffffff; --surface-2:#f0f3fa; --text:#0b1020; --muted:#546e7a;
-      --primary:#2962ff; --primary-2:#0d47a1; --accent:#00bcd4; --success:#2e7d32; --warning:#ffa000; --danger:#c62828;
-      --chip-bg:#eef2f7; --chip-br:1px solid #dde3ee; --elev:0 10px 30px rgba(0,0,0,.09); --elev-sm:0 4px 12px rgba(0,0,0,.08);
-    }
+/* Dark (default) — lighter, clearer */
+:root{
+  --bg:        #1a2236;   /* page background / gutters */
+  --surface:   #212a4a;   /* cards, panels */
+  --surface-2: #1c2544;   /* inner surfaces / preview canvas */
+  --text:      #f7f8ff;   /* primary text */
+  --muted:     #d2dbff;   /* secondary text / labels */
+
+  /* accents unchanged; tweak if you want a touch brighter */
+  --primary:   #7c4dff; --primary-2:#4f2dd4; --accent:#00e5ff;
+  --wk:#6ab8ff; --bat:#66c26a; --ar:#c776d6; --bowl:#ffae52;
+
+  /* chips & borders slightly stronger for separation */
+  --chip-bg:   rgba(255,255,255,.12);
+  --chip-br:   1px solid rgba(255,255,255,.22);
+
+  /* softer, crisper elevation */
+  --elev:      0 10px 34px rgba(0,0,0,.22);
+  --elev-sm:   0 6px 18px  rgba(0,0,0,.20);
+}
+
+/* Light — clean white surfaces with cool blue background tint */
+[data-theme="light"]{
+  --bg:        #f7f9fc;   /* page background */
+  --surface:   #ffffff;   /* cards */
+  --surface-2: #f2f5fb;   /* inner surfaces / preview canvas */
+  --text:      #0b1020;   /* primary text */
+  --muted:     #475569;   /* secondary text */
+
+  --primary:#2962ff; --primary-2:#0d47a1; --accent:#00bcd4;
+
+  --chip-bg:   #f3f6fa;   /* chips/pills bg */
+  --chip-br:   1px solid #dde3ee;
+
+  --elev:      0 10px 28px rgba(2,6,23,.07);
+  --elev-sm:   0 6px 16px  rgba(2,6,23,.06);
+}
+
+/* Optional: background glow tuning (keeps the gradient look, but lighter) */
+body{
+  background:
+    radial-gradient(1200px 700px at 70% -10%, rgba(124,77,255,.18), transparent 60%),
+    radial-gradient(1000px 600px at -10% 10%, rgba(0,229,255,.12), transparent 60%),
+    var(--bg);
+}
+[data-theme="light"] body{
+  background:
+    radial-gradient(1200px 700px at 70% -10%, rgba(124,77,255,.10), transparent 60%),
+    radial-gradient(1000px 600px at -10% 10%, rgba(0,229,255,.08), transparent 60%),
+    var(--bg);
+}
 
     html,body{height:100%;}
     body{ background: radial-gradient(1200px 700px at 70% -10%, rgba(124,77,255,.35), transparent 60%),
