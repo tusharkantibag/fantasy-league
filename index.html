@@ -223,10 +223,11 @@
 
 
 
-/* === Preview card default dark-wash + red error variant === */
-.preview-card{ background: linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,.03)), #ffffff; border:1px solid #e3e9f6; }
-.preview-card.preview-error{ background: linear-gradient(180deg, rgba(255,102,102,.12), rgba(255,204,204,.10)), #ffeaea; border-color:#f2b3b3; box-shadow:0 6px 18px rgba(211,47,47,.18); }
-.preview-card.preview-error .preview-grid{ background: linear-gradient(180deg, rgba(211,47,47,.08), rgba(255,255,255,0)), #ffeef0 !important; border-color:#f6c9c9 !important; }
+/* === Preview card default dark-wash + red error variant (strong override) === */
+/* Use a stronger selector and !important to override any earlier .card/.preview-card backgrounds */
+main.container .card.preview-card{ background: linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,.03)), #ffffff !important; border:1px solid #e3e9f6 !important; }
+main.container .card.preview-card.preview-error{ background: linear-gradient(180deg, rgba(255,102,102,.12), rgba(255,204,204,.10)), #ffeaea !important; border-color:#f2b3b3 !important; box-shadow:0 6px 18px rgba(211,47,47,.18) !important; }
+main.container .card.preview-card.preview-error .preview-grid{ background: linear-gradient(180deg, rgba(211,47,47,.08), rgba(255,255,255,0)), #ffeef0 !important; border-color:#f6c9c9 !important; }
 
 </style>
 </head>
