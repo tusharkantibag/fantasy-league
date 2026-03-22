@@ -229,6 +229,13 @@ main.container .card.preview-card{ background: linear-gradient(180deg, rgba(0,0,
 main.container .card.preview-card.preview-error{ background: linear-gradient(180deg, rgba(255,102,102,.12), rgba(255,204,204,.10)), #ffeaea !important; border-color:#f2b3b3 !important; box-shadow:0 6px 18px rgba(211,47,47,.18) !important; }
 main.container .card.preview-card.preview-error .preview-grid{ background: linear-gradient(180deg, rgba(211,47,47,.08), rgba(255,255,255,0)), #ffeef0 !important; border-color:#f6c9c9 !important; }
 
+
+/* === Preview card default (slight dark‑black) and error (soft red) === */
+main.container .card.preview-card{ background: linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,.03)), #ffffff !important; border:1px solid #e3e9f6 !important; }
+main.container .card.preview-card.preview-error{ background: linear-gradient(180deg, rgba(255,102,102,.12), rgba(255,204,204,.10)), #ffeaea !important; border-color:#f2b3b3 !important; box-shadow:0 6px 18px rgba(211,47,47,.18) !important; }
+main.container .card.preview-card.preview-error .preview-grid{ background: linear-gradient(180deg, rgba(211,47,47,.08), rgba(255,255,255,0)), #ffeef0 !important; border-color:#f6c9c9 !important; }
+main.container .card.preview-card .card-content .preview-grid{ background: linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,.02)), var(--surface-2) !important; border-color:#e5eaf5 !important; }
+
 </style>
 </head>
 <body>
@@ -538,7 +545,8 @@ function tagInfoBars(context){
     let selectedViceCaptain = '';
     let isLocked=false, cutoffAt=null, countdownTimer=null;
     function formatIst(iso){ try{ const d=new Date(iso); return d.toLocaleString('en-IN',{ timeZone:'Asia/Kolkata', weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}); }catch(_){ return iso; } }
-    function startCountdown(){ if(countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; } if(!cutoffAt){ dlCountdown.textContent='—'; return; } function tick(){ const ms=cutoffAt - new Date(); if(ms<=0){ isLocked=true; dlCountdown.textContent='LOCKED'; submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); const msg=document.getElementById('validationMsg'); msg.className='helper error-text'; msg.textContent='Deadline passed for this match.'; clearInterval(countdownTimer); countdownTimer=null; return; } const s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; dlCountdown.textContent=`${h}h ${m}m ${sec}s`; } tick(); countdownTimer=setInterval(tick,1000);}
+    function startCountdown(){ if(countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; } if(!cutoffAt){ dlCountdown.textContent='—'; return; } function tick(){ const ms=cutoffAt - new Date(); if(ms<=0){ isLocked=true; dlCountdown.textContent='LOCKED'; submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); const msg=document.getElementById('validationMsg');
+  const roleBad=(function(){try{const cfg=constraints||{};const counts=rc||{WK:0,BAT:0,AR:0,BOWL:0};const keys=['WK','BAT','AR','BOWL'];for(let i=0;i<keys.length;i++){const k=keys[i];const lim=cfg[k]||{min:0,max:99};const n=counts[k]||0;if(n<(lim.min||0)||n>(lim.max||99)) return true;}return false;}catch(_){return false;}})(); msg.className='helper error-text'; msg.textContent='Deadline passed for this match.'; clearInterval(countdownTimer); countdownTimer=null; return; } const s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; dlCountdown.textContent=`${h}h ${m}m ${sec}s`; } tick(); countdownTimer=setInterval(tick,1000);}
     let pointsMap = {}; let allPlayers=[]; let lastTeamPlayers=[]; let userBudget=100, userUsed=0, maxFromTeam=7; let constraints={WK:{min:1,max:2}, BAT:{min:3,max:6}, AR:{min:1,max:4}, BOWL:{min:3,max:6}}; let categoryCaps={maxForeign:4, minUncapped:1}; let playersReady=false, statsReady=false; let totalBudget=100; let selectedNames = new Set();
 
 // === Team tint + watermark helpers ===
@@ -623,9 +631,10 @@ function applyTeamTints(root){
       names.forEach(n=>{ const p=allPlayers.find(x=>x.name===n)||{name:n,team:'',role:'',imageUrl:'',price:0}; const {card,role}=makeCard(p); if(role==='WK') rowWK.appendChild(card); else if(role==='BAT') rowBAT.appendChild(card); else if(role==='AR') rowAR.appendChild(card); else if(role==='BOWL') rowBOWL.appendChild(card); else rowBAT.appendChild(card); });
       const msg=document.getElementById('validationMsg');
       const cap=capStatus(names); const withinCap=cap.overTeams.length===0; const overBudget=totalCostOf(names)>totalBudget; const cat=categoryCounts(names); const catForeignOk=(cat.FOREIGN||0)<=Number(categoryCaps.maxForeign||0); const catUncappedOk=(cat.UNCAPPED||0)>=Number(categoryCaps.minUncapped||0);
-      if(!withinCap){ msg.className='helper error-text'; msg.textContent='Team cap exceeded: ' + cap.overTeams.join(', ');} else if(overBudget){ msg.className='helper error-text'; msg.textContent=`Over budget! Reduce cost to ≤ ${totalBudget}.`; } else if(!catForeignOk){ msg.className='helper error-text'; msg.textContent=`Too many FOREIGN players. Max allowed = ${categoryCaps.maxForeign}.`; } else if(!catUncappedOk){ msg.className='helper error-text'; msg.textContent=`Not enough UNCAPPED players. Min required = ${categoryCaps.minUncapped}.`; } else { msg.className='helper ok-text'; msg.textContent='Looks good!'; }
+      if(!withinCap){ msg.className='helper error-text'; msg.textContent='Team cap exceeded: ' + cap.overTeams.join(', ');} else if(overBudget){ msg.className='helper error-text'; msg.textContent=`Over budget! Reduce cost to ≤ ${totalBudget}.`; } else if(!catForeignOk){ msg.className='helper error-text'; msg.textContent=`Too many FOREIGN players. Max allowed = ${categoryCaps.maxForeign}.`; } else if(!catUncappedOk){ msg.className='helper error-text'; msg.textContent=`Not enough UNCAPPED players. Min required = ${categoryCaps.minUncapped}.`; } else if(roleBad){ msg.className='helper error-text'; msg.textContent='Role rules not met. Adjust WK/BAT/AR/BOWL counts.'; } else { msg.className='helper ok-text'; msg.textContent='Looks good!'; }
       refreshRuleChips(); refreshCategoryChips();
       populateCvcOptions();
+  try{ const pc=document.querySelector('.preview-card'); const msgEl=document.getElementById('validationMsg'); if(pc&&msgEl){ pc.classList.toggle('preview-error', msgEl.classList.contains('error-text')); } }catch(_){ }
   try{ const pc=document.querySelector('.preview-card'); const msgEl=document.getElementById('validationMsg'); if(pc&&msgEl){ pc.classList.toggle('preview-error', msgEl.classList.contains('error-text')); } }catch(_){}
  applyTeamTints(document);
     }
