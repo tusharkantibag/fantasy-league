@@ -230,15 +230,24 @@ main.container .card.preview-card.preview-error{ background: linear-gradient(180
 main.container .card.preview-card.preview-error .preview-grid{ background: linear-gradient(180deg, rgba(211,47,47,.08), rgba(255,255,255,0)), #ffeef0 !important; border-color:#f6c9c9 !important; }
 
 
-/* Solid chip style for Logout in top-right */
-.logout-nav.btn{ background:#ff5c7a !important; color:#ffffff !important; border-radius:999px; height:32px; line-height:32px; padding:0 14px; box-shadow: var(--elev-sm); text-transform:uppercase; font-weight:800; letter-spacing:.3px; }
-.logout-nav.btn i.material-icons{ color:#ffffff !important; }
+/* Solid Logout chip (top-right) */
+.logout-nav.btn{ background:#ff5c7a!important; color:#fff!important; border-radius:999px; height:32px; line-height:32px; padding:0 14px; box-shadow:var(--elev-sm); text-transform:uppercase; font-weight:800; letter-spacing:.3px; }
+.logout-nav.btn i.material-icons{ color:#fff!important; }
 
-/* Inline rules under preview header */
-.rules-inline{ display:flex; flex-wrap:wrap; gap:.45rem .5rem; align-items:center; margin:.35rem 0 .5rem 0; }
-.rules-inline .section-label{ font-size:.85rem; color:var(--muted); font-weight:800; margin-right:.25rem; }
-.rules-inline #roleRulesRow, .rules-inline #catRulesRow{ display:flex !important; margin:0; }
-.rules-inline #catRulesRow{ margin-left:.5rem; }
+/* Inline rules row under preview header */
+.rules-inline{ display:flex; flex-wrap:wrap; gap:.35rem .4rem; align-items:center; margin:.15rem 0 .35rem 0; }
+.rules-inline .pill{ padding:.14rem .45rem; font-size:.85rem; }
+/* hide labels */
+.rules-inline .section-label{ display:none!important; }
+#roleRulesRow > .small-muted, #catRulesRow > .small-muted { display:none!important; }
+
+/* Compact filters block */
+.filters{ gap:.35rem; margin:.25rem 0 .6rem 0; }
+.filter-chip{ padding:.18rem .45rem; border-radius:14px; box-shadow:none; }
+.filter-chip i.material-icons{ font-size:18px; }
+.filter-chip select{ height:28px; line-height:28px; }
+.search-box .prefix{ top:6px; }
+.search-box input{ height:32px; }
 
 </style>
 </head>
@@ -389,7 +398,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             <div class="health" id="healthLine" style="display:none;"></div>
           </div>
           <div class="sticky-actions">
-            <a id="logoutBtnInner" class="btn-flat" style="color:#ff5c7a" style=\"display:none!important\"><i class="material-icons left">exit_to_app</i>Logout</a>
+            <a id="logoutBtnInner" class="btn-flat" style="color:#ff5c7a" style="display:none!important"><i class="material-icons left">exit_to_app</i>Logout</a>
             <a id="refreshPlayers" class="btn-flat waves-effect"><i class="material-icons left">refresh</i>Reload</a>
             <a id="submitBtn" class="btn waves-effect waves-light blue disabled"><i class="material-icons left">swap_horiz</i>Submit Transfers</a>
             <a id="buildFirstBtn" class="btn waves-effect green darken-1 disabled" style="display:none;"><i class="material-icons left">playlist_add_check</i>Build First XI</a>
@@ -496,23 +505,13 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 
 <script>
 
-// === Move Role/Category rules under preview header ===
+// Move Role/Category rules under preview header (no labels)
 (function(){
   try{
-    const host = document.getElementById('inlineRulesHost');
-    const rr = document.getElementById('roleRulesRow');
-    const cr = document.getElementById('catRulesRow');
-    if(host && rr && cr){
-      if(!document.getElementById('roleRulesLabel')){
-        const lbl=document.createElement('span'); lbl.id='roleRulesLabel'; lbl.className='section-label'; lbl.textContent='Roles:'; host.appendChild(lbl);
-      }
-      host.appendChild(rr);
-      if(!document.getElementById('catRulesLabel')){
-        const lbl2=document.createElement('span'); lbl2.id='catRulesLabel'; lbl2.className='section-label'; lbl2.style.marginLeft='.35rem'; lbl2.textContent='Category:'; host.appendChild(lbl2);
-      }
-      host.appendChild(cr);
-      rr.style.display='flex'; cr.style.display='flex';
-    }
+    const host=document.getElementById('inlineRulesHost');
+    const rr=document.getElementById('roleRulesRow');
+    const cr=document.getElementById('catRulesRow');
+    if(host && rr && cr){ host.appendChild(rr); host.appendChild(cr); rr.style.display='flex'; cr.style.display='flex'; }
   }catch(_){ }
 })();
 
