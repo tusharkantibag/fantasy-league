@@ -230,11 +230,15 @@ main.container .card.preview-card.preview-error{ background: linear-gradient(180
 main.container .card.preview-card.preview-error .preview-grid{ background: linear-gradient(180deg, rgba(211,47,47,.08), rgba(255,255,255,0)), #ffeef0 !important; border-color:#f6c9c9 !important; }
 
 
-/* --- Top-right Logout button styling --- */
-.logout-nav{ color:#ff5c7a !important; font-weight:800; text-transform:uppercase; letter-spacing:.3px; border-radius:999px; }
-.logout-nav:hover{ background:rgba(255,92,122,.10); }
-/* Space tabs from right controls */
-.nav-wrapper .right .btn-flat{ margin-left:.25rem; }
+/* Solid chip style for Logout in top-right */
+.logout-nav.btn{ background:#ff5c7a !important; color:#ffffff !important; border-radius:999px; height:32px; line-height:32px; padding:0 14px; box-shadow: var(--elev-sm); text-transform:uppercase; font-weight:800; letter-spacing:.3px; }
+.logout-nav.btn i.material-icons{ color:#ffffff !important; }
+
+/* Inline rules under preview header */
+.rules-inline{ display:flex; flex-wrap:wrap; gap:.45rem .5rem; align-items:center; margin:.35rem 0 .5rem 0; }
+.rules-inline .section-label{ font-size:.85rem; color:var(--muted); font-weight:800; margin-right:.25rem; }
+.rules-inline #roleRulesRow, .rules-inline #catRulesRow{ display:flex !important; margin:0; }
+.rules-inline #catRulesRow{ margin-left:.5rem; }
 
 </style>
 </head>
@@ -272,8 +276,8 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
       <ul class="right">
         
       
-      <li><a id="logoutLink" class="btn-flat logout-nav hide" href="#"><i class="material-icons left">exit_to_app</i>Logout</a></li>
-</ul>
+      <li><a id=\"logoutLink\" class=\"btn logout-nav hide\" href=\"#\"><i class=\"material-icons left\">exit_to_app</i>Logout</a></li>
+    </ul>
     </div>
   </nav>
 
@@ -412,7 +416,8 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
               <span class="pill" id="pillCost">Cost: 0</span>
             </div>
 
-            <div id="previewGrid" class="preview-grid">
+            <div id="inlineRulesHost" class="rules-inline"></div>
+      <div id="previewGrid" class="preview-grid">
               <div class="lineup-row" data-role="WK">
                 <div class="role-header role-WK"><i class="material-icons">sports_cricket</i>Wicketkeepers</div>
                 <div class="role-cards" id="row-WK"></div>
@@ -490,6 +495,27 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
+
+// === Move Role/Category rules under preview header ===
+(function(){
+  try{
+    const host = document.getElementById('inlineRulesHost');
+    const rr = document.getElementById('roleRulesRow');
+    const cr = document.getElementById('catRulesRow');
+    if(host && rr && cr){
+      if(!document.getElementById('roleRulesLabel')){
+        const lbl=document.createElement('span'); lbl.id='roleRulesLabel'; lbl.className='section-label'; lbl.textContent='Roles:'; host.appendChild(lbl);
+      }
+      host.appendChild(rr);
+      if(!document.getElementById('catRulesLabel')){
+        const lbl2=document.createElement('span'); lbl2.id='catRulesLabel'; lbl2.className='section-label'; lbl2.style.marginLeft='.35rem'; lbl2.textContent='Category:'; host.appendChild(lbl2);
+      }
+      host.appendChild(cr);
+      rr.style.display='flex'; cr.style.display='flex';
+    }
+  }catch(_){ }
+})();
+
 const API = 'https://script.google.com/macros/s/AKfycbzugX4eavkkGAsfa9jOZBpBZa5AwthcZwmnwigs0lRX5zyQBJv1I1Lv7FI0hbFQn-un/exec';
 
 // === Chip filler helpers (lighter filled bars) ===
