@@ -286,14 +286,28 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 /* keep category row unaffected */
 
 
-/* === FINAL override: compact 4 role chips on one line, no scrollbar === */
-#roleRulesRow{ flex-wrap: nowrap !important; gap: 4px !important; overflow: hidden !important; }
-#roleRulesRow .pill{ padding: .08rem .34rem !important; font-size: .74rem !important; border-radius: 10px !important; white-space: nowrap !important; }
+/* === Compact single-row Role Rules chips (no scrollbar) === */
+#roleRulesRow{
+  display: flex !important;
+  flex-wrap: nowrap !important;   /* keep on one line */
+  align-items: center;
+  gap: 4px !important;            /* tighter spacing between chips */
+  overflow: hidden !important;     /* no horizontal scrollbar */
+}
+#roleRulesRow .pill{
+  padding: .10rem .38rem !important;  /* compact padding */
+  font-size: .78rem !important;       /* smaller text so 4 fit in one row */
+  border-radius: 10px !important;
+  white-space: nowrap !important;     /* prevent internal wrap */
+  letter-spacing: -0.1px;             /* micro-condense */
+}
 #roleRulesRow .material-icons{ font-size: 15px !important; }
-/* Hide any residual scrollbar styling on WebKit just in case */
-#roleRulesRow::-webkit-scrollbar{ display:none; height:0; width:0; }
-/* Ensure dock doesn't force an overflow */
-#rulesDock{ overflow: visible !important; }
+
+/* When container is very narrow, scale chips slightly to still fit without scroll */
+@media (max-width: 600px){
+  #roleRulesRow{ gap: 3px !important; }
+  #roleRulesRow .pill{ font-size: .74rem !important; padding: .08rem .34rem !important; }
+}
 
 </style>
 </head>
@@ -461,6 +475,10 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             </div>
 
             <div style="display:flex; flex-wrap:wrap; gap:.5rem; margin:.25rem 0 .5rem 0;">
+              <span class="pill" id="pillWK">WK: 0</span>
+              <span class="pill" id="pillBAT">BAT: 0</span>
+              <span class="pill" id="pillAR">AR: 0</span>
+              <span class="pill" id="pillBOWL">BOWL: 0</span>
               <span class="pill" id="pillTeams">Teams: —</span>
               <span class="pill" id="pillCost">Cost: 0</span>
             </div>
