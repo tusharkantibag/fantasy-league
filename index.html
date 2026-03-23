@@ -153,6 +153,46 @@
     .btn.blue::after, .btn.green::after{ content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none; background: radial-gradient(120px 60px at var(--x,50%) 120%, rgba(124,77,255,.35), transparent 40%); transition: .25s ease; }
     .btn.blue:hover::after, .btn.green:hover::after{ --x: 50%; filter: saturate(1.2); }
 
+    /* --- Put the first three filter chips (teams, roles, categories) in one row --- */
+.filters{
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 8px;
+  align-items: center;
+}
+
+/* Make chips stretch to the allotted grid space */
+.filters .filter-chip{ width: 100%; }
+
+/* First three chips span 4 columns each (3 × 4 = 12) => single row */
+.filters .filter-chip:nth-of-type(-n+3){
+  grid-column: span 4;
+}
+
+/* Everything after the first three (budget slider, search) will flow to the next row */
+.filters .filter-chip:nth-of-type(n+4){
+  grid-column: 1 / -1;     /* take full width on the next row */
+}
+
+/* Ensure the search box sits nicely on its own row and fills width */
+.filters .input-field.search-box{
+  grid-column: 1 / -1;     /* full width row */
+  margin: 0;
+}
+
+/* Materialize selects sometimes shrink—force full width inside chips */
+.filters .filter-chip select{
+  width: 100%;
+}
+
+/* Responsive: on small screens let the first three wrap into two columns */
+@media (max-width: 600px){
+  .filters{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filters .filter-chip:nth-of-type(-n+3){ grid-column: span 1; } /* first three occupy two columns responsively */
+  .filters .filter-chip:nth-of-type(n+4){ grid-column: 1 / -1; }  /* budget/search remain full width */
+}
+``
+
 
 /* === Team color tints (chips + preview cards) === */
 :root{ --chip-text-dark:#0b1020; --chip-text-light:#ffffff; }
