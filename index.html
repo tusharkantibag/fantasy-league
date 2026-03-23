@@ -285,6 +285,12 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 #roleRulesRow .pill{ white-space: nowrap; }
 /* keep category row unaffected */
 
+
+/* === Compact single-row Role Rules chips (WK/BAT/AR/BOWL) === */
+#roleRulesRow{ display:flex !important; flex-wrap: nowrap !important; align-items:center; gap: 6px; overflow-x:auto; }
+#roleRulesRow .pill{ padding: .14rem .45rem !important; font-size: .85rem !important; border-radius: 12px !important; white-space: nowrap !important; }
+#roleRulesRow .material-icons{ font-size: 16px !important; }
+
 </style>
 </head>
 <body>
@@ -359,7 +365,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             </div>
 
             <div class="budget" id="budgetPanel" style="margin-bottom:.25rem; display:flex; gap:.5rem; flex-wrap:wrap;">
-              <span class="badge-inline"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b></span>
+              <span class="badge-inline"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b> transfers</span>
               <span class="badge-inline"><i class="material-icons">timelapse</i> Used: <b id="usedSoFar">0</b></span>
               <span class="badge-inline"><i class="material-icons">battery_std</i> Remaining: <b id="remaining">100</b></span>
               <span class="badge-inline"><i class="material-icons">flag</i> Budget: <b id="budget">100</b></span>
@@ -380,7 +386,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             </div>
 
             <div class="rule-row" id="roleRulesRow" style="display:none; gap:.5rem;  align-items:center;">
-              
+              <span class="small-muted" style="font-weight:800;">Role rules:</span>
               <span class="pill tooltipped" id="ruleWK" data-tooltip="">WK: —</span>
               <span class="pill tooltipped" id="ruleBAT" data-tooltip="">BAT: —</span>
               <span class="pill tooltipped" id="ruleAR" data-tooltip="">AR: —</span>
@@ -388,7 +394,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             </div>
 
             <div class="rule-row" id="catRulesRow" style="display:none; gap:.5rem; flex-wrap:wrap; align-items:center; margin-top:.25rem;">
-              
+              <span class="small-muted" style="font-weight:800;">Category rules:</span>
               <span class="pill tooltipped" id="ruleForeign" data-tooltip="">FOREIGN: —</span>
               <span class="pill tooltipped" id="ruleUncapped" data-tooltip="">UNCAPPED: —</span>
             </div>
