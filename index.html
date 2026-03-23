@@ -286,8 +286,14 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 /* keep category row unaffected */
 
 
-/* === Hide Role/Category labels robustly (even after DOM moves) === */
-#roleRulesRow > .small-muted, #catRulesRow > .small-muted{ display:none !important; }
+/* === FINAL override: compact 4 role chips on one line, no scrollbar === */
+#roleRulesRow{ flex-wrap: nowrap !important; gap: 4px !important; overflow: hidden !important; }
+#roleRulesRow .pill{ padding: .08rem .34rem !important; font-size: .74rem !important; border-radius: 10px !important; white-space: nowrap !important; }
+#roleRulesRow .material-icons{ font-size: 15px !important; }
+/* Hide any residual scrollbar styling on WebKit just in case */
+#roleRulesRow::-webkit-scrollbar{ display:none; height:0; width:0; }
+/* Ensure dock doesn't force an overflow */
+#rulesDock{ overflow: visible !important; }
 
 </style>
 </head>
@@ -384,7 +390,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             </div>
 
             <div class="rule-row" id="roleRulesRow" style="display:none; gap:.5rem;  align-items:center;">
-              
+              <span class="small-muted" style="font-weight:800;">Role rules:</span>
               <span class="pill tooltipped" id="ruleWK" data-tooltip="">WK: —</span>
               <span class="pill tooltipped" id="ruleBAT" data-tooltip="">BAT: —</span>
               <span class="pill tooltipped" id="ruleAR" data-tooltip="">AR: —</span>
@@ -392,7 +398,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             </div>
 
             <div class="rule-row" id="catRulesRow" style="display:none; gap:.5rem; flex-wrap:wrap; align-items:center; margin-top:.25rem;">
-              
+              <span class="small-muted" style="font-weight:800;">Category rules:</span>
               <span class="pill tooltipped" id="ruleForeign" data-tooltip="">FOREIGN: —</span>
               <span class="pill tooltipped" id="ruleUncapped" data-tooltip="">UNCAPPED: —</span>
             </div>
@@ -455,10 +461,6 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             </div>
 
             <div style="display:flex; flex-wrap:wrap; gap:.5rem; margin:.25rem 0 .5rem 0;">
-              <span class="pill" id="pillWK">WK: 0</span>
-              <span class="pill" id="pillBAT">BAT: 0</span>
-              <span class="pill" id="pillAR">AR: 0</span>
-              <span class="pill" id="pillBOWL">BOWL: 0</span>
               <span class="pill" id="pillTeams">Teams: —</span>
               <span class="pill" id="pillCost">Cost: 0</span>
             </div>
