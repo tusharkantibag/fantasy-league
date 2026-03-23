@@ -805,5 +805,43 @@ function applyTeamTints(root){
   <!-- === BEGIN ORIGINAL LOGIC (not included here to avoid duplication in this sample) === -->
   
   <!-- === END ORIGINAL LOGIC === -->
+  <script>
+/* === Combine Remaining + Budget into one chip (Remaining: X/Y) w/o style changes === */
+(function(){
+  function combineRemainBudget(){
+    const remEl = document.getElementById('remaining');
+    const budEl = document.getElementById('budget');
+    if(!remEl || !budEl) return;
+
+    // Read values currently rendered
+    const remain = remEl.textContent.trim();
+    const total  = budEl.textContent.trim();
+
+    // Replace the Remaining chip's contents with Remaining: X/Y
+    const remPill = remEl.closest('.badge-inline');
+    if (remPill) {
+      remPill.innerHTML =
+        `Remaining: <b id="remaining">${remain}</b>/<b class="rem-budget-total">${total}</b>`;
+    }
+
+    // Hide the separate Budget chip (only visually)
+    const budPill = budEl.closest('.badge-inline');
+    if (budPill) budPill.style.display = 'none';
+  }
+
+  // Run once when the page is ready
+  document.addEventListener('DOMContentLoaded', combineRemainBudget);
+
+  // Also run after every badge refresh in your app
+  const _update = window.updateBadges;
+  if (typeof _update === 'function') {
+    window.updateBadges = function(chg){
+      _update.call(this, chg);
+      try { combineRemainBudget(); } catch(_) {}
+    };
+  }
+})();
+</script>
+``
 </body>
 </html>
