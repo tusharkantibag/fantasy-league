@@ -229,26 +229,6 @@ main.container .card.preview-card{ background: linear-gradient(180deg, rgba(0,0,
 main.container .card.preview-card.preview-error{ background: linear-gradient(180deg, rgba(255,102,102,.12), rgba(255,204,204,.10)), #ffeaea !important; border-color:#f2b3b3 !important; box-shadow:0 6px 18px rgba(211,47,47,.18) !important; }
 main.container .card.preview-card.preview-error .preview-grid{ background: linear-gradient(180deg, rgba(211,47,47,.08), rgba(255,255,255,0)), #ffeef0 !important; border-color:#f6c9c9 !important; }
 
-
-/* Solid Logout chip (top-right) */
-.logout-nav.btn{ background:#ff5c7a!important; color:#fff!important; border-radius:999px; height:32px; line-height:32px; padding:0 14px; box-shadow:var(--elev-sm); text-transform:uppercase; font-weight:800; letter-spacing:.3px; }
-.logout-nav.btn i.material-icons{ color:#fff!important; }
-
-/* Inline rules row under preview header */
-.rules-inline{ display:flex; flex-wrap:wrap; gap:.35rem .4rem; align-items:center; margin:.15rem 0 .35rem 0; }
-.rules-inline .pill{ padding:.14rem .45rem; font-size:.85rem; }
-/* hide labels */
-.rules-inline .section-label{ display:none!important; }
-#roleRulesRow > .small-muted, #catRulesRow > .small-muted { display:none!important; }
-
-/* Compact filters block */
-.filters{ gap:.35rem; margin:.25rem 0 .6rem 0; }
-.filter-chip{ padding:.18rem .45rem; border-radius:14px; box-shadow:none; }
-.filter-chip i.material-icons{ font-size:18px; }
-.filter-chip select{ height:28px; line-height:28px; }
-.search-box .prefix{ top:6px; }
-.search-box input{ height:32px; }
-
 </style>
 </head>
 <body>
@@ -284,9 +264,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
       <a href="#submit" class="brand-logo"><i class="material-icons left">emoji_events</i> Sports Fever IPL Fantasy 2026</a>
       <ul class="right">
         
-      
-      <li><a id=\"logoutLink\" class=\"btn logout-nav hide\" href=\"#\"><i class=\"material-icons left\">exit_to_app</i>Logout</a></li>
-    </ul>
+      </ul>
     </div>
   </nav>
 
@@ -398,7 +376,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             <div class="health" id="healthLine" style="display:none;"></div>
           </div>
           <div class="sticky-actions">
-            <a id="logoutBtnInner" class="btn-flat" style="color:#ff5c7a" style="display:none!important"><i class="material-icons left">exit_to_app</i>Logout</a>
+            <a id="logoutBtnInner" class="btn-flat" style="color:#ff5c7a"><i class="material-icons left">exit_to_app</i>Logout</a>
             <a id="refreshPlayers" class="btn-flat waves-effect"><i class="material-icons left">refresh</i>Reload</a>
             <a id="submitBtn" class="btn waves-effect waves-light blue disabled"><i class="material-icons left">swap_horiz</i>Submit Transfers</a>
             <a id="buildFirstBtn" class="btn waves-effect green darken-1 disabled" style="display:none;"><i class="material-icons left">playlist_add_check</i>Build First XI</a>
@@ -425,8 +403,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
               <span class="pill" id="pillCost">Cost: 0</span>
             </div>
 
-            <div id="inlineRulesHost" class="rules-inline"></div>
-      <div id="previewGrid" class="preview-grid">
+            <div id="previewGrid" class="preview-grid">
               <div class="lineup-row" data-role="WK">
                 <div class="role-header role-WK"><i class="material-icons">sports_cricket</i>Wicketkeepers</div>
                 <div class="role-cards" id="row-WK"></div>
@@ -504,17 +481,6 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
-
-// Move Role/Category rules under preview header (no labels)
-(function(){
-  try{
-    const host=document.getElementById('inlineRulesHost');
-    const rr=document.getElementById('roleRulesRow');
-    const cr=document.getElementById('catRulesRow');
-    if(host && rr && cr){ host.appendChild(rr); host.appendChild(cr); rr.style.display='flex'; cr.style.display='flex'; }
-  }catch(_){ }
-})();
-
 const API = 'https://script.google.com/macros/s/AKfycbzugX4eavkkGAsfa9jOZBpBZa5AwthcZwmnwigs0lRX5zyQBJv1I1Lv7FI0hbFQn-un/exec';
 
 // === Chip filler helpers (lighter filled bars) ===
