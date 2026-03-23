@@ -279,6 +279,12 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
   #budgetPanel{ flex-wrap: wrap; }
 } 
     
+
+/* === Force Today | Used | Remaining(X/Y) to one row (override inline) === */
+#budgetPanel{ flex-wrap: nowrap !important; gap: 8px !important; align-items: center; }
+#budgetPanel .badge-inline{ white-space: nowrap; flex: 0 1 auto; }
+@media (max-width: 380px){ #budgetPanel{ flex-wrap: wrap !important; } }
+
 </style>
 </head>
 <body>
@@ -352,7 +358,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
               </span>
             </div>
 
-            <div class="budget" id="budgetPanel" style="margin-bottom:.25rem; display:flex; gap:.5rem; flex-wrap:wrap;">
+            <div class="budget" id="budgetPanel" style="margin-bottom:.25rem; display:flex; gap:.5rem; ">
               <span class="badge-inline"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b> transfers</span>
               <span class="badge-inline"><i class="material-icons">timelapse</i> Used: <b id="usedSoFar">0</b></span>
               <span class="badge-inline"><i class="material-icons">battery_std</i> Remaining: <b id="remaining">100</b></span>
