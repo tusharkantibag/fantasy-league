@@ -279,12 +279,6 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
   #budgetPanel{ flex-wrap: wrap; }
 } 
     
-
-/* === Force 4 role rule chips into a single row === */
-#roleRulesRow{ flex-wrap: nowrap !important; overflow-x: auto; gap: 8px; }
-#roleRulesRow .pill{ white-space: nowrap; }
-/* keep category row unaffected */
-
 </style>
 </head>
 <body>
@@ -379,19 +373,9 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
               <span class="pill" id="pillDrops"><i class="material-icons">remove</i> Drops: 0</span>
             </div>
 
-            <div class="rule-row" id="roleRulesRow" style="display:none; gap:.5rem;  align-items:center;">
-              <span class="small-muted" style="font-weight:800;">Role rules:</span>
-              <span class="pill tooltipped" id="ruleWK" data-tooltip="">WK: —</span>
-              <span class="pill tooltipped" id="ruleBAT" data-tooltip="">BAT: —</span>
-              <span class="pill tooltipped" id="ruleAR" data-tooltip="">AR: —</span>
-              <span class="pill tooltipped" id="ruleBOWL" data-tooltip="">BOWL: —</span>
-            </div>
+            
 
-            <div class="rule-row" id="catRulesRow" style="display:none; gap:.5rem; flex-wrap:wrap; align-items:center; margin-top:.25rem;">
-              <span class="small-muted" style="font-weight:800;">Category rules:</span>
-              <span class="pill tooltipped" id="ruleForeign" data-tooltip="">FOREIGN: —</span>
-              <span class="pill tooltipped" id="ruleUncapped" data-tooltip="">UNCAPPED: —</span>
-            </div>
+            
 
             <!-- Filters -->
             <div class="filters">
@@ -450,14 +434,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
               </div>
             </div>
 
-            <div style="display:flex; flex-wrap:wrap; gap:.5rem; margin:.25rem 0 .5rem 0;">
-              <span class="pill" id="pillWK">WK: 0</span>
-              <span class="pill" id="pillBAT">BAT: 0</span>
-              <span class="pill" id="pillAR">AR: 0</span>
-              <span class="pill" id="pillBOWL">BOWL: 0</span>
-              <span class="pill" id="pillTeams">Teams: —</span>
-              <span class="pill" id="pillCost">Cost: 0</span>
-            </div>
+            
   <div id="rulesDock" style="display:flex;flex-wrap:wrap;gap:.4rem .5rem;margin:-.15rem 0 .4rem 0;"></div>
 
 
