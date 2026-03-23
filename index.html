@@ -279,6 +279,12 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
   #budgetPanel{ flex-wrap: wrap; }
 } 
     
+
+/* === Force 4 role rule chips into a single row === */
+#roleRulesRow{ flex-wrap: nowrap !important; overflow-x: auto; gap: 8px; }
+#roleRulesRow .pill{ white-space: nowrap; }
+/* keep category row unaffected */
+
 </style>
 </head>
 <body>
@@ -353,7 +359,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             </div>
 
             <div class="budget" id="budgetPanel" style="margin-bottom:.25rem; display:flex; gap:.5rem; flex-wrap:wrap;">
-              <span class="badge-inline"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b></span>
+              <span class="badge-inline"><i class="material-icons">sync_alt</i> Today: <b id="todayChanges">0</b> transfers</span>
               <span class="badge-inline"><i class="material-icons">timelapse</i> Used: <b id="usedSoFar">0</b></span>
               <span class="badge-inline"><i class="material-icons">battery_std</i> Remaining: <b id="remaining">100</b></span>
               <span class="badge-inline"><i class="material-icons">flag</i> Budget: <b id="budget">100</b></span>
@@ -373,7 +379,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
               <span class="pill" id="pillDrops"><i class="material-icons">remove</i> Drops: 0</span>
             </div>
 
-            <div class="rule-row" id="roleRulesRow" style="display:none; gap:.5rem; flex-wrap:wrap; align-items:center;">
+            <div class="rule-row" id="roleRulesRow" style="display:none; gap:.5rem;  align-items:center;">
               <span class="small-muted" style="font-weight:800;">Role rules:</span>
               <span class="pill tooltipped" id="ruleWK" data-tooltip="">WK: —</span>
               <span class="pill tooltipped" id="ruleBAT" data-tooltip="">BAT: —</span>
