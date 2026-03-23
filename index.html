@@ -229,6 +229,38 @@ main.container .card.preview-card{ background: linear-gradient(180deg, rgba(0,0,
 main.container .card.preview-card.preview-error{ background: linear-gradient(180deg, rgba(255,102,102,.12), rgba(255,204,204,.10)), #ffeaea !important; border-color:#f2b3b3 !important; box-shadow:0 6px 18px rgba(211,47,47,.18) !important; }
 main.container .card.preview-card.preview-error .preview-grid{ background: linear-gradient(180deg, rgba(211,47,47,.08), rgba(255,255,255,0)), #ffeef0 !important; border-color:#f6c9c9 !important; }
 
+
+/* ===== Compact 3-in-a-row filters (applied by Copilot, 2026-03-23) ===== */
+.filters{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-items: center;
+  margin: .25rem 0 .5rem;
+}
+.filters .filter-chip{ width: 100%; padding: 6px 10px; border-radius: 12px; box-shadow: var(--elev-sm); }
+.filters .filter-chip .material-icons{ font-size: 18px; line-height: 1; }
+.filters .filter-chip select{ width: 100%; border: none; background: transparent; outline: none; font-size: 0.92rem; height: 28px; padding: 0; margin: 0; }
+.select-wrapper input.select-dropdown{ height: 28px !important; line-height: 28px !important; font-size: 0.92rem !important; margin: 0 !important; }
+/* Only first three chips remain on top row; rest (budget/search) flow next rows */
+.filters .filter-chip:nth-of-type(n+4){ grid-column: 1 / -1; }
+/* Budget compacting */
+.filters .filter-chip .budget-chip-wrap{ display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 6px; }
+#budgetMax{ height: 4px; }
+#budgetMax::-webkit-slider-thumb{ height: 14px; width: 14px; }
+/* Search full-width and compact */
+.filters .input-field.search-box{ grid-column: 1 / -1; margin: 2px 0 0 0; }
+.filters .input-field.search-box i.material-icons{ font-size: 18px; }
+.filters .input-field.search-box input{ height: 34px; font-size: 0.95rem; }
+/* Tighten player list spacing slightly */
+.player-list{ gap: 10px; }
+/* Responsive: stack neatly on small screens */
+@media (max-width: 600px){
+  .filters{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filters .filter-chip:nth-of-type(-n+3){ grid-column: span 1; }
+  .filters .filter-chip:nth-of-type(n+4){ grid-column: 1 / -1; }
+}
+
 </style>
 </head>
 <body>
