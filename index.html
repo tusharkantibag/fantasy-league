@@ -522,13 +522,18 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 
 
             <div id="previewGrid" class="preview-grid">
-              <div id="cvcPanel" class="cvc-panel">
-              <div class="cvc-row">
-                <div class="input-field">
-                  <select id="captainSelect"></select>
-                  <label>Captain (C)</label>
-                </div>
- <div class="lineup-row" data-role="WK">
+              
+<div id='cvcPanel' class='cvc-panel' style='display:flex;gap:12px;margin:8px 0;flex-wrap:wrap;'>
+ <div class='badge-inline' style='background:#eaf7ea;border:1px solid #86c48a;font-weight:700;display:flex;align-items:center;gap:6px;'>
+  C:
+  <select id='captainSelect' style='border:none;background:transparent;outline:none;font-weight:700;'></select>
+ </div>
+ <div class='badge-inline' style='background:#eaf7ea;border:1px solid #86c48a;font-weight:700;display:flex;align-items:center;gap:6px;'>
+  VC:
+  <select id='viceCaptainSelect' style='border:none;background:transparent;outline:none;font-weight:700;'></select>
+ </div>
+</div>
+<div class="lineup-row" data-role="WK">
                 <div class="role-header role-WK"><i class="material-icons">sports_cricket</i>Wicketkeepers</div>
                 <div class="role-cards" id="row-WK"></div>
               </div>
@@ -556,7 +561,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
               <div class="cvc-hint" id="cvcHint">Pick a Captain & Vice‑Captain. They must be different.</div>
             </div>
 
-            
+            <div id="validationMsg" class="helper" style="margin-top:.6rem;"></div>
           </div></div>
         </div>
       </div>
