@@ -366,6 +366,46 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
     font-weight: bold !important;
 }
 
+/* ===== LEADERBOARD FONT UPGRADE ===== */
+
+/* Table header */
+#leaderboard table thead th {
+    font-size: 1.15rem !important;   /* bigger header text */
+    font-weight: 800 !important;
+    letter-spacing: 0.3px;
+}
+
+/* Table body cells */
+#leaderboard table tbody td {
+    font-size: 1.08rem !important;   /* bigger rows */
+    font-weight: 600 !important;
+    padding: 14px 12px !important;
+}
+
+/* Rank number column */
+#leaderboard table tbody td:first-child {
+    font-size: 1.22rem !important;   /* make ranks strongest */
+    font-weight: 800 !important;
+}
+
+/* Username column */
+#leaderboard table tbody td:nth-child(2) {
+    font-size: 1.12rem !important;
+    font-weight: 700 !important;
+}
+
+/* Points badge */
+#leaderboard .badge {
+    font-size: 1.05rem !important;   /* larger points */
+    padding: 6px 10px !important;
+    border-radius: 10px !important;
+}
+
+/* Optional: add subtle spacing for readability */
+#leaderboard table.striped tbody tr {
+    height: 54px !important;
+}
+
 </style>
 </head>
 <body>
