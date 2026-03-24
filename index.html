@@ -246,7 +246,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 .filters .filter-chip:nth-of-type(n+4){ grid-column: 1 / -1; }
 /* Budget compacting */
 .filters .filter-chip .budget-chip-wrap{ display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 6px; }
-#budgetMax{ height: 4px; }
+#budgetMax{height:4px;width:260px!important;}
 #budgetMax::-webkit-slider-thumb{ height: 14px; width: 14px; }
 /* Search full-width and compact */
 .filters .input-field.search-box{ grid-column: 1 / -1; margin: 2px 0 0 0; }
@@ -313,7 +313,15 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 .sort-chip-single{display:inline-flex;align-items:center;padding:4px 8px!important;border-radius:12px;gap:6px;}
 .sort-chip-single .material-icons{font-size:20px!important;cursor:pointer;opacity:.75;transition:.15s;}
 .sort-chip-single .material-icons.active{background:var(--accent);color:white!important;border-radius:50%;padding:2px;transform:scale(1.2);box-shadow:0 0 6px rgba(0,0,0,0.25);} 
-.sort-label{font-size:.85rem;font-weight:600;color:var(--muted);min-width:60px;}
+.sort-label{font-size:.75rem;font-weight:600;color:var(--muted);min-width:30px;max-width:40px;overflow:hidden;white-space:nowrap;}
+
+
+.sort-toggle{cursor:pointer;transition:.2s;font-size:20px!important;opacity:.85;}
+.sort-toggle.mode-NONE{background:transparent;color:inherit;padding:0;}
+.sort-toggle.mode-PRICE_ASC{background:#4caf50!important;color:white;padding:2px;border-radius:50%;}
+.sort-toggle.mode-PRICE_DESC{background:#d32f2f!important;color:white;padding:2px;border-radius:50%;}
+.sort-toggle.mode-POINTS_ASC{background:#1976d2!important;color:white;padding:2px;border-radius:50%;}
+.sort-toggle.mode-POINTS_DESC{background:#6a1b9a!important;color:white;padding:2px;border-radius:50%;}
 
 </style>
 </head>
@@ -448,7 +456,8 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
               <span class="filter-chip">
                 <i class="material-icons">attach_money</i>
                 <span class="budget-chip-wrap">
-                  <input id="budgetMax" type="range" min="0" max="100" value="100" step="0.5"> <label><b id="budgetMaxLabel">—</b></label>
+                  <label>Budget ≤ <b id="budgetMaxLabel">—</b></label>
+                  <input id="budgetMax" type="range" min="0" max="100" value="100" step="0.5">
                 </span>
 <span class="filter-chip sort-chip-single">
  <i class="material-icons sort-toggle">sort</i> <span class="sort-label">None</span></span>
@@ -937,6 +946,12 @@ window.sortMode='NONE';
 const sBtn=document.querySelector('.sort-toggle');
 const sLbl=document.querySelector('.sort-label');
 if(sBtn){sBtn.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];const map={'NONE':'None','PRICE_ASC':'Price ↑','PRICE_DESC':'Price ↓','POINTS_ASC':'Points ↑','POINTS_DESC':'Points ↓'};sLbl.textContent=map[window.sortMode];if(window.sortMode==='NONE'){sBtn.classList.remove('active');}else{sBtn.classList.add('active');}renderPlayers();};}
+
+window.sortMode='NONE';
+const st=document.querySelector('.sort-toggle');
+const sl=document.querySelector('.sort-label');
+function updateSort(){const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'Price ↓',POINTS_ASC:'Points ↑',POINTS_DESC:'Points ↓'};sl.textContent=map[window.sortMode];st.className='material-icons sort-toggle mode-'+window.sortMode;}
+if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];updateSort();renderPlayers();}}
 </script>
 ``
 </body>
