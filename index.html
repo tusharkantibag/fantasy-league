@@ -367,6 +367,13 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 }
 
 </style>
+
+<style>
+@keyframes fifaReveal { from {opacity:0; transform:translateY(12px);} to {opacity:1; transform:translateY(0);} }
+#lbTable tr { animation: fifaReveal 0.4s ease forwards; }
+#lbTable tr:nth-child(n) { animation-delay: calc(0.03s * var(--i)); }
+</style>
+
 </head>
 <body>
   <!-- Login Mask -->
@@ -589,12 +596,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
     <section id="leaderboard" class="col s12">
       <div class="card"><div class="card-content">
         <span class="card-title">Leaderboard <a id="refreshLb" class="btn-flat right"><i class="material-icons">autorenew</i></a></span>
-        
-<div id='moversPanel' class='card' style='margin-top:16px;padding:16px;'>
-<h6 style='font-weight:700;margin-bottom:12px;'>Top Movers / Gainers</h6>
-<ul id='moversList' style='list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;'></ul>
-</div>
-<table class="striped highlight responsive-table"><thead><tr><th>#</th><th>User</th><th>Points</th></tr></thead><tbody id="lbTable"><tr><td colspan="3">Loading…</td></tr></tbody></table>
+        <table class="striped highlight responsive-table"><thead><tr><th>#</th><th>User</th><th>Points</th></tr></thead><tbody id="lbTable"><tr><td colspan="3">Loading…</td></tr></tbody></table>
       </div></div>
     </section>
 
@@ -1007,14 +1009,11 @@ if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC'
 ``
 
 <script>
-function loadMovers(){
- const list=document.getElementById('moversList'); if(!list) return;
- const rows=[...document.querySelectorAll('#lbTable tr')].slice(0,5);
- list.innerHTML='';
- rows.forEach(r=>{const name=r.children[1]?.textContent.trim(); const pts=parseInt(r.children[2]?.innerText)||0; const li=document.createElement('li'); li.textContent=`🔥 ${name} — ${pts} pts`; list.appendChild(li);});
-}
-const oldLb=window.loadLeaderboard;
-window.loadLeaderboard=async()=>{await oldLb(); if(window.enhanceLeaderboard) enhanceLeaderboard(); loadMovers();};
+document.addEventListener('DOMContentLoaded',()=>{
+ document.querySelectorAll('#lbTable tr').forEach((tr,i)=>{
+  tr.style.setProperty('--i', i);
+ });
+});
 </script>
 
 </body>
