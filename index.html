@@ -341,18 +341,6 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
     color: var(--muted);
     min-width: 60px;
 }
-
-.filter-split-left,.filter-split-right{background:#fff;border:1px solid #e1e7f4;border-radius:12px;padding:6px 10px;display:flex;align-items:center;gap:8px;box-shadow:var(--elev-sm);} 
-.filter-split-left{flex:1;} .filter-split-right{width:max-content;} 
-.budget-slider-row{display:flex;align-items:center;gap:6px;width:100%;} 
-.budget-slider-row input{width:100%!important;} 
-.sort-chip-single{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:12px;} 
-.sort-label{font-size:.75rem;font-weight:600;min-width:30px;max-width:40px;overflow:hidden;white-space:nowrap;} 
-.mode-PRICE_ASC{background:#4caf50!important;color:white;border-radius:50%;padding:2px;} 
-.mode-PRICE_DESC{background:#d32f2f!important;color:white;border-radius:50%;padding:2px;} 
-.mode-POINTS_ASC{background:#1976d2!important;color:white;border-radius:50%;padding:2px;} 
-.mode-POINTS_DESC{background:#6a1b9a!important;color:white;border-radius:50%;padding:2px;} 
-
 </style>
 </head>
 <body>
@@ -483,22 +471,12 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
                   <option value="FOREIGN">Foreign</option>
                 </select>
               </span>
-              
-<div class='filter-split-left'>
-  <i class='material-icons'>attach_money</i>
-  <span class='budget-title'>Budget</span>
-  <div class='budget-slider-row'>
-    <input id='budgetMax' type='range' min='0' max='100' value='100' step='0.5'>
-    <span id='budgetMaxLabel' class='budget-value'>—</span>
-  </div>
-</div>
-<div class='filter-split-right'>
-  <span class='sort-chip-single'>
-    <i class='material-icons sort-toggle mode-NONE'>sort</i>
-    <span class='sort-label'>None</span>
-  </span>
-</div>
-
+              <span class="filter-chip">
+                <i class="material-icons">attach_money</i>
+                <span class="budget-chip-wrap">
+                  <label>Budget ≤ <b id="budgetMaxLabel">—</b></label>
+                  <input id="budgetMax" type="range" min="0" max="100" value="100" step="0.5">
+                </span>
               </span>
               <span class="filter-chip sort-chip-single">
     <i class="material-icons sort-toggle" data-mode="NONE">sort</i>
