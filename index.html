@@ -723,7 +723,9 @@ function applyTeamTints(root){
       const rc=roleCounts(names);
       pillWK.textContent=`WK: ${rc.WK}`; pillBAT.textContent=`BAT: ${rc.BAT}`; pillAR.textContent=`AR: ${rc.AR}`; pillBOWL.textContent=`BOWL: ${rc.BOWL}`;
       const tc=teamCountsOf(names); const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—'; pillTeams.textContent=`Teams: ${teamsStr}`; pillCost.textContent=`Cost: ${totalCostOf(names)}`;
-    if(totalCostOf(names) <= totalBudget){ pillCost.classList.add('ok'); pillCost.classList.remove('bad'); } else { pillCost.classList.add('bad'); pillCost.classList.remove('ok'); }
+    const costVal = totalCostOf(names);
+    pillCost.classList.remove('ok','bad');
+    if(costVal <= totalBudget){ pillCost.classList.add('ok'); } else { pillCost.classList.add('bad'); }
       const rowWK=document.getElementById('row-WK'); const rowBAT=document.getElementById('row-BAT'); const rowAR=document.getElementById('row-AR'); const rowBOWL=document.getElementById('row-BOWL');
       rowWK.innerHTML=''; rowBAT.innerHTML=''; rowAR.innerHTML=''; rowBOWL.innerHTML='';
       function makeCard(p){ const role=formatRole(p.role||'');
