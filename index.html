@@ -459,6 +459,26 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
                   <label>Budget ≤ <b id="budgetMaxLabel">—</b></label>
                   <input id="budgetMax" type="range" min="5.0" max="100" value="100" step="0.5">
                 </span>
+
+                <!-- Budget Block -->
+<div class="filter-split-left">
+  <i class="material-icons">attach_money</i>
+  <span class="budget-title">Budget</span>
+
+  <div class="budget-slider-row">
+      <input id="budgetMax" type="range" min="0" max="100" value="100" step="0.5">
+      <span id="budgetMaxLabel" class="budget-value">—</span>
+  </div>
+</div>
+
+<!-- Sort Block -->
+<div class="filter-split-right">
+  <span class="sort-chip-single">
+      <i class="material-icons sort-toggle mode-NONE">sort</i>
+      <span class="sort-label">None</span>
+  </span>
+</div>
+                
 <span class="filter-chip sort-chip-single">
  <i class="material-icons sort-toggle">sort</i> <span class="sort-label">None</span></span>
 
