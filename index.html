@@ -309,12 +309,10 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
   #roleRulesRow .pill{ font-size: .74rem !important; padding: .08rem .34rem !important; }
 }
 
-
-/* === Sort buttons (compact icon style) === */
-.sort-chip{display:inline-flex;gap:4px;padding:4px 6px!important;border-radius:12px;align-items:center}
-.sort-chip .material-icons{font-size:20px!important;cursor:pointer;opacity:.65;transition:.15s ease}
-.sort-chip .material-icons:hover{opacity:1;transform:scale(1.15)}
-.sort-chip .material-icons.active{opacity:1}
+/* sort chip styling */
+.sort-chip{display:inline-flex;gap:4px;padding:4px 6px!important;border-radius:12px;align-items:center;}
+.sort-chip .material-icons{font-size:20px!important;cursor:pointer;opacity:.65;transition:.15s;}
+.sort-chip .material-icons:hover{opacity:1;transform:scale(1.15);}
 
 </style>
 </head>
@@ -453,7 +451,13 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
                   <input id="budgetMax" type="range" min="0" max="100" value="100" step="0.5">
                 </span>
               </span>
-              <div class="input-field search-box" style="margin:0;">
+              <span class="filter-chip sort-chip">
+  <i class="material-icons sort-btn" data-sort="PRICE_ASC">arrow_upward</i>
+  <i class="material-icons sort-btn" data-sort="PRICE_DESC">arrow_downward</i>
+  <i class="material-icons sort-btn" data-sort="POINTS_ASC">trending_up</i>
+  <i class="material-icons sort-btn" data-sort="POINTS_DESC">trending_down</i>
+</span>
+<div class="input-field search-box" style="margin:0;">
                 <i class="material-icons prefix">search</i>
                 <input id="searchInput" type="text" placeholder="Search player..." />
               </div>
@@ -566,11 +570,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
   </main>
 
   <!-- Same JS logic/IDs as your file will be included below by pasting your original scripts. To keep this sample self-contained, we only add small theme helpers. -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js">
-// === Button-style sorting ===
-window.sortMode = 'NONE';
-
-</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
@@ -746,7 +746,9 @@ function applyTeamTints(root){
     function catIcon(raw){ const c=normalizeCategory(raw); if(c==='FOREIGN') return '🌍'; if(c==='UNCAPPED') return '🧒'; if(c==='CAPPED') return '🛡️'; return ''; }
     function renderPlayers(){ const t=(teamFilter.value||'ALL').toUpperCase(); const r=(roleFilter.value||'ALL').toUpperCase(); const q=(searchInput.value||'').trim().toLowerCase(); const priceCap=Number(budgetMaxEl.value || Infinity); const c=(catFilter.value||'ALL').toUpperCase();
       const filtered=allPlayers.filter(p=>{ const tOk=(t==='ALL')||String(p.team||'').toUpperCase()===t; const rOk=(r==='ALL')||(formatRole(p.role||'')===r); const qOk=!q||String(p.name||'').toLowerCase().includes(q); const priceOk=Number(p.price||0)<=priceCap; const catRaw=normalizeCategory(p.category ?? p.Category ?? ''); const cOk=(c==='ALL')||(catRaw===c); return tOk && rOk && cOk && qOk && priceOk; });
-      playersList.innerHTML='';
+      // apply sorting
+if(window.sortMode){filtered.sort((a,b)=>{const pA=Number(a.price||0),pB=Number(b.price||0);const ptA=Number(pointsMap[a.name]||0),ptB=Number(pointsMap[b.name]||0);switch(window.sortMode){case "PRICE_ASC":return pA-pB;case "PRICE_DESC":return pB-pA;case "POINTS_ASC":return ptA-ptB;case "POINTS_DESC":return ptB-ptA;}return 0;});}
+playersList.innerHTML='';
       filtered.forEach(p=>{ const card=document.createElement('div'); card.className='player-card'; const role=formatRole(p.role||''); if(role) card.classList.add('accent-'+role);
         const img=document.createElement(p.imageUrl?'img':'i'); if(p.imageUrl){ img.className='avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); } } else { img.className='material-icons grey-text'; img.textContent='person'; }
         const label=document.createElement('label'); label.className='player-check'; label.innerHTML='<input type=\"checkbox\"/><span></span>'; const cb=label.querySelector('input'); cb.value=p.name; cb.checked=selectedNames.has(p.name); cb.addEventListener('change', ()=>{ if(cb.checked){ selectedNames.add(p.name);} else { selectedNames.delete(p.name);} updateSelectionUI(); });
@@ -933,21 +935,7 @@ function applyTeamTints(root){
     };
   }
 })();
-</script>
+document.querySelectorAll(".sort-btn").forEach(btn=>{btn.addEventListener("click", ()=>{ window.sortMode=btn.dataset.sort; renderPlayers(); });});</script>
 ``
-
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  document.querySelectorAll('.sort-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      window.sortMode = btn.dataset.sort;
-      if (typeof renderPlayers === 'function') renderPlayers();
-    });
-  });
-});
-</script>
-
 </body>
 </html>
