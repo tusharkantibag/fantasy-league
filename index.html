@@ -310,17 +310,20 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 }
 
 
-/* enhanced color-coded sort chip */
-.sort-chip-single{display:inline-flex;align-items:center;padding:4px 6px!important;border-radius:12px;gap:6px;max-width:120px;}
-.sort-chip-single .material-icons{font-size:20px!important;cursor:pointer;opacity:.75;transition:.2s;}
-.sort-chip-single .material-icons.active{color:white!important;padding:2px;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.25);} 
-.sort-chip-single .material-icons.mode-PRICE_ASC{background:#4caf50!important;} 
-.sort-chip-single .material-icons.mode-PRICE_DESC{background:#d32f2f!important;} 
-.sort-chip-single .material-icons.mode-POINTS_ASC{background:#1976d2!important;} 
-.sort-chip-single .material-icons.mode-POINTS_DESC{background:#6a1b9a!important;} 
-.sort-label{font-size:.85rem;font-weight:600;color:var(--muted);}
-/* Budget bar wider */
-#budgetMax{width:240px!important;}
+.sort-chip-single{display:inline-flex;align-items:center;padding:4px 8px!important;border-radius:12px;gap:6px;}
+.sort-chip-single .material-icons{font-size:20px!important;cursor:pointer;opacity:.75;transition:.15s;}
+.sort-chip-single .material-icons.active{background:var(--accent);color:white!important;border-radius:50%;padding:2px;transform:scale(1.2);box-shadow:0 0 6px rgba(0,0,0,0.25);} 
+.sort-label{font-size:.85rem;font-weight:600;color:var(--muted);min-width:60px;}
+
+
+.sort-chip-single{display:inline-flex;align-items:center;padding:4px 6px!important;border-radius:12px;gap:4px;}
+.sort-toggle{cursor:pointer;transition:.2s;font-size:20px!important;opacity:.8;}
+.sort-toggle.mode-PRICE_ASC{background:#4caf50;color:white;border-radius:50%;padding:2px;}
+.sort-toggle.mode-PRICE_DESC{background:#d32f2f;color:white;border-radius:50%;padding:2px;}
+.sort-toggle.mode-POINTS_ASC{background:#1976d2;color:white;border-radius:50%;padding:2px;}
+.sort-toggle.mode-POINTS_DESC{background:#6a1b9a;color:white;border-radius:50%;padding:2px;}
+.sort-label{font-size:.82rem;font-weight:600;color:var(--muted);}
+#budgetMax{width:260px!important;}
 
 </style>
 </head>
@@ -458,6 +461,10 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
                   <label>Budget ≤ <b id="budgetMaxLabel">—</b></label>
                   <input id="budgetMax" type="range" min="0" max="100" value="100" step="0.5">
                 </span>
+<span class="filter-chip sort-chip-single"><i class="material-icons sort-toggle mode-NONE">sort</i><span class="sort-label">None</span></span>
+<span class="filter-chip sort-chip-single">
+ <i class="material-icons sort-toggle">sort</i> <span class="sort-label">None</span></span>
+
               </span>
               <div class="input-field search-box" style="margin:0;">
                 <i class="material-icons prefix">search</i>
@@ -748,7 +755,9 @@ function applyTeamTints(root){
     function catIcon(raw){ const c=normalizeCategory(raw); if(c==='FOREIGN') return '🌍'; if(c==='UNCAPPED') return '🧒'; if(c==='CAPPED') return '🛡️'; return ''; }
     function renderPlayers(){ const t=(teamFilter.value||'ALL').toUpperCase(); const r=(roleFilter.value||'ALL').toUpperCase(); const q=(searchInput.value||'').trim().toLowerCase(); const priceCap=Number(budgetMaxEl.value || Infinity); const c=(catFilter.value||'ALL').toUpperCase();
       const filtered=allPlayers.filter(p=>{ const tOk=(t==='ALL')||String(p.team||'').toUpperCase()===t; const rOk=(r==='ALL')||(formatRole(p.role||'')===r); const qOk=!q||String(p.name||'').toLowerCase().includes(q); const priceOk=Number(p.price||0)<=priceCap; const catRaw=normalizeCategory(p.category ?? p.Category ?? ''); const cOk=(c==='ALL')||(catRaw===c); return tOk && rOk && cOk && qOk && priceOk; });
-      playersList.innerHTML='';
+      // apply sorting
+if(window.sortMode!=='NONE'){filtered.sort((a,b)=>{const pA=+a.price||0,pB=+b.price||0,ptA=+(pointsMap[a.name]||0),ptB=+(pointsMap[b.name]||0);switch(window.sortMode){case 'PRICE_ASC':return pA-pB;case 'PRICE_DESC':return pB-pA;case 'POINTS_ASC':return ptA-ptB;case 'POINTS_DESC':return ptB-ptA;}return 0;});}
+playersList.innerHTML='';
       filtered.forEach(p=>{ const card=document.createElement('div'); card.className='player-card'; const role=formatRole(p.role||''); if(role) card.classList.add('accent-'+role);
         const img=document.createElement(p.imageUrl?'img':'i'); if(p.imageUrl){ img.className='avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); } } else { img.className='material-icons grey-text'; img.textContent='person'; }
         const label=document.createElement('label'); label.className='player-check'; label.innerHTML='<input type=\"checkbox\"/><span></span>'; const cb=label.querySelector('input'); cb.value=p.name; cb.checked=selectedNames.has(p.name); cb.addEventListener('change', ()=>{ if(cb.checked){ selectedNames.add(p.name);} else { selectedNames.delete(p.name);} updateSelectionUI(); });
@@ -936,18 +945,16 @@ function applyTeamTints(root){
   }
 })();
 
-// update sort colors
-const _sbtn=document.querySelector('.sort-toggle');
-const _slbl=document.querySelector('.sort-label');
-function updateSortMode(){
- const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'Price ↓',POINTS_ASC:'Points ↑',POINTS_DESC:'Points ↓'};
- _slbl.textContent=map[window.sortMode];
- _sbtn.className='material-icons sort-toggle active mode-'+window.sortMode;
- if(window.sortMode==='NONE'){_sbtn.classList.remove('active');}
-}
-if(_sbtn){_sbtn.onclick=()=>{
- const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];
- let idx=order.indexOf(window.sortMode);idx=(idx+1)%order.length;window.sortMode=order[idx];updateSortMode();renderPlayers();};}
+window.sortMode='NONE';
+const sBtn=document.querySelector('.sort-toggle');
+const sLbl=document.querySelector('.sort-label');
+if(sBtn){sBtn.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];const map={'NONE':'None','PRICE_ASC':'Price ↑','PRICE_DESC':'Price ↓','POINTS_ASC':'Points ↑','POINTS_DESC':'Points ↓'};sLbl.textContent=map[window.sortMode];if(window.sortMode==='NONE'){sBtn.classList.remove('active');}else{sBtn.classList.add('active');}renderPlayers();};}
+
+window.sortMode='NONE';
+const st=document.querySelector('.sort-toggle');
+const sl=document.querySelector('.sort-label');
+function updateSort(){const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'Price ↓',POINTS_ASC:'Points ↑',POINTS_DESC:'Points ↓'};sl.textContent=map[window.sortMode];st.className='material-icons sort-toggle mode-'+window.sortMode;}
+if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];updateSort();renderPlayers();}}
 </script>
 ``
 </body>
