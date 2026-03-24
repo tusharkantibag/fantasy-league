@@ -342,6 +342,12 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 
 #pillWK, #pillBAT, #pillAR, #pillBOWL { display:none !important; }
 
+
+/* Fix dropdown clipping */
+.select-dropdown, .dropdown-content { z-index: 9999 !important; }
+.preview-card, .preview-card .card-content, #previewGrid { overflow: visible !important; }
+#cvcPanel { position: relative; z-index: 5000; }
+
 </style>
 </head>
 <body>
