@@ -311,9 +311,36 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 
 
 /* single sort icon */
-.sort-chip-single{display:inline-flex;align-items:center;padding:4px 6px!important;border-radius:12px;gap:4px;}
-.sort-chip-single .material-icons{font-size:20px!important;cursor:pointer;opacity:.7;transition:.2s;}
-.sort-chip-single .material-icons:hover{opacity:1;transform:scale(1.1);}
+.sort-chip-single {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px !important;
+    border-radius: 12px;
+}
+
+.sort-chip-single .material-icons {
+    font-size: 20px !important;
+    cursor: pointer;
+    opacity: .75;
+    transition: .15s ease;
+}
+
+.sort-chip-single .material-icons.active {
+    background: var(--accent);
+    color: white !important;
+    border-radius: 50%;
+    padding: 2px;
+    transform: scale(1.2);
+    box-shadow: 0 0 6px rgba(0,0,0,0.25);
+}
+
+.sort-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    min-width: 60px;
+}
 </style>
 </head>
 <body>
@@ -452,7 +479,8 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
                 </span>
               </span>
               <span class="filter-chip sort-chip-single">
-  <i class="material-icons sort-toggle" data-mode="NONE">sort</i>
+    <i class="material-icons sort-toggle" data-mode="NONE">sort</i>
+    <span class="sort-label">None</span>
 </span>
 <div class="input-field search-box" style="margin:0;">
                 <i class="material-icons prefix">search</i>
