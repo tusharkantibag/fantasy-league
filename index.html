@@ -309,11 +309,11 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
   #roleRulesRow .pill{ font-size: .74rem !important; padding: .08rem .34rem !important; }
 }
 
-/* sort chip styling */
-.sort-chip{display:inline-flex;gap:4px;padding:4px 6px!important;border-radius:12px;align-items:center;}
-.sort-chip .material-icons{font-size:20px!important;cursor:pointer;opacity:.65;transition:.15s;}
-.sort-chip .material-icons:hover{opacity:1;transform:scale(1.15);}
 
+/* single sort icon */
+.sort-chip-single{display:inline-flex;align-items:center;padding:4px 6px!important;border-radius:12px;gap:4px;}
+.sort-chip-single .material-icons{font-size:20px!important;cursor:pointer;opacity:.7;transition:.2s;}
+.sort-chip-single .material-icons:hover{opacity:1;transform:scale(1.1);}
 </style>
 </head>
 <body>
@@ -451,11 +451,8 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
                   <input id="budgetMax" type="range" min="0" max="100" value="100" step="0.5">
                 </span>
               </span>
-              <span class="filter-chip sort-chip">
-  <i class="material-icons sort-btn" data-sort="PRICE_ASC">arrow_upward</i>
-  <i class="material-icons sort-btn" data-sort="PRICE_DESC">arrow_downward</i>
-  <i class="material-icons sort-btn" data-sort="POINTS_ASC">trending_up</i>
-  <i class="material-icons sort-btn" data-sort="POINTS_DESC">trending_down</i>
+              <span class="filter-chip sort-chip-single">
+  <i class="material-icons sort-toggle" data-mode="NONE">sort</i>
 </span>
 <div class="input-field search-box" style="margin:0;">
                 <i class="material-icons prefix">search</i>
@@ -747,7 +744,7 @@ function applyTeamTints(root){
     function renderPlayers(){ const t=(teamFilter.value||'ALL').toUpperCase(); const r=(roleFilter.value||'ALL').toUpperCase(); const q=(searchInput.value||'').trim().toLowerCase(); const priceCap=Number(budgetMaxEl.value || Infinity); const c=(catFilter.value||'ALL').toUpperCase();
       const filtered=allPlayers.filter(p=>{ const tOk=(t==='ALL')||String(p.team||'').toUpperCase()===t; const rOk=(r==='ALL')||(formatRole(p.role||'')===r); const qOk=!q||String(p.name||'').toLowerCase().includes(q); const priceOk=Number(p.price||0)<=priceCap; const catRaw=normalizeCategory(p.category ?? p.Category ?? ''); const cOk=(c==='ALL')||(catRaw===c); return tOk && rOk && cOk && qOk && priceOk; });
       // apply sorting
-if(window.sortMode){filtered.sort((a,b)=>{const pA=Number(a.price||0),pB=Number(b.price||0);const ptA=Number(pointsMap[a.name]||0),ptB=Number(pointsMap[b.name]||0);switch(window.sortMode){case "PRICE_ASC":return pA-pB;case "PRICE_DESC":return pB-pA;case "POINTS_ASC":return ptA-ptB;case "POINTS_DESC":return ptB-ptA;}return 0;});}
+if(window.sortMode!=='NONE'){filtered.sort((a,b)=>{const pA=+a.price||0,pB=+b.price||0,ptA=+(pointsMap[a.name]||0),ptB=+(pointsMap[b.name]||0);switch(window.sortMode){case 'PRICE_ASC':return pA-pB;case 'PRICE_DESC':return pB-pA;case 'POINTS_ASC':return ptA-ptB;case 'POINTS_DESC':return ptB-ptA;}return 0;});}
 playersList.innerHTML='';
       filtered.forEach(p=>{ const card=document.createElement('div'); card.className='player-card'; const role=formatRole(p.role||''); if(role) card.classList.add('accent-'+role);
         const img=document.createElement(p.imageUrl?'img':'i'); if(p.imageUrl){ img.className='avatar'; img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer'; img.src=p.imageUrl; img.onerror=function(){ this.remove(); } } else { img.className='material-icons grey-text'; img.textContent='person'; }
@@ -935,7 +932,16 @@ playersList.innerHTML='';
     };
   }
 })();
-document.querySelectorAll(".sort-btn").forEach(btn=>{btn.addEventListener("click", ()=>{ window.sortMode=btn.dataset.sort; renderPlayers(); });});</script>
+
+// single toggle sort button
+window.sortMode='NONE';
+const sortBtn=document.querySelector('.sort-toggle');
+if(sortBtn){sortBtn.onclick=()=>{
+ const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];
+ let idx=order.indexOf(window.sortMode); idx=(idx+1)%order.length;
+ window.sortMode=order[idx]; renderPlayers();
+};}
+</script>
 ``
 </body>
 </html>
