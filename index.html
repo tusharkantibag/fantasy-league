@@ -342,6 +342,30 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 
 #pillWK, #pillBAT, #pillAR, #pillBOWL { display:none !important; }
 
+/* --- Fix: Make "X" remove buttons clearly visible --- */
+.square-card .remove {
+    position: absolute !important;
+    top: 6px !important;
+    right: 6px !important;
+    z-index: 20 !important;
+
+    background: #ffffff !important;
+    border-radius: 50% !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important;
+}
+
+.square-card .remove i.material-icons {
+    color: #d32f2f !important; /* visible red X */
+    font-size: 20px !important;
+    font-weight: bold !important;
+}
+
 </style>
 </head>
 <body>
