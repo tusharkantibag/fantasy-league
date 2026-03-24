@@ -309,6 +309,13 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
   #roleRulesRow .pill{ font-size: .74rem !important; padding: .08rem .34rem !important; }
 }
 
+
+/* === Sort buttons (compact icon style) === */
+.sort-chip{display:inline-flex;gap:4px;padding:4px 6px!important;border-radius:12px;align-items:center}
+.sort-chip .material-icons{font-size:20px!important;cursor:pointer;opacity:.65;transition:.15s ease}
+.sort-chip .material-icons:hover{opacity:1;transform:scale(1.15)}
+.sort-chip .material-icons.active{opacity:1}
+
 </style>
 </head>
 <body>
@@ -559,7 +566,11 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
   </main>
 
   <!-- Same JS logic/IDs as your file will be included below by pasting your original scripts. To keep this sample self-contained, we only add small theme helpers. -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js">
+// === Button-style sorting ===
+window.sortMode = 'NONE';
+
+</script>
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
@@ -924,5 +935,19 @@ function applyTeamTints(root){
 })();
 </script>
 ``
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      window.sortMode = btn.dataset.sort;
+      if (typeof renderPlayers === 'function') renderPlayers();
+    });
+  });
+});
+</script>
+
 </body>
 </html>
