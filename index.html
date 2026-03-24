@@ -310,37 +310,11 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 }
 
 
-/* single sort icon */
-.sort-chip-single {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 8px !important;
-    border-radius: 12px;
-}
+.sort-chip-single{display:inline-flex;align-items:center;padding:4px 8px!important;border-radius:12px;gap:6px;}
+.sort-chip-single .material-icons{font-size:20px!important;cursor:pointer;opacity:.75;transition:.15s;}
+.sort-chip-single .material-icons.active{background:var(--accent);color:white!important;border-radius:50%;padding:2px;transform:scale(1.2);box-shadow:0 0 6px rgba(0,0,0,0.25);} 
+.sort-label{font-size:.85rem;font-weight:600;color:var(--muted);min-width:60px;}
 
-.sort-chip-single .material-icons {
-    font-size: 20px !important;
-    cursor: pointer;
-    opacity: .75;
-    transition: .15s ease;
-}
-
-.sort-chip-single .material-icons.active {
-    background: var(--accent);
-    color: white !important;
-    border-radius: 50%;
-    padding: 2px;
-    transform: scale(1.2);
-    box-shadow: 0 0 6px rgba(0,0,0,0.25);
-}
-
-.sort-label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--muted);
-    min-width: 60px;
-}
 </style>
 </head>
 <body>
@@ -477,12 +451,11 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
                   <label>Budget ≤ <b id="budgetMaxLabel">—</b></label>
                   <input id="budgetMax" type="range" min="0" max="100" value="100" step="0.5">
                 </span>
+<span class="filter-chip sort-chip-single">
+ <i class="material-icons sort-toggle">sort</i> <span class="sort-label">None</span></span>
+
               </span>
-              <span class="filter-chip sort-chip-single">
-    <i class="material-icons sort-toggle" data-mode="NONE">sort</i>
-    <span class="sort-label">None</span>
-</span>
-<div class="input-field search-box" style="margin:0;">
+              <div class="input-field search-box" style="margin:0;">
                 <i class="material-icons prefix">search</i>
                 <input id="searchInput" type="text" placeholder="Search player..." />
               </div>
@@ -961,39 +934,10 @@ playersList.innerHTML='';
   }
 })();
 
-// single toggle sort button with label
-window.sortMode = 'NONE';
-const sortBtn = document.querySelector('.sort-toggle');
-const sortLabel = document.querySelector('.sort-label');
-
-if (sortBtn) {
-    sortBtn.onclick = () => {
-
-        const order = ['NONE', 'PRICE_ASC', 'PRICE_DESC', 'POINTS_ASC', 'POINTS_DESC'];
-        let idx = order.indexOf(window.sortMode);
-        idx = (idx + 1) % order.length;
-        window.sortMode = order[idx];
-
-        // Update label text
-        const labelMap = {
-            'NONE': 'None',
-            'PRICE_ASC': 'Price ↑',
-            'PRICE_DESC': 'Price ↓',
-            'POINTS_ASC': 'Points ↑',
-            'POINTS_DESC': 'Points ↓'
-        };
-        sortLabel.textContent = labelMap[window.sortMode];
-
-        // Highlight the icon
-        if (window.sortMode === 'NONE') {
-            sortBtn.classList.remove('active');
-        } else {
-            sortBtn.classList.add('active');
-        }
-
-        renderPlayers();
-    };
-}
+window.sortMode='NONE';
+const sBtn=document.querySelector('.sort-toggle');
+const sLbl=document.querySelector('.sort-label');
+if(sBtn){sBtn.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];const map={'NONE':'None','PRICE_ASC':'Price ↑','PRICE_DESC':'Price ↓','POINTS_ASC':'Points ↑','POINTS_DESC':'Points ↓'};sLbl.textContent=map[window.sortMode];if(window.sortMode==='NONE'){sBtn.classList.remove('active');}else{sBtn.classList.add('active');}renderPlayers();};}
 </script>
 ``
 </body>
