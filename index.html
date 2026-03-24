@@ -367,24 +367,6 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 }
 
 </style>
-
-<style>
-/* Leaderboard enhancements */
-.rank-cell{font-weight:700;display:flex;align-items:center;gap:6px;}
-.rank-1::before{content:'🏆';}
-.rank-2::before{content:'🥈';}
-.rank-3::before{content:'🥉';}
-.points-badge{padding:6px 12px;border-radius:12px;font-weight:700;color:#fff;}
-.points-high{background:#43a047;}
-.points-mid{background:#ffb300;}
-.points-low{background:#e53935;}
-#lbTable tr:hover{background:rgba(45,108,255,0.06);transform:scale(1.01);transition:0.15s;}
-.user-cell{display:flex;align-items:center;gap:10px;}
-.user-avatar{width:26px;height:26px;border-radius:50%;background:#e3eaff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
-@keyframes rowReveal{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-#lbTable tr{animation:rowReveal .35s ease forwards;}
-</style>
-
 </head>
 <body>
   <!-- Login Mask -->
@@ -607,7 +589,12 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
     <section id="leaderboard" class="col s12">
       <div class="card"><div class="card-content">
         <span class="card-title">Leaderboard <a id="refreshLb" class="btn-flat right"><i class="material-icons">autorenew</i></a></span>
-        <table class="striped highlight responsive-table"><thead><tr><th>#</th><th>User</th><th>Points</th></tr></thead><tbody id="lbTable"><tr><td colspan="3">Loading…</td></tr></tbody></table>
+        
+<div id='moversPanel' class='card' style='margin-top:16px;padding:16px;'>
+<h6 style='font-weight:700;margin-bottom:12px;'>Top Movers / Gainers</h6>
+<ul id='moversList' style='list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;'></ul>
+</div>
+<table class="striped highlight responsive-table"><thead><tr><th>#</th><th>User</th><th>Points</th></tr></thead><tbody id="lbTable"><tr><td colspan="3">Loading…</td></tr></tbody></table>
       </div></div>
     </section>
 
@@ -1020,17 +1007,14 @@ if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC'
 ``
 
 <script>
-// Enhance leaderboard after load
-function enhanceLeaderboard(){
- document.querySelectorAll('#lbTable tr').forEach((row,i)=>{
-  const rank=row.querySelector('td:first-child');
-  if(rank){rank.classList.add('rank-cell','rank-'+(i+1));}
-  const pts=row.querySelector('td:last-child span');
-  if(pts){const v=parseInt(pts.textContent)||0;pts.classList.add('points-badge', v>800?'points-high':v>400?'points-mid':'points-low');}
- });
+function loadMovers(){
+ const list=document.getElementById('moversList'); if(!list) return;
+ const rows=[...document.querySelectorAll('#lbTable tr')].slice(0,5);
+ list.innerHTML='';
+ rows.forEach(r=>{const name=r.children[1]?.textContent.trim(); const pts=parseInt(r.children[2]?.innerText)||0; const li=document.createElement('li'); li.textContent=`🔥 ${name} — ${pts} pts`; list.appendChild(li);});
 }
-const oldLoad=window.loadLeaderboard;
-window.loadLeaderboard=async()=>{await oldLoad();enhanceLeaderboard();};
+const oldLb=window.loadLeaderboard;
+window.loadLeaderboard=async()=>{await oldLb(); if(window.enhanceLeaderboard) enhanceLeaderboard(); loadMovers();};
 </script>
 
 </body>
