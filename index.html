@@ -936,10 +936,20 @@ playersList.innerHTML='';
 // single toggle sort button
 window.sortMode='NONE';
 const sortBtn=document.querySelector('.sort-toggle');
-if(sortBtn){sortBtn.onclick=()=>{
- const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];
- let idx=order.indexOf(window.sortMode); idx=(idx+1)%order.length;
- window.sortMode=order[idx]; renderPlayers();
+if(sortBtn){sortBtn.onclick = () => {
+    const order = ['NONE', 'PRICE_ASC', 'PRICE_DESC', 'POINTS_ASC', 'POINTS_DESC'];
+    let idx = order.indexOf(window.sortMode);
+    idx = (idx + 1) % order.length;
+    window.sortMode = order[idx];
+
+    // visual highlight update
+    if (window.sortMode === 'NONE') {
+        sortBtn.classList.remove('active');
+    } else {
+        sortBtn.classList.add('active');
+    }
+
+    renderPlayers();
 };}
 </script>
 ``
