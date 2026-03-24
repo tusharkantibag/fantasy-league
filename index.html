@@ -367,6 +367,13 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 }
 
 </style>
+
+<style>
+@keyframes fifaReveal { from {opacity:0; transform:translateY(12px);} to {opacity:1; transform:translateY(0);} }
+#lbTable tr { animation: fifaReveal 0.4s ease forwards; }
+#lbTable tr:nth-child(n) { animation-delay: calc(0.03s * var(--i)); }
+</style>
+
 </head>
 <body>
   <!-- Login Mask -->
@@ -1000,5 +1007,12 @@ function updateSort(){const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'P
 if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];updateSort();renderPlayers();}}
 </script>
 ``
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+ document.querySelectorAll('#lbTable tr').forEach((tr,i)=> tr.style.setProperty('--i', i));
+});
+</script>
+
 </body>
 </html>
