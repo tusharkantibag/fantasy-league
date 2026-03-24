@@ -744,7 +744,13 @@ function applyTeamTints(root){
       if(!withinCap){ msg.className='helper error-text'; msg.textContent='Team cap exceeded: ' + cap.overTeams.join(', ');} else if(overBudget){ msg.className='helper error-text'; msg.textContent=`Over budget! Reduce cost to ≤ ${totalBudget}.`; } else if(!catForeignOk){ msg.className='helper error-text'; msg.textContent=`Too many FOREIGN players. Max allowed = ${categoryCaps.maxForeign}.`; } else if(!catUncappedOk){ msg.className='helper error-text'; msg.textContent=`Not enough UNCAPPED players. Min required = ${categoryCaps.minUncapped}.`; } else { msg.className='helper ok-text'; msg.textContent='Looks good!'; }
       refreshRuleChips(); refreshCategoryChips();
       populateCvcOptions();
-  try{ const pc=document.querySelector('.preview-card'); const msgEl=document.getElementById('validationMsg'); if(pc&&msgEl){ pc.classList.toggle('preview-error', msgEl.classList.contains('error-text') || document.querySelectorAll("#roleRulesRow .pill.bad").length>0)); } }catch(_){}
+  try{ const pc=document.querySelector('.preview-card'); const msgEl=document.getElementById('validationMsg'); if(pc&&msgEl){ 
+pc.classList.toggle(
+    'preview-error',
+    msgEl.classList.contains('error-text') ||
+    document.querySelectorAll('#roleRulesRow .pill.bad').length > 0
+)
+ || document.querySelectorAll("#roleRulesRow .pill.bad").length>0)); } }catch(_){}
  applyTeamTints(document);
     }
     function togglePlayer(name, on){ if(on){ selectedNames.add(name); } else { selectedNames.delete(name); if(selectedCaptain===name) selectedCaptain=''; if(selectedViceCaptain===name) selectedViceCaptain=''; } const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb)); if(map.has(name)) map.get(name).checked=!!on; updateSelectionUI(); }
