@@ -933,24 +933,39 @@ playersList.innerHTML='';
   }
 })();
 
-// single toggle sort button
-window.sortMode='NONE';
-const sortBtn=document.querySelector('.sort-toggle');
-if(sortBtn){sortBtn.onclick = () => {
-    const order = ['NONE', 'PRICE_ASC', 'PRICE_DESC', 'POINTS_ASC', 'POINTS_DESC'];
-    let idx = order.indexOf(window.sortMode);
-    idx = (idx + 1) % order.length;
-    window.sortMode = order[idx];
+// single toggle sort button with label
+window.sortMode = 'NONE';
+const sortBtn = document.querySelector('.sort-toggle');
+const sortLabel = document.querySelector('.sort-label');
 
-    // visual highlight update
-    if (window.sortMode === 'NONE') {
-        sortBtn.classList.remove('active');
-    } else {
-        sortBtn.classList.add('active');
-    }
+if (sortBtn) {
+    sortBtn.onclick = () => {
 
-    renderPlayers();
-};}
+        const order = ['NONE', 'PRICE_ASC', 'PRICE_DESC', 'POINTS_ASC', 'POINTS_DESC'];
+        let idx = order.indexOf(window.sortMode);
+        idx = (idx + 1) % order.length;
+        window.sortMode = order[idx];
+
+        // Update label text
+        const labelMap = {
+            'NONE': 'None',
+            'PRICE_ASC': 'Price ↑',
+            'PRICE_DESC': 'Price ↓',
+            'POINTS_ASC': 'Points ↑',
+            'POINTS_DESC': 'Points ↓'
+        };
+        sortLabel.textContent = labelMap[window.sortMode];
+
+        // Highlight the icon
+        if (window.sortMode === 'NONE') {
+            sortBtn.classList.remove('active');
+        } else {
+            sortBtn.classList.add('active');
+        }
+
+        renderPlayers();
+    };
+}
 </script>
 ``
 </body>
