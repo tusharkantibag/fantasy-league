@@ -367,13 +367,6 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 }
 
 </style>
-
-<style>
-@keyframes fifaReveal { from {opacity:0; transform:translateY(12px);} to {opacity:1; transform:translateY(0);} }
-#lbTable tr { animation: fifaReveal 0.4s ease forwards; }
-#lbTable tr:nth-child(n) { animation-delay: calc(0.03s * var(--i)); }
-</style>
-
 </head>
 <body>
   <!-- Login Mask -->
@@ -783,7 +776,7 @@ function applyTeamTints(root){
     }
     function togglePlayer(name, on){ if(on){ selectedNames.add(name); } else { selectedNames.delete(name); if(selectedCaptain===name) selectedCaptain=''; if(selectedViceCaptain===name) selectedViceCaptain=''; } const map=new Map(); document.querySelectorAll('#playersList input[type=checkbox]').forEach(cb=>map.set(cb.value, cb)); if(map.has(name)) map.get(name).checked=!!on; updateSelectionUI(); }
     function updateSelectionUI(){ const names=selected(); const n=names.length; selCount.setAttribute('data-badge-caption','/11 selected'); selCount.textContent=n; if(n!=11 || document.querySelectorAll('#roleRulesRow .pill.bad').length>0 || document.querySelectorAll('#catRulesRow .pill.bad').length>0){ submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); } const ch=countChanges(lastTeamPlayers, names); updateBadges(ch); renderPreview();
-      const anyRoleBad=document.querySelectorAll('#roleRulesRow .rule-chip.bad').length>0; const anyCatBad=document.querySelectorAll('#catRulesRow .rule-chip.bad').length>0; const cap=capStatus(names); const withinCap=cap.overTeams.length===0; const cost=totalCostOf(names); const withinBudget=cost<=totalBudget; const hasBase=!!(lastTeamPlayers && lastTeamPlayers.length);
+      const anyRoleBad=document.querySelectorAll('#roleRulesRow .pill.bad').length>0; const anyCatBad=document.querySelectorAll('#catRulesRow .pill.bad').length>0; const cap=capStatus(names); const withinCap=cap.overTeams.length===0; const cost=totalCostOf(names); const withinBudget=cost<=totalBudget; const hasBase=!!(lastTeamPlayers && lastTeamPlayers.length);
       const cvcOk = cvcIsValid();
       submitBtn.style.display=hasBase?'inline-flex':'none';
       buildFirstBtn.style.display=hasBase?'none':'inline-flex';
@@ -1007,12 +1000,5 @@ function updateSort(){const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'P
 if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];updateSort();renderPlayers();}}
 </script>
 ``
-
-<script>
-document.addEventListener('DOMContentLoaded',()=>{
- document.querySelectorAll('#lbTable tr').forEach((tr,i)=> tr.style.setProperty('--i', i));
-});
-</script>
-
 </body>
 </html>
