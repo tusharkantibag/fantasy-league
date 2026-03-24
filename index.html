@@ -725,7 +725,7 @@ function applyTeamTints(root){
       const tc=teamCountsOf(names); const teamsStr=Object.keys(tc).length? Object.keys(tc).sort().map(t=>`${t} ${tc[t]}`).join(' • ') : '—'; pillTeams.textContent=`Teams: ${teamsStr}`; pillCost.textContent=`Cost: ${totalCostOf(names)}`;
     const costVal = totalCostOf(names);
     pillCost.classList.remove('ok','bad');
-    if(costVal <= totalBudget){ pillCost.classList.add('ok'); } else { pillCost.classList.add('bad'); }
+    if(costVal <= totalBudget){ pillCost.classList.add('ok'); pillCost.style.background='#eaf7ea'; pillCost.style.border='1px solid #86c48a'; } else { pillCost.classList.add('bad'); pillCost.style.background='#fff0f0'; pillCost.style.border='1px solid #f2b3b3'; }
       const rowWK=document.getElementById('row-WK'); const rowBAT=document.getElementById('row-BAT'); const rowAR=document.getElementById('row-AR'); const rowBOWL=document.getElementById('row-BOWL');
       rowWK.innerHTML=''; rowBAT.innerHTML=''; rowAR.innerHTML=''; rowBOWL.innerHTML='';
       function makeCard(p){ const role=formatRole(p.role||'');
