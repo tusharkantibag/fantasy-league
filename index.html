@@ -759,7 +759,7 @@ function applyTeamTints(root){
     }
     function buildFilters(list){ const prevTeam=teamFilter.value||'ALL'; const prevRole=roleFilter.value||'ALL'; const teams=Array.from(new Set(list.map(p=>String(p.team||'').toUpperCase()).filter(Boolean))).sort();
       teamFilter.innerHTML='<option value=\"ALL\">All teams</option>'+teams.map(t=>`<option value=\"${t}\">${t}</option>`).join('');
-      const teamToSet=teams.includes(prevTeam)? prevTeam==='ALL'?prevTeam:'ALL' : 'ALL'; teamFilter.value=teamToSet; const inst1=M.FormSelect.getInstance(teamFilter); if(inst1) inst1.destroy(); M.FormSelect.init(teamFilter);
+      const teamToSet = teams.includes(prevTeam) ? prevTeam : "ALL"; teamFilter.value=teamToSet; const inst1=M.FormSelect.getInstance(teamFilter); if(inst1) inst1.destroy(); M.FormSelect.init(teamFilter);
       roleFilter.value=prevRole||'ALL'; const inst2=M.FormSelect.getInstance(roleFilter); if(inst2) inst2.destroy(); M.FormSelect.init(roleFilter);
       const inst3=M.FormSelect.getInstance(catFilter); if(inst3) inst3.destroy(); M.FormSelect.init(catFilter);
     }
