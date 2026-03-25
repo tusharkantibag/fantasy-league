@@ -823,7 +823,35 @@ function applyTeamTints(root){
       names.forEach(n=>{ const p=allPlayers.find(x=>x.name===n)||{name:n,team:'',role:'',imageUrl:'',price:0}; const {card,role}=makeCard(p); if(role==='WK') rowWK.appendChild(card); else if(role==='BAT') rowBAT.appendChild(card); else if(role==='AR') rowAR.appendChild(card); else if(role==='BOWL') rowBOWL.appendChild(card); else rowBAT.appendChild(card); });
       const msg=document.getElementById('validationMsg');
       const cap=capStatus(names); const withinCap=cap.overTeams.length===0; const overBudget=totalCostOf(names)>totalBudget; const cat=categoryCounts(names); const catForeignOk=(cat.FOREIGN||0)<=Number(categoryCaps.maxForeign||0); const catUncappedOk=(cat.UNCAPPED||0)>=Number(categoryCaps.minUncapped||0);
-      if(!withinCap){ msg.className='helper error-text'; msg.textContent='Team cap exceeded: ' + cap.overTeams.join(', ');} else if(overBudget){ msg.className='helper error-text'; msg.textContent=`Over budget! Reduce cost to ≤ ${totalBudget}.`; } else if(!catForeignOk){ msg.className='helper error-text'; msg.textContent=`Too many FOREIGN players. Max allowed = ${categoryCaps.maxForeign}.`; } else if(!catUncappedOk){ msg.className='helper error-text'; msg.textContent=`Not enough UNCAPPED players. Min required = ${categoryCaps.minUncapped}.`; } else { msg.className='helper ok-text'; msg.textContent='Looks good!'; }
+      if(!withinCap){
+    msg.className='helper error-text';
+    msg.textContent='Team cap exceeded: ' + cap.overTeams.join(', ');
+}
+else if(overBudget){
+    msg.className='helper error-text';
+    msg.textContent=`Over budget! Reduce cost to ≤ ${totalBudget}.`;
+}
+else if(!catForeignOk){
+    msg.className='helper error-text';
+    msg.textContent=`Too many FOREIGN players. Max allowed = ${categoryCaps.maxForeign}.`;
+}
+else if(!catUncappedOk){
+    msg.className='helper error-text';
+    msg.textContent=`Not enough UNCAPPED players. Min required = ${categoryCaps.minUncapped}.`;
+}
+else if (
+    counts.WK < constraints.WK.min || counts.WK > constraints.WK.max ||
+    counts.BAT < constraints.BAT.min || counts.BAT > constraints.BAT.max ||
+    counts.AR < constraints.AR.min || counts.AR > constraints.AR.max ||
+    counts.BOWL < constraints.BOWL.min || counts.BOWL > constraints.BOWL.max
+){
+    msg.className='helper error-text';
+    msg.textContent='Role rules not satisfied.';
+}
+else {
+    msg.className='helper ok-text';
+    msg.textContent='Looks good!';
+}
       refreshRuleChips(); refreshCategoryChips();
       populateCvcOptions();
   try{ const pc=document.querySelector('.preview-card'); const msgEl=document.getElementById('validationMsg'); if(pc&&msgEl){ pc.classList.toggle('preview-error', msgEl.classList.contains('error-text') || document.querySelectorAll('#roleRulesRow .pill.bad').length > 0 || document.querySelectorAll('#catRulesRow .pill.bad').length > 0 || !cvcIsValid() || selected().length < 11); } }catch(_){}
