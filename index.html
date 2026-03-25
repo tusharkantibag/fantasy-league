@@ -605,7 +605,17 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             </div>
 
             <!-- Captain & Vice-Captain selection -->
-            <div id="cvcPanel" class="cvc-panel">
+            
+<div id='boosterPanel' class='card' style='margin-top:1rem; padding:1rem;'>
+  <span class='card-title'>Apply Booster</span>
+  <div class='input-field'>
+    <select id='boosterSelect'></select>
+    <label>Select Booster</label>
+  </div>
+  <a id='applyBoosterBtn' class='btn waves-effect orange'><i class='material-icons left'>flash_on</i>Apply Booster</a>
+  <div id='boosterStatus' class='small-muted' style='margin-top:.5rem;'></div>
+</div>
+<div id="cvcPanel" class="cvc-panel">
               <div class="cvc-row">
                 <div class="input-field">
                   <select id="captainSelect"></select>
@@ -619,14 +629,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
               <div class="cvc-hint" id="cvcHint">Pick a Captain & Vice‑Captain. They must be different.</div>
             </div>
 
-            
-<!-- Booster Panel -->
-<div id='boosterPanel' class='card' style='margin-top:12px; padding:14px;'>
-<h6 style='font-weight:800; margin-bottom:10px;'>Boosters (One-time use per season)</h6>
-<div id='boosterGrid' style='display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px;'></div>
-<div id='boosterNote' class='small-muted' style='margin-top:8px;'>Choose one booster for this match.</div>
-</div>
-<div id="validationMsg" class="helper" style="margin-top:.6rem;"></div>
+            <div id="validationMsg" class="helper" style="margin-top:.6rem;"></div>
           </div></div>
         </div>
       </div>
@@ -670,7 +673,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbzugX4eavkkGAsfa9jOZBpBZa5AwthcZwmnwigs0lRX5zyQBJv1I1Lv7FI0hbFQn-un/exec';
+const API = 'https://script.google.com/macros/s/AKfycbz5aHrcPl35oC8FO9PcbbzNae1xCW33mtP-DVdUddUIoCxxwl-cTgrvWUI1Bsbem6ef/exec';
 
 // === Chip filler helpers (lighter filled bars) ===
 function tagInfoBars(context){
@@ -1047,20 +1050,5 @@ function updateSort(){const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'P
 if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];updateSort();renderPlayers();}}
 </script>
 ``
-
-<script>
-const boosterList=[
-{id:'Final Fury',desc:'Last 5 overs points doubled'},
-{id:'Opening Onslaught',desc:'First 6 overs points doubled'},
-{id:'Over Mayhem',desc:'Pick one player 5X'},
-{id:'Captain Carnage',desc:'Captain 4X'},
-{id:'Overdrive 2x',desc:'All players 2X'},
-{id:'Batting Blitz',desc:'Batsmen 2X'},
-{id:'Bowling Barrage',desc:'Bowlers 2X'},
-{id:'Twin Impact',desc:'All-rounders 2X'},
-{id:'Auto Captain',desc:'Auto highest scorer captain'}];
-let usedBoosters=[]; let selectedBooster='';
-function renderBoosterGrid(){const grid=document.getElementById('boosterGrid'); if(!grid) return; grid.innerHTML=''; boosterList.forEach(b=>{const card=document.createElement('div'); card.className='booster-card'; const used=usedBoosters.includes(b.id); if(used) card.classList.add('locked'); if(selectedBooster===b.id) card.classList.add('selected'); card.innerHTML=`<div class='booster-card-title'>${b.id}</div><div class='booster-card-desc'>${b.desc}</div>${used?"<div style='margin-top:6px;color:#d32f2f;font-weight:700;'>USED</div>":''}`; if(!used){card.onclick=()=>{selectedBooster=(selectedBooster===b.id?'':b.id); renderBoosterGrid();};} grid.appendChild(card); }); }
-</script>
 </body>
 </html>
