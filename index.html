@@ -828,7 +828,8 @@ function applyTeamTints(root){
     counts.BAT < constraints.BAT.min || counts.BAT > constraints.BAT.max ||
     counts.AR < constraints.AR.min || counts.AR > constraints.AR.max ||
     counts.BOWL < constraints.BOWL.min || counts.BOWL > constraints.BOWL.max
-){{ msg.className = 'helper error-text'; msg.textContent = 'Role rules not satisfied.'; } else { msg.className='helper ok-text'; msg.textContent='Looks good!'; }
+) { msg.className='helper error-text'; msg.textContent='Role rules not satisfied.'; }
+else { msg.className='helper ok-text'; msg.textContent='Looks good!'; }
       refreshRuleChips(); refreshCategoryChips();
       populateCvcOptions();
   try{ const pc=document.querySelector('.preview-card'); const msgEl=document.getElementById('validationMsg'); if(pc&&msgEl){ pc.classList.toggle('preview-error', msgEl.classList.contains('error-text') || document.querySelectorAll('#roleRulesRow .pill.bad').length > 0 || document.querySelectorAll('#catRulesRow .pill.bad').length > 0 || !cvcIsValid() || selected().length < 11); } }catch(_){}
