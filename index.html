@@ -562,7 +562,23 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             <a id="buildFirstBtn" class="btn waves-effect green darken-1 disabled" style="display:none;"><i class="material-icons left">playlist_add_check</i>Build First XI</a>
           </div></div>
         </div>
+<!-- Captain & Vice-Captain selection -->
+            <div id="cvcPanel" class="cvc-panel">
+              <div class="cvc-row">
+                <div class="input-field">
+                  <select id="captainSelect"></select>
+                  <label>Captain (C)</label>
+                </div>
+                <div class="input-field">
+                  <select id="viceCaptainSelect"></select>
+                  <label>Vice‑Captain (VC)</label>
+                </div>
+              </div>
+              <div class="cvc-hint" id="cvcHint">Pick a Captain & Vice‑Captain. They must be different.</div>
+            </div>
 
+            <div id="validationMsg" class="helper" style="margin-top:.6rem;"></div>
+          </div></div>
         <!-- Right: Preview -->
         <div class="col s12 l7">
           <div class="card preview-card"><div class="card-content">
@@ -586,23 +602,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 
 
             <div id="previewGrid" class="preview-grid">
-              <!-- Captain & Vice-Captain selection -->
-            <div id="cvcPanel" class="cvc-panel">
-              <div class="cvc-row">
-                <div class="input-field">
-                  <select id="captainSelect"></select>
-                  <label>Captain (C)</label>
-                </div>
-                <div class="input-field">
-                  <select id="viceCaptainSelect"></select>
-                  <label>Vice‑Captain (VC)</label>
-                </div>
-              </div>
-              <div class="cvc-hint" id="cvcHint">Pick a Captain & Vice‑Captain. They must be different.</div>
-            </div>
-
-            <div id="validationMsg" class="helper" style="margin-top:.6rem;"></div>
-          </div></div>
+              
               <div class="lineup-row" data-role="WK">
                 <div class="role-header role-WK"><i class="material-icons">sports_cricket</i>Wicketkeepers</div>
                 <div class="role-cards" id="row-WK"></div>
