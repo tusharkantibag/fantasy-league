@@ -406,14 +406,6 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
     height: 54px !important;
 }
 
-
-/* Booster Modal Grid and Cards */
-.booster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:12px;}
-.booster-card{padding:12px;border-radius:12px;cursor:pointer;background:#fff;border:2px solid #e3e9f6;box-shadow:0 2px 6px rgba(0,0,0,.1);}
-.booster-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.12);}
-.booster-card.selected{border:2px solid var(--primary);background:#eef4ff;}
-.booster-card.disabled{cursor:not-allowed;opacity:.45;filter:grayscale(.8);}
-.booster-card-title{font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
 </style>
 </head>
 <body>
@@ -614,15 +606,12 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 
             <!-- Captain & Vice-Captain selection -->
             
-
 <div id='boosterPanel' class='card' style='margin-top:1rem; padding:1rem;'>
   <span class='card-title'>Apply Booster</span>
-  <a id='openBoosterModal' class='btn waves-effect blue'>
-    <i class='material-icons left'>flash_on</i>Select Booster
-  </a>
-  <div id='selectedBoosterDisplay' class='small-muted' style='margin-top:.5rem;'>No booster selected</div>
-</div>
-
+  <div class='input-field'>
+    <select id='boosterSelect'></select>
+    <label>Select Booster</label>
+  </div>
   <a id='applyBoosterBtn' class='btn waves-effect orange'><i class='material-icons left'>flash_on</i>Apply Booster</a>
   <div id='boosterStatus' class='small-muted' style='margin-top:.5rem;'></div>
 </div>
@@ -1197,9 +1186,10 @@ applyBoosterBtn.addEventListener("click", async () => {
 /* ---------------------------------------------------
    AUTO LOAD WHEN PAGE READY
 --------------------------------------------------- */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("Booster system: DOMContentLoaded triggered.");
-  setTimeout(loadBoosters, 1500);
+// updated load logic
+async function afterStatsLoaded(){ await fetchUserStats(); await loadBoosters(); }
+document.addEventListener('DOMContentLoaded', afterStatsLoaded);
+emailEl.addEventListener('change', afterStatsLoaded);
 });
 
 /* Reload booster list when email changes */
@@ -1212,17 +1202,5 @@ document.addEventListener("input", e => {
   
 </script>
 ``
-
-<!-- Booster Selection Modal -->
-<div id='boosterModal' class='modal modal-fixed-footer' style='max-height:92vh;'>
-  <div class='modal-content'>
-    <h5>Select a Booster</h5>
-    <div id='boosterCardContainer' class='booster-grid'></div>
-  </div>
-  <div class='modal-footer'>
-    <a id='confirmBoosterBtn' class='modal-close btn orange'><i class='material-icons left'>check</i>Apply Booster</a>
-    <a class='modal-close btn-flat'>Cancel</a>
-  </div>
-</div>
 </body>
 </html>
