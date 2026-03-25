@@ -605,34 +605,22 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             </div>
 
             <!-- Captain & Vice-Captain selection -->
-<!-- Unified Match Enhancements Action Card -->
-<div class='card action-card' style='margin-top:1rem; padding:1.2rem; border-radius:16px;'>
-  <h6 style='font-weight:800; margin-bottom:1rem;'>Match Enhancements</h6>
-  <div class='row' style='margin-bottom:1.5rem;'>
-    <div class='input-field col s12 m6 chip-select-field'>
-      <select id='captainSelect'></select>
-      <label>Captain (C)</label>
-    </div>
-    <div class='input-field col s12 m6 chip-select-field'>
-      <select id='viceCaptainSelect'></select>
-      <label>Vice-Captain (VC)</label>
-    </div>
-  </div>
-  <div id='cvcHint' class='small-muted'>Pick a Captain & Vice-Captain. They must be different.</div>
-  <div class='input-field chip-select-field'>
+            
+<div id='boosterPanel' class='card' style='margin-top:1rem; padding:1rem;'>
+  <span class='card-title'>Apply Booster</span>
+  <div class='input-field'>
     <select id='boosterSelect'></select>
     <label>Select Booster</label>
   </div>
   <a id='applyBoosterBtn' class='btn waves-effect orange'><i class='material-icons left'>flash_on</i>Apply Booster</a>
-  <div id='boosterStatus' class='small-muted'></div>
-</div>
-
-            
-
-  <a id='applyBoosterBtn' class='btn waves-effect orange'><i class='material-icons left'>flash_on</i>Apply Booster</a>
   <div id='boosterStatus' class='small-muted' style='margin-top:.5rem;'></div>
 </div>
-
+<div id="cvcPanel" class="cvc-panel">
+              <div class="cvc-row">
+                <div class="input-field">
+                  <select id="captainSelect"></select>
+                  <label>Captain (C)</label>
+                </div>
                 <div class="input-field">
                   <select id="viceCaptainSelect"></select>
                   <label>Vice‑Captain (VC)</label>
@@ -1062,48 +1050,6 @@ function updateSort(){const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'P
 if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];updateSort();renderPlayers();}}
 
 
-<!-- BOOSTER SYSTEM AUTO-INJECTED -->
-<script>
-const boosterSelect = document.getElementById('boosterSelect');
-const applyBoosterBtn = document.getElementById('applyBoosterBtn');
-const boosterStatus = document.getElementById('boosterStatus');
-let allBoosters = [], usedBoosters = [], usedMatches = [];
-async function loadBoosters(){
-  const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return;
-  try{
-    const res=await fetch(`${API}?action=allboosters&email=${encodeURIComponent(email)}`);
-    const txt=await res.text(); let j=JSON.parse(txt);
-    if(!j.ok){ boosterStatus.textContent='Could not load boosters'; return; }
-    allBoosters=j.boosters||[]; usedBoosters=j.usedBoosters||[]; usedMatches=j.usedMatches||[];
-    renderBoosterDropdown();
-  }catch(e){ boosterStatus.textContent='Network error loading boosters'; }
-}
-function renderBoosterDropdown(){
-  boosterSelect.innerHTML='';
-  if(!allBoosters.length){ boosterSelect.innerHTML='<option disabled>No boosters available</option>'; M.FormSelect.init(boosterSelect); return; }
-  boosterSelect.innerHTML+='<option value="" disabled selected>Select Booster</option>';
-  allBoosters.forEach(b=>{
-    const dis = usedBoosters.includes(b.name)?'disabled':'';
-    boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
-  });
-  M.FormSelect.init(boosterSelect);
-}
-applyBoosterBtn.addEventListener('click', async ()=>{
-  const email=(emailEl.value||'').trim().toLowerCase();
-  const matchId=matchSelectEl.value; const booster=boosterSelect.value;
-  if(!email) return notify('Enter email'); if(!matchId) return notify('Match required'); if(!booster) return notify('Select booster');
-  if(usedMatches.includes(matchId)) return notify('Already used booster for this match');
-  applyBoosterBtn.classList.add('disabled');
-  try{
-    const qs=new URLSearchParams({action:'submitbooster',email,matchId,booster});
-    const res=await fetch(`${API}?${qs.toString()}`); const j=JSON.parse(await res.text());
-    if(j.ok){ notify(`Booster applied: ${booster}`); usedBoosters.push(booster); usedMatches.push(matchId); renderBoosterDropdown(); }
-    else notify(j.error||'Booster failed');
-  }catch(e){ notify('Network error booster apply'); }
-  finally{ applyBoosterBtn.classList.remove('disabled'); }
-});
-document.addEventListener('DOMContentLoaded',()=> setTimeout(loadBoosters,1500));
-</script>
 
 <!-- BOOSTER SYSTEM (FINAL v3) -->
 <script>
