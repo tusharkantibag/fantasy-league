@@ -1362,5 +1362,167 @@ window.sortMode='NONE';
 })();
 </script>
 
+<script>
+/* ============================================================
+   BOOSTER LOGIC OVERRIDE — OPTION B (Safe add‑on, no replacements)
+   ============================================================ */
+
+// Runs after everything loads
+document.addEventListener("DOMContentLoaded", function () {
+
+    // We rely on existing globals, and DO NOT replace any functions:
+    // emailEl, matchSelectEl, applyBoosterBtn, usedBoosters, usedMatches,
+    // isLocked, boosterSelect, boosterStatus.
+
+    if (!window.matchSelectEl) return;
+
+    /* ----------------------------------------------
+       1. Grey‑Out boosters ONLY AFTER DEADLINE
+    ---------------------------------------------- */
+    function applyBoosterGreyOutRule() {
+        const inst = M.FormSelect.getInstance(boosterSelect);
+        if (inst) inst.destroy();
+
+        const selectedMatch = matchSelectEl.value;
+
+        // Before deadline → grey‑out only boosters used in *previous matches*
+        // After deadline → grey‑out also the booster applied for this match
+        let shouldLock = window.isLocked === true;
+
+        boosterSelect.querySelectorAll("option").forEach(opt => {
+            const name = opt.value;
+
+            if (!name) return; // skip placeholder
+
+            const isUsedElsewhere = usedBoosters.includes(name) &&
+                                    !usedMatches.includes(selectedMatch);
+
+            const isUsedThisMatch = usedMatches.includes(selectedMatch) &&
+                                    usedBoosters.includes(name);
+
+            if (shouldLock) {
+                // AFTER deadline → disable any used booster for this match
+                if (isUsedThisMatch) opt.disabled = true;
+            } else {
+                // BEFORE deadline → only disable boosters used in OTHER matches
+                if (isUsedElsewhere) opt.disabled = true;
+                else opt.disabled = false;
+            }
+        });
+
+        setTimeout(() => M.FormSelect.init(boosterSelect), 50);
+    }
+
+
+    /* ----------------------------------------------------
+       2. Allow overriding booster BEFORE deadline
+    ---------------------------------------------------- */
+    async function overrideBoosterBeforeDeadline() {
+
+        const email = (emailEl.value || "").trim().toLowerCase();
+        const matchId = matchSelectEl.value;
+        const booster = boosterSelect.value;
+
+        if (!email) return notify("Enter email");
+        if (!matchId) return notify("Select match");
+        if (!booster) return notify("Select booster");
+
+        if (window.isLocked === true) {
+            return notify("Deadline passed — booster is locked.");
+        }
+
+        // Remove previously used booster FOR THIS MATCH only
+        const prevIndex = usedMatches.indexOf(matchId);
+        if (prevIndex !== -1) {
+            const prevBooster = usedBoosters[prevIndex];
+            usedBoosters.splice(prevIndex, 1);
+            usedMatches.splice(prevIndex, 1);
+        }
+
+        applyBoosterBtn.classList.add("disabled");
+
+        try {
+            const qs = new URLSearchParams({
+                action: "submitbooster",
+                email,
+                matchId,
+                booster
+            });
+
+            const res = await fetch(`${API}?${qs.toString()}`);
+            const txt = await res.text();
+            const j = JSON.parse(txt);
+
+            if (j.ok) {
+                notify(`Booster applied: ${booster}`);
+
+                usedBoosters.push(booster);
+                usedMatches.push(matchId);
+
+                showBoosterAppliedInPreview(booster);
+                applyBoosterGreyOutRule();
+
+            } else {
+                notify(j.error || "Booster failed");
+            }
+
+        } catch (e) {
+            notify("Network error");
+        }
+
+        applyBoosterBtn.classList.remove("disabled");
+    }
+
+
+    /* ----------------------------------------------------
+       3. Show Booster Applied in Preview (non‑intrusive)
+    ---------------------------------------------------- */
+    function showBoosterAppliedInPreview(boosterName) {
+        const previewHeader = document.querySelector(".preview-header");
+        if (!previewHeader) return;
+
+        let tag = document.getElementById("boosterAppliedTag");
+
+        if (!tag) {
+            tag = document.createElement("span");
+            tag.id = "boosterAppliedTag";
+            tag.style.cssText = `
+                margin-left: 12px;
+                padding: 4px 10px;
+                border-radius: 8px;
+                background: #ffe3b3;
+                color: #b86b00;
+                font-weight: 700;
+                font-size: 0.85rem;
+            `;
+            previewHeader.appendChild(tag);
+        }
+
+        tag.textContent = `Booster: ${boosterName}`;
+    }
+
+
+    /* ----------------------------------------------------
+       4. Hook the existing Apply Booster button safely
+    ---------------------------------------------------- */
+    applyBoosterBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        overrideBoosterBeforeDeadline();
+    });
+
+    // Re-apply grey-out any time boosters load or match changes
+    setTimeout(applyBoosterGreyOutRule, 2000);
+    document.addEventListener("input", e => {
+        if (e.target.id === "email") {
+            setTimeout(() => applyBoosterGreyOutRule(), 800);
+        }
+    });
+    matchSelectEl.addEventListener("change", () => {
+        setTimeout(applyBoosterGreyOutRule, 800);
+    });
+});
+</script>  
+  
+  
 </body>
 </html>
