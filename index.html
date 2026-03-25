@@ -406,6 +406,11 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
     height: 54px !important;
 }
 
+
+.booster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.booster-card{padding:12px;border-radius:12px;background:#fff;border:2px solid #e3e9f6;cursor:pointer;}
+.booster-card.selected{border:2px solid blue;background:#eef4ff;}
+.booster-card.disabled{opacity:.5;cursor:not-allowed;}
 </style>
 </head>
 <body>
@@ -609,7 +614,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 <div id='boosterPanel' class='card' style='margin-top:1rem; padding:1rem;'>
   <span class='card-title'>Apply Booster</span>
   <div class='input-field'>
-    <select id='boosterSelect'></select>
+    
     <label>Select Booster</label>
   </div>
   <a id='applyBoosterBtn' class='btn waves-effect orange'><i class='material-icons left'>flash_on</i>Apply Booster</a>
@@ -621,6 +626,13 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
                   <select id="captainSelect"></select>
                   <label>Captain (C)</label>
                 </div>
+<div id='boosterPanel' class='card' style='margin-top:1rem; padding:1rem;'>
+  <span class='card-title'>Apply Booster</span>
+  <a id='openBoosterModal' class='btn waves-effect blue'>
+    <i class='material-icons left'>flash_on</i>Select Booster</a>
+  <div id='selectedBoosterDisplay' class='small-muted' style='margin-top:.5rem;'>No booster selected</div>
+</div>
+
                 <div class="input-field">
                   <select id="viceCaptainSelect"></select>
                   <label>Vice‑Captain (VC)</label>
@@ -1050,8 +1062,51 @@ function updateSort(){const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'P
 if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];updateSort();renderPlayers();}}
 
 
+<!-- BOOSTER SYSTEM AUTO-INJECTED -->
+<script>
+const boosterSelect = document.getElementById('boosterSelect');
+const applyBoosterBtn = document.getElementById('applyBoosterBtn');
+const boosterStatus = document.getElementById('boosterStatus');
+let allBoosters = [], usedBoosters = [], usedMatches = [];
+async function loadBoosters(){
+  const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return;
+  try{
+    const res=await fetch(`${API}?action=allboosters&email=${encodeURIComponent(email)}`);
+    const txt=await res.text(); let j=JSON.parse(txt);
+    if(!j.ok){ boosterStatus.textContent='Could not load boosters'; return; }
+    allBoosters=j.boosters||[]; usedBoosters=j.usedBoosters||[]; usedMatches=j.usedMatches||[];
+    renderBoosterDropdown();
+  }catch(e){ boosterStatus.textContent='Network error loading boosters'; }
+}
+function renderBoosterDropdown(){
+  boosterSelect.innerHTML='';
+  if(!allBoosters.length){ boosterSelect.innerHTML='<option disabled>No boosters available</option>'; M.FormSelect.init(boosterSelect); return; }
+  boosterSelect.innerHTML+='<option value="" disabled selected>Select Booster</option>';
+  allBoosters.forEach(b=>{
+    const dis = usedBoosters.includes(b.name)?'disabled':'';
+    boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
+  });
+  M.FormSelect.init(boosterSelect);
+}
+applyBoosterBtn.addEventListener('click', async ()=>{
+  const email=(emailEl.value||'').trim().toLowerCase();
+  const matchId=matchSelectEl.value; const booster=boosterSelect.value;
+  if(!email) return notify('Enter email'); if(!matchId) return notify('Match required'); if(!booster) return notify('Select booster');
+  if(usedMatches.includes(matchId)) return notify('Already used booster for this match');
+  applyBoosterBtn.classList.add('disabled');
+  try{
+    const qs=new URLSearchParams({action:'submitbooster',email,matchId,booster});
+    const res=await fetch(`${API}?${qs.toString()}`); const j=JSON.parse(await res.text());
+    if(j.ok){ notify(`Booster applied: ${booster}`); usedBoosters.push(booster); usedMatches.push(matchId); renderBoosterDropdown(); }
+    else notify(j.error||'Booster failed');
+  }catch(e){ notify('Network error booster apply'); }
+  finally{ applyBoosterBtn.classList.remove('disabled'); }
+});
+document.addEventListener('DOMContentLoaded',()=> setTimeout(loadBoosters,1500));
+</script>
 
 <!-- BOOSTER SYSTEM (FINAL v3) -->
+<script>
 const boosterSelect = document.getElementById('boosterSelect');
 const applyBoosterBtn = document.getElementById('applyBoosterBtn');
 const boosterStatus = document.getElementById('boosterStatus');
@@ -1186,10 +1241,9 @@ applyBoosterBtn.addEventListener("click", async () => {
 /* ---------------------------------------------------
    AUTO LOAD WHEN PAGE READY
 --------------------------------------------------- */
-// updated load logic
-async function afterStatsLoaded(){ await fetchUserStats(); await loadBoosters(); }
-document.addEventListener('DOMContentLoaded', afterStatsLoaded);
-emailEl.addEventListener('change', afterStatsLoaded);
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Booster system: DOMContentLoaded triggered.");
+  setTimeout(loadBoosters, 1500);
 });
 
 /* Reload booster list when email changes */
@@ -1202,5 +1256,17 @@ document.addEventListener("input", e => {
   
 </script>
 ``
+
+<!-- Booster Modal -->
+<div id='boosterModal' class='modal modal-fixed-footer'>
+ <div class='modal-content'>
+  <h5>Select Booster</h5>
+  <div id='boosterCardContainer' class='booster-grid'></div>
+ </div>
+ <div class='modal-footer'>
+  <a id='confirmBoosterBtn' class='modal-close btn orange'><i class='material-icons left'>check</i>Apply</a>
+  <a class='modal-close btn-flat'>Cancel</a>
+ </div>
+</div>
 </body>
 </html>
