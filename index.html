@@ -1036,9 +1036,44 @@ window.sortMode='NONE';
 
 
 <script>
-// final booster override clean
-(function(){document.addEventListener('DOMContentLoaded',function(){const boosterSelect=document.getElementById('boosterSelect');const applyBtn=document.getElementById('applyBoosterBtn');if(!boosterSelect||!applyBtn)return;function showTag(b){const h=document.querySelector('.preview-header');if(!h)return;let tag=document.getElementById('boosterAppliedTag');if(!tag){tag=document.createElement('span');tag.id='boosterAppliedTag';tag.style='margin-left:12px;padding:4px 10px;border-radius:8px;background:#ffe3b3;color:#b86b00;font-weight:700;font-size:0.85rem;';h.appendChild(tag);}tag.textContent='Booster: '+b;}function grey(){let inst=M.FormSelect.getInstance(boosterSelect);if(inst)inst.destroy();const mid=matchSelectEl.value;boosterSelect.querySelectorAll('option').forEach(o=>{if(!o.value)return;const used=usedBoosters.includes(o.value)&&!usedMatches.includes(mid);o.disabled=used;});setTimeout(()=>M.FormSelect.init(boosterSelect),20);}async function apply(){const email=(emailEl.value||'').trim().toLowerCase();const mid=matchSelectEl.value;const b=boosterSelect.value;if(!email)return notify('Enter email');if(!mid)return notify('Select match');if(!b)return notify('Select booster');const idx=usedMatches.indexOf(mid);if(idx!=-1){usedBoosters.pop(idx);usedMatches.pop(idx);}applyBtn.classList.add('disabled');try{const qs=new URLSearchParams({action:'submitbooster',email,matchId:mid,booster:b});const res=await fetch(`${API}?${qs}`);const j=JSON.parse(await res.text());if(j.ok){notify(`Booster applied: ${b}`);usedBoosters.push(b);usedMatches.push(mid);showTag(b);grey();}else notify(j.error||'Failed');}catch(e){notify('Network error');}applyBtn.classList.remove('disabled');}
-applyBtn.addEventListener('click',e=>{e.preventDefault();apply();});setTimeout(grey,1500);matchSelectEl.addEventListener('change',()=>setTimeout(grey,400));});})();
+// Force-enable booster dropdown except previous-match boosters
+(function(){document.addEventListener('DOMContentLoaded',function(){
+ const sel=document.getElementById('boosterSelect');
+ const btn=document.getElementById('applyBoosterBtn');
+ if(!sel||!btn)return;
+ function force(){
+   const mid=matchSelectEl.value;
+   sel.disabled=false;
+   let inst=M.FormSelect.getInstance(sel); if(inst)inst.destroy();
+   sel.querySelectorAll('option').forEach(o=>{
+      if(!o.value)return;
+      const usedPrev=usedBoosters.includes(o.value) && !usedMatches.includes(mid);
+      o.disabled=usedPrev;
+   });
+   setTimeout(()=>M.FormSelect.init(sel),10);
+ }
+ function applyBooster(){
+   const email=(emailEl.value||'').trim().toLowerCase();
+   const mid=matchSelectEl.value;
+   const b=sel.value;
+   if(!email)return notify('Enter email');
+   if(!mid)return notify('Select match');
+   if(!b)return notify('Select booster');
+   const idx=usedMatches.indexOf(mid);
+   if(idx!=-1){usedBoosters.splice(idx,1);usedMatches.splice(idx,1);} // replace
+   btn.classList.add('disabled');
+   fetch(`${API}?action=submitbooster&email=${email}&matchId=${mid}&booster=${b}`)
+     .then(r=>r.text()).then(t=>JSON.parse(t)).then(j=>{
+        if(j.ok){notify(`Booster applied: ${b}`);usedBoosters.push(b);usedMatches.push(mid);}
+        else notify(j.error||'Failed');
+        force();
+     }).catch(()=>notify('Network error')).finally(()=>btn.classList.remove('disabled'));
+ }
+ btn.addEventListener('click',e=>{e.preventDefault();applyBooster();});
+ setTimeout(force,1500);
+ matchSelectEl.addEventListener('change',()=>setTimeout(force,300));
+ document.addEventListener('input',e=>{if(e.target.id=='email')setTimeout(force,500);});
+});})();
 </script>
 
 </body>
