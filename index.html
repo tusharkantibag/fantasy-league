@@ -605,6 +605,28 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
             </div>
 
             <!-- Captain & Vice-Captain selection -->
+<!-- Unified Match Enhancements Action Card -->
+<div class='card action-card' style='margin-top:1rem; padding:1.2rem; border-radius:16px;'>
+  <h6 style='font-weight:800; margin-bottom:1rem;'>Match Enhancements</h6>
+  <div class='row' style='margin-bottom:1.5rem;'>
+    <div class='input-field col s12 m6 chip-select-field'>
+      <select id='captainSelect'></select>
+      <label>Captain (C)</label>
+    </div>
+    <div class='input-field col s12 m6 chip-select-field'>
+      <select id='viceCaptainSelect'></select>
+      <label>Vice-Captain (VC)</label>
+    </div>
+  </div>
+  <div id='cvcHint' class='small-muted'>Pick a Captain & Vice-Captain. They must be different.</div>
+  <div class='input-field chip-select-field'>
+    <select id='boosterSelect'></select>
+    <label>Select Booster</label>
+  </div>
+  <a id='applyBoosterBtn' class='btn waves-effect orange'><i class='material-icons left'>flash_on</i>Apply Booster</a>
+  <div id='boosterStatus' class='small-muted'></div>
+</div>
+
             
 
   <a id='applyBoosterBtn' class='btn waves-effect orange'><i class='material-icons left'>flash_on</i>Apply Booster</a>
@@ -619,37 +641,7 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
               <div class="cvc-hint" id="cvcHint">Pick a Captain & Vice‑Captain. They must be different.</div>
             </div>
 
-            
-<div class='card action-card' style='margin-top:1rem; padding:1.2rem; border-radius:16px;'>
-  <h6 style='font-weight:800; margin-bottom:1rem;'>Match Enhancements</h6>
-
-  <div class='row' style='margin-bottom:1.5rem;'>
-    <div class='input-field col s12 m6 chip-select-field'>
-      <select id='captainSelect'></select>
-      <label>Captain (C)</label>
-    </div>
-    <div class='input-field col s12 m6 chip-select-field'>
-      <select id='viceCaptainSelect'></select>
-      <label>Vice-Captain (VC)</label>
-    </div>
-  </div>
-
-  <div id='cvcHint' class='small-muted' style='margin-top:-10px; margin-bottom:1.2rem; font-size:0.9rem;'>
-    Pick a Captain & Vice-Captain. They must be different.
-  </div>
-
-  <div class='input-field chip-select-field'>
-    <select id='boosterSelect'></select>
-    <label>Select Booster</label>
-  </div>
-
-  <a id='applyBoosterBtn' class='btn waves-effect orange' style='margin-top:0.7rem; border-radius:10px;'>
-    <i class='material-icons left'>flash_on</i>Apply Booster
-  </a>
-
-  <div id='boosterStatus' class='small-muted' style='margin-top:0.5rem;'></div>
-</div>
-<div id="validationMsg" class="helper" style="margin-top:.6rem;"></div>
+            <div id="validationMsg" class="helper" style="margin-top:.6rem;"></div>
           </div></div>
         </div>
       </div>
