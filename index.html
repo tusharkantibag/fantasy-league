@@ -423,6 +423,114 @@ p.small-muted{display:none!important;}
   background-color: #e8f5e9 !important;
 }
 
+/* =========================================================
+   ✅ MOBILE OPTIMIZATION (≤ 600px)
+   ========================================================= */
+@media (max-width: 600px) {
+
+  /* Overall container */
+  main.container {
+    padding-left: 8px;
+    padding-right: 8px;
+    width: 100%;
+  }
+
+  /* Tabs spacing */
+  .tabs .tab a {
+    font-size: 0.9rem;
+    padding: 0 8px;
+  }
+
+  /* Filters: stack vertically */
+  .filters {
+    grid-template-columns: 1fr !important;
+    gap: 6px;
+  }
+
+  /* Filter chips full width */
+  .filter-chip {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Budget slider full width */
+  #budgetMax {
+    width: 100% !important;
+  }
+
+  /* Player list height (prevent overflow) */
+  .player-list {
+    max-height: 60vh;
+  }
+
+  /* Player card compact */
+  .player-card {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .player-name {
+    font-size: 0.95rem;
+  }
+
+  /* Preview cards: auto-fit */
+  .square-card {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  /* Role rows spacing */
+  .role-cards {
+    gap: 8px;
+  }
+
+  /* Preview grid padding */
+  .preview-grid {
+    padding: 6px;
+  }
+
+  /* C/VC selects stack */
+  .cvc-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Booster panel buttons stack */
+  #boosterPanel a.btn {
+    width: 100%;
+    margin: 4px 0 !important;
+  }
+
+  /* Sticky actions usable on mobile */
+  .sticky-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sticky-actions a {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Leaderboard text fit */
+  #leaderboard table thead th,
+  #leaderboard table tbody td {
+    font-size: 0.95rem !important;
+    padding: 10px 6px !important;
+  }
+
+  /* Reduce modal width */
+  .modal {
+    width: 95% !important;
+    max-height: 90%;
+  }
+
+  /* Disable hover-only effects on touch */
+  .player-card:hover {
+    transform: none;
+    box-shadow: var(--elev-sm);
+  }
+}
     
 </style>
 </head>
