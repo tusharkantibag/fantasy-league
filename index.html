@@ -1140,7 +1140,8 @@ function renderBoosterDropdown() {
 
   // Reinitialize after DOM is ready
   setTimeout(() => {
-    console.log("Reinitializing Materialize FormSelect for boosterSelect…");
+    const inst = M.FormSelect.getInstance(boosterSelect);
+    if (inst) inst.destroy();
     M.FormSelect.init(boosterSelect);
   }, 50);
 }
