@@ -1116,24 +1116,33 @@ async function loadBoosters() {
    RENDER DROPDOWN
 --------------------------------------------------- */
 function renderBoosterDropdown() {
-    boosterSelect.innerHTML = "";
+    const parent = boosterSelect.parentElement;
+
+    // Remove old Materialize wrapper
+    const wrapper = parent.querySelector(".select-wrapper");
+    if (wrapper) wrapper.remove();
+
+    // Create a fresh <select>
+    const fresh = document.createElement("select");
+    fresh.id = "boosterSelect";
 
     if (!allBoosters.length) {
-        boosterSelect.innerHTML = `<option disabled>No boosters available</option>`;
+        fresh.innerHTML = `<option disabled>No boosters available</option>`;
     } else {
-        boosterSelect.innerHTML = `<option value="" disabled selected>Select Booster</option>`;
+        fresh.innerHTML = `<option value="" disabled selected>Select Booster</option>`;
         allBoosters.forEach(b => {
             const disabled = usedBoosters.includes(b.name) ? "disabled" : "";
-            boosterSelect.innerHTML += `<option value="${b.name}" ${disabled}>${b.name}</option>`;
+            fresh.innerHTML += `<option value="${b.name}" ${disabled}>${b.name}</option>`;
         });
     }
 
-    // Remove any previous instance safely
-    const old = M.FormSelect.getInstance(boosterSelect);
-    if (old) old.destroy();
+    parent.appendChild(fresh);
 
-    // Initialize **just once**
-    M.FormSelect.init(boosterSelect);
+    // Reconnect to code
+    boosterSelect = fresh;
+
+    // Re-init properly
+    M.FormSelect.init(fresh);
 }
 
 
