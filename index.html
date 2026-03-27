@@ -1062,7 +1062,9 @@ if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC'
 
 <!-- BOOSTER SYSTEM (FINAL v3) -->
 <script>
-const boosterSelect = document.getElementById('boosterSelect');
+function getBoosterSelect() {
+    return document.getElementById("boosterSelect");
+}
 const applyBoosterBtn = document.getElementById('applyBoosterBtn');
 const boosterStatus = document.getElementById('boosterStatus');
 
