@@ -1116,33 +1116,37 @@ async function loadBoosters() {
    RENDER DROPDOWN
 --------------------------------------------------- */
 function renderBoosterDropdown() {
-    const parent = boosterSelect.parentElement;
+    const inputField = boosterSelect.closest(".input-field");
 
-    // Remove old Materialize wrapper
-    const wrapper = parent.querySelector(".select-wrapper");
-    if (wrapper) wrapper.remove();
+    // Remove everything inside the input-field
+    while (inputField.firstChild) inputField.removeChild(inputField.firstChild);
 
-    // Create a fresh <select>
-    const fresh = document.createElement("select");
-    fresh.id = "boosterSelect";
+    // Build fresh label + select in the correct order
+    const freshSelect = document.createElement("select");
+    freshSelect.id = "boosterSelect";
 
     if (!allBoosters.length) {
-        fresh.innerHTML = `<option disabled>No boosters available</option>`;
+        freshSelect.innerHTML = `<option disabled>No boosters available</option>`;
     } else {
-        fresh.innerHTML = `<option value="" disabled selected>Select Booster</option>`;
+        freshSelect.innerHTML = `<option value="" disabled selected>Select Booster</option>`;
         allBoosters.forEach(b => {
             const disabled = usedBoosters.includes(b.name) ? "disabled" : "";
-            fresh.innerHTML += `<option value="${b.name}" ${disabled}>${b.name}</option>`;
+            freshSelect.innerHTML += `<option value="${b.name}" ${disabled}>${b.name}</option>`;
         });
     }
 
-    parent.appendChild(fresh);
+    const freshLabel = document.createElement("label");
+    freshLabel.textContent = "Select Booster";
 
-    // Reconnect to code
-    boosterSelect = fresh;
+    // Append in correct order (label last!)
+    inputField.appendChild(freshSelect);
+    inputField.appendChild(freshLabel);
 
-    // Re-init properly
-    M.FormSelect.init(fresh);
+    // Update global reference
+    boosterSelect = freshSelect;
+
+    // Re-init
+    M.FormSelect.init(freshSelect);
 }
 
 
