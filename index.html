@@ -410,6 +410,14 @@ main.container .card.preview-card.preview-error .preview-grid{ background: linea
 /* hide tip and health */
 p.small-muted{display:none!important;}
 #healthLine{display:none!important;}
+
+/* === Booster Active Panel State === */
+.booster-active {
+  background: #e8f5e9 !important;   /* Light green */
+  border-color: #66bb6a !important;
+  box-shadow: 0 6px 18px rgba(46, 125, 50, 0.25) !important;
+}
+    
 </style>
 </head>
 <body>
@@ -932,7 +940,7 @@ playersList.innerHTML='';
       await fetchNextMatch(); await fetchAllPlayers(); await fetchUserStats(); await loadLeaderboard(); await fetchPoints();
       document.addEventListener('input',(e)=>{ if(e.target.id==='email'){ try{localStorage.setItem('ml_email', e.target.value||'');}catch(_){ } statsReady=false; fetchUserStats().then(()=>applyLastXIIfReady()); } if(e.target.id==='searchInput'){ renderPlayers(); } if(e.target.id==='budgetMax'){ budgetMaxLabel.textContent=String(budgetMaxEl.value); try{ localStorage.setItem('ml_budget_cap', String(budgetMaxEl.value)); }catch(_){ } renderPlayers(); } });
       teamFilter.addEventListener('change', renderPlayers); roleFilter.addEventListener('change', renderPlayers); catFilter.addEventListener('change', renderPlayers);
-      matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); });
+      matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); updateBoosterPanelState(); });
       document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints(); });
       document.getElementById('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
       document.getElementById('buildFirstBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
@@ -1117,6 +1125,16 @@ let allBoosters = [];
 let usedBoosters = [];
 let usedMatches = [];
 
+function updateBoosterPanelState() {
+  const panel = document.getElementById('boosterPanel');
+  if (!panel) return;
+
+  const matchId = matchSelectEl.value;
+  const active = usedMatches.includes(matchId);
+
+  panel.classList.toggle('booster-active', active);
+}
+
 // Load boosters from backend
 async function loadBoosters() {
   const email = (emailEl.value || '').trim().toLowerCase();
@@ -1137,6 +1155,7 @@ async function loadBoosters() {
     usedMatches = j.usedMatches || [];
 
     renderBoosterDropdown();
+    updateBoosterPanelState();
   } catch (e) {
     boosterStatus.textContent = "Network error loading boosters";
   }
@@ -1180,6 +1199,7 @@ applyBoosterBtn.addEventListener('click', async () => {
       usedBoosters.push(booster);
       usedMatches.push(matchId);
       renderBoosterDropdown();
+      updateBoosterPanelState();
     } else {
       notify(j.error || "Failed to apply booster");
     }
@@ -1217,6 +1237,7 @@ document.addEventListener("DOMContentLoaded", () => {
         notify("Booster disabled successfully.");
         usedMatches = usedMatches.filter(m => m !== matchId);
         renderBoosterDropdown();
+        updateBoosterPanelState();
       } else {
         notify(j.error || "Unable to disable booster.");
       }
