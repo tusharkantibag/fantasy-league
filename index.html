@@ -684,7 +684,7 @@ p.small-muted{display:none!important;}
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbyhG0J7JUWNtUsSNTCAZTNvluQ2W8dEz5JIwtfX-tQ9s3oJMYwmWc2FwWls02ZuYsnB/exec';
+const API = 'https://script.google.com/macros/s/AKfycbwMxA-cIpEQqiPHHgkyOsxcMAC9i0SmmsgjZ-ijqIlfbK7vkRFwrtz80-fNeOyYuiP1/exec';
 
 // === Chip filler helpers (lighter filled bars) ===
 function tagInfoBars(context){
@@ -1060,171 +1060,51 @@ const sl=document.querySelector('.sort-label');
 function updateSort(){const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'Price ↓',POINTS_ASC:'Points ↑',POINTS_DESC:'Points ↓'};sl.textContent=map[window.sortMode];st.className='material-icons sort-toggle mode-'+window.sortMode;}
 if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];updateSort();renderPlayers();}}
 
-<!-- BOOSTER SYSTEM (FINAL v3) -->
+
+<!-- BOOSTER SYSTEM AUTO-INJECTED -->
 <script>
-function getBoosterSelect() {
-    return document.getElementById("boosterSelect");
-}
+const boosterSelect = document.getElementById('boosterSelect');
 const applyBoosterBtn = document.getElementById('applyBoosterBtn');
 const boosterStatus = document.getElementById('boosterStatus');
-
-let allBoosters = [];
-let usedBoosters = [];
-let usedMatches = [];
-
-/* ---------------------------------------------------
-   LOAD BOOSTERS
---------------------------------------------------- */
-async function loadBoosters() {
-  const email = (emailEl.value || '').trim().toLowerCase();
-  if (!email) {
-    console.log("Booster: No email yet.");
-    return;
-  }
-
-  try {
-    const url = `${API}?action=allboosters&email=${encodeURIComponent(email)}`;
-    console.log("Booster API:", url);
-
-    const res = await fetch(url);
-    const txt = await res.text();
-    console.log("Booster API response:", txt);
-
-    const j = JSON.parse(txt);
-
-    if (!j.ok) {
-      boosterStatus.textContent = "Unable to load boosters (API error).";
-      return;
-    }
-
-    allBoosters = j.boosters || [];
-    usedBoosters = j.usedBoosters || [];
-    usedMatches = j.usedMatches || [];
-
-    console.log("Boosters:", allBoosters);
-    console.log("Used Boosters:", usedBoosters);
-    console.log("Used Matches:", usedMatches);
-
+let allBoosters = [], usedBoosters = [], usedMatches = [];
+async function loadBoosters(){
+  const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return;
+  try{
+    const res=await fetch(`${API}?action=allboosters&email=${encodeURIComponent(email)}`);
+    const txt=await res.text(); let j=JSON.parse(txt);
+    if(!j.ok){ boosterStatus.textContent='Could not load boosters'; return; }
+    allBoosters=j.boosters||[]; usedBoosters=j.usedBoosters||[]; usedMatches=j.usedMatches||[];
     renderBoosterDropdown();
-
-  } catch (e) {
-    console.log("Booster API error:", e);
-    boosterStatus.textContent = "Network error loading boosters.";
-  }
+  }catch(e){ boosterStatus.textContent='Network error loading boosters'; }
 }
-
-
-/* ---------------------------------------------------
-   RENDER DROPDOWN
---------------------------------------------------- */
-function renderBoosterDropdown() {
-    const inputField = getBoosterSelect().closest(".input-field");
-
-    // Remove everything inside the input-field
-    while (inputField.firstChild) inputField.removeChild(inputField.firstChild);
-
-    // Build fresh label + select in the correct order
-    const freshSelect = document.createElement("select");
-    freshSelect.id = "boosterSelect";
-
-    if (!allBoosters.length) {
-        freshSelect.innerHTML = `<option disabled>No boosters available</option>`;
-    } else {
-        freshSelect.innerHTML = `<option value="" disabled selected>Select Booster</option>`;
-        allBoosters.forEach(b => {
-            const disabled = usedBoosters.includes(b.name) ? "disabled" : "";
-            freshSelect.innerHTML += `<option value="${b.name}" ${disabled}>${b.name}</option>`;
-        });
-    }
-
-    const freshLabel = document.createElement("label");
-    freshLabel.textContent = "Select Booster";
-
-    // Append in correct order (label last!)
-    inputField.appendChild(freshSelect);
-    inputField.appendChild(freshLabel);
-
-    // Update global reference
-    boosterSelect = freshSelect;
-
-    // Re-init
-    M.FormSelect.init(freshSelect);
+function renderBoosterDropdown(){
+  boosterSelect.innerHTML='';
+  if(!allBoosters.length){ boosterSelect.innerHTML='<option disabled>No boosters available</option>'; M.FormSelect.init(boosterSelect); return; }
+  boosterSelect.innerHTML+='<option value="" disabled selected>Select Booster</option>';
+  allBoosters.forEach(b=>{
+    const dis = usedBoosters.includes(b.name)?'disabled':'';
+    boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
+  });
+  M.FormSelect.init(boosterSelect);
 }
-
-
-/* ---------------------------------------------------
-   APPLY BOOSTER
---------------------------------------------------- */
-applyBoosterBtn.addEventListener("click", async () => {
-  const email = (emailEl.value || "").trim().toLowerCase();
-  const matchId = matchSelectEl.value;
-  const booster = getBoosterSelect().value;
-
-  if (!email) return notify("Enter your email first.");
-  if (!matchId) return notify("Select match.");
-  if (!booster) return notify("Select a booster.");
-
-  if (usedMatches.includes(matchId))
-    return notify("You already used a booster for this match.");
-
-  applyBoosterBtn.classList.add("disabled");
-
-  try {
-    const qs = new URLSearchParams();
-    qs.set("action", "submitbooster");
-    qs.set("email", email);
-    qs.set("matchId", matchId);
-    qs.set("booster", booster);
-
-    const res = await fetch(`${API}?${qs.toString()}`);
-    const txt = await res.text();
-    console.log("SubmitBooster response:", txt);
-
-    let j = JSON.parse(txt);
-
-    if (j.ok) {
-      notify(`Booster applied: ${booster}`);
-
-    // Season rule: booster used once
-    if (!usedBoosters.includes(booster)) usedBoosters.push(booster);
-
-    // Match override: ensure only one active booster per match
-      usedMatches = usedMatches.filter(m => m !== matchId);
-      usedMatches.push(matchId);
-
-
-      
-      renderBoosterDropdown();
-    } else {
-      notify(j.error || "Unable to apply booster.");
-    }
-
-  } catch (e) {
-    console.log("Submit booster error:", e);
-    notify("Network error.");
-  }
-
-  applyBoosterBtn.classList.remove("disabled");
+applyBoosterBtn.addEventListener('click', async ()=>{
+  const email=(emailEl.value||'').trim().toLowerCase();
+  const matchId=matchSelectEl.value; const booster=boosterSelect.value;
+  if(!email) return notify('Enter email'); if(!matchId) return notify('Match required'); if(!booster) return notify('Select booster');
+  if(usedMatches.includes(matchId)) return notify('Already used booster for this match');
+  applyBoosterBtn.classList.add('disabled');
+  try{
+    const qs=new URLSearchParams({action:'submitbooster',email,matchId,booster});
+    const res=await fetch(`${API}?${qs.toString()}`); const j=JSON.parse(await res.text());
+    if(j.ok){ notify(`Booster applied: ${booster}`); usedBoosters.push(booster); usedMatches.push(matchId); renderBoosterDropdown(); }
+    else notify(j.error||'Booster failed');
+  }catch(e){ notify('Network error booster apply'); }
+  finally{ applyBoosterBtn.classList.remove('disabled'); }
 });
-
-
-/* ---------------------------------------------------
-   AUTO LOAD WHEN PAGE READY
---------------------------------------------------- */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("Booster system: DOMContentLoaded triggered.");
-  setTimeout(loadBoosters, 1500);
-});
-
-/* Reload booster list when email changes */
-document.addEventListener("input", e => {
-  if (e.target.id === "email") {
-    setTimeout(loadBoosters, 700);
-  }
-});
-</script>   
-
+document.addEventListener('DOMContentLoaded',()=> setTimeout(loadBoosters,1500));
 </script>
+
+<script>
 window.sortMode='NONE';
 (function(){
  const st=document.querySelector('.sort-toggle');
