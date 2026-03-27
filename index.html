@@ -1082,7 +1082,7 @@ function renderBoosterDropdown(){
   if(!allBoosters.length){ boosterSelect.innerHTML='<option disabled>No boosters available</option>'; M.FormSelect.init(boosterSelect); return; }
   boosterSelect.innerHTML+='<option value="" disabled selected>Select Booster</option>';
   allBoosters.forEach(b=>{
-    const dis = usedBoosters.includes(b.name)?'disabled':'';
+    const dis = (usedMatches.includes(matchSelectEl.value) || isLocked) ? 'disabled' : '';
     boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
   });
   M.FormSelect.init(boosterSelect);
@@ -1170,7 +1170,7 @@ function renderBoosterDropdown() {
       `<option value="" disabled selected>Select Booster</option>`;
 
     allBoosters.forEach(b => {
-      const dis = usedBoosters.includes(b.name) ? "disabled" : "";
+      const dis = (usedMatches.includes(matchSelectEl.value) || isLocked) ? 'disabled' : '';
       boosterSelect.innerHTML += `
         <option value="${b.name}" ${dis}>${b.name}</option>
       `;
@@ -1292,7 +1292,7 @@ function renderBoosterDropdown() {
   boosterSelect.innerHTML = '<option value="" disabled selected>Select Booster</option>';
 
   allBoosters.forEach(b => {
-    const dis = usedBoosters.includes(b.name) ? "disabled" : "";
+    const dis = (usedMatches.includes(matchSelectEl.value) || isLocked) ? 'disabled' : '';
     boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
   });
 
