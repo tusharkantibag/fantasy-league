@@ -1116,34 +1116,24 @@ async function loadBoosters() {
    RENDER DROPDOWN
 --------------------------------------------------- */
 function renderBoosterDropdown() {
-  console.log("Rendering booster dropdown…");
-  boosterSelect.innerHTML = "";
+    boosterSelect.innerHTML = "";
 
-  if (!allBoosters.length) {
-    boosterSelect.innerHTML = `<option disabled>No boosters available</option>`;
-  } else {
-    boosterSelect.innerHTML =
-      `<option value="" disabled selected>Select Booster</option>`;
+    if (!allBoosters.length) {
+        boosterSelect.innerHTML = `<option disabled>No boosters available</option>`;
+    } else {
+        boosterSelect.innerHTML = `<option value="" disabled selected>Select Booster</option>`;
+        allBoosters.forEach(b => {
+            const disabled = usedBoosters.includes(b.name) ? "disabled" : "";
+            boosterSelect.innerHTML += `<option value="${b.name}" ${disabled}>${b.name}</option>`;
+        });
+    }
 
-    allBoosters.forEach(b => {
-      // Disable only if booster is already used this season — but allow match override
-      const dis = usedBoosters.includes(b.name) ? "disabled" : "";
-      boosterSelect.innerHTML += `
-        <option value="${b.name}" ${dis}>${b.name}</option>
-      `;
-    });
-  }
+    // Remove any previous instance safely
+    const old = M.FormSelect.getInstance(boosterSelect);
+    if (old) old.destroy();
 
-  // IMPORTANT: Destroy previous Materialize instance
-  const inst = M.FormSelect.getInstance(boosterSelect);
-  if (inst) inst.destroy();
-
-  // Reinitialize after DOM is ready
-  setTimeout(() => {
-    const inst = M.FormSelect.getInstance(boosterSelect);
-    if (inst) inst.destroy();
+    // Initialize **just once**
     M.FormSelect.init(boosterSelect);
-  }, 50);
 }
 
 
