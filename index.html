@@ -1091,12 +1091,19 @@ applyBoosterBtn.addEventListener('click', async ()=>{
   const email=(emailEl.value||'').trim().toLowerCase();
   const matchId=matchSelectEl.value; const booster=boosterSelect.value;
   if(!email) return notify('Enter email'); if(!matchId) return notify('Match required'); if(!booster) return notify('Select booster');
-  if(usedMatches.includes(matchId)) return notify('Already used booster for this match');
+  
+  // Allow override before deadline — only block after cutoff (backend will enforce)
+  if (usedMatches.includes(matchId)) {
+    // allow override: do not block
+    console.log("Booster previously applied for this match — override allowed before deadline.");
+  }
+
+  
   applyBoosterBtn.classList.add('disabled');
   try{
     const qs=new URLSearchParams({action:'submitbooster',email,matchId,booster});
     const res=await fetch(`${API}?${qs.toString()}`); const j=JSON.parse(await res.text());
-    if(j.ok){ notify(`Booster applied: ${booster}`); usedBoosters.push(booster); usedMatches.push(matchId); renderBoosterDropdown(); }
+    if(j.ok){ notify(`Booster applied: ${booster}`); if (!usedBoosters.includes(booster)) usedBoosters.push(booster); usedMatches = usedMatches.filter(m => m !== matchId); usedMatches.push(matchId); renderBoosterDropdown(); }
     else notify(j.error||'Booster failed');
   }catch(e){ notify('Network error booster apply'); }
   finally{ applyBoosterBtn.classList.remove('disabled'); }
@@ -1170,6 +1177,7 @@ function renderBoosterDropdown() {
       `<option value="" disabled selected>Select Booster</option>`;
 
     allBoosters.forEach(b => {
+      // Disable only if booster is already used this season — but allow match override
       const dis = usedBoosters.includes(b.name) ? "disabled" : "";
       boosterSelect.innerHTML += `
         <option value="${b.name}" ${dis}>${b.name}</option>
@@ -1221,8 +1229,16 @@ applyBoosterBtn.addEventListener("click", async () => {
 
     if (j.ok) {
       notify(`Booster applied: ${booster}`);
-      usedBoosters.push(booster);
+
+    // Season rule: booster used once
+    if (!usedBoosters.includes(booster)) usedBoosters.push(booster);
+
+    // Match override: ensure only one active booster per match
+      usedMatches = usedMatches.filter(m => m !== matchId);
       usedMatches.push(matchId);
+
+
+      
       renderBoosterDropdown();
     } else {
       notify(j.error || "Unable to apply booster.");
@@ -1292,6 +1308,7 @@ function renderBoosterDropdown() {
   boosterSelect.innerHTML = '<option value="" disabled selected>Select Booster</option>';
 
   allBoosters.forEach(b => {
+    // Disable only if booster is already used this season — but allow match override
     const dis = usedBoosters.includes(b.name) ? "disabled" : "";
     boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
   });
@@ -1310,8 +1327,11 @@ applyBoosterBtn.addEventListener('click', async () => {
   if (!matchId) return notify("Select match");
   if (!booster) return notify("Select booster");
 
-  if (usedMatches.includes(matchId))
-    return notify("Already used booster for this match");
+  // Allow override before deadline — only block after cutoff (backend will enforce)
+  if (usedMatches.includes(matchId)) {
+    // allow override: do not block
+    console.log("Booster previously applied for this match — override allowed before deadline.");
+  }
 
   applyBoosterBtn.classList.add("disabled");
 
