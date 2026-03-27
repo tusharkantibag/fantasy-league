@@ -1143,12 +1143,20 @@ async function loadBoosters() {
 }
 
 // Render dropdown
-function renderBoosterDropdown() {
-  boosterSelect.innerHTML = '<option value="" disabled selected>Select Booster</option>';
 
+function renderBoosterDropdown() {
+  const currentMatch = matchSelectEl.value;
+  boosterSelect.innerHTML = '<option value="" disabled selected>Select Booster</option>';
   allBoosters.forEach(b => {
-    const dis = usedBoosters.includes(b.name) ? "disabled" : "";
-    boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
+    const dis = usedMatches.includes(currentMatch) ? "disabled" : "";
+    boosterSelect.innerHTML += `
+      <option value="${b.name}" ${dis}>${b.name}</option>`;
+  });
+  const inst = M.FormSelect.getInstance(boosterSelect);
+  if (inst) inst.destroy();
+  setTimeout(() => M.FormSelect.init(boosterSelect), 50);
+}
+" ${dis}>${b.name}</option>`;
   });
 
   const inst = M.FormSelect.getInstance(boosterSelect);
@@ -1252,73 +1260,6 @@ window.sortMode='NONE';
  st.onclick=function(){ let i=order.indexOf(window.sortMode); window.sortMode=order[(i+1)%order.length]; update(); if(window.renderPlayers) window.renderPlayers(); };
  update();
 })();
-</script>
-
-
-<script>
-// === Booster System (Option A) ===
-const boosterSelect = document.getElementById('boosterSelect');
-const applyBoosterBtn = document.getElementById('applyBoosterBtn');
-const disableBoosterBtn = document.getElementById('disableBoosterBtn');
-const boosterStatus = document.getElementById('boosterStatus');
-let allBoosters=[], usedBoosters=[], usedMatches=[];
-async function loadBoosters(){
- const email=(emailEl.value||'').trim().toLowerCase();
- if(!email) return;
- try{
-  const res=await fetch(`${API}?action=allboosters&email=${encodeURIComponent(email)}`);
-  const j=JSON.parse(await res.text());
-  if(!j.ok){ boosterStatus.textContent='Unable to load boosters'; return; }
-  allBoosters=j.boosters||[];
-  usedBoosters=j.usedBoosters||[];
-  usedMatches=j.usedMatches||[];
-  renderBoosterDropdown();
- }catch(e){ boosterStatus.textContent='Network error loading boosters'; }
-}
-function renderBoosterDropdown(){
- boosterSelect.innerHTML='<option value="" disabled selected>Select Booster</option>';
- allBoosters.forEach(b=>{
-  const dis = usedBoosters.includes(b.name)?'disabled':'';
-  boosterSelect.innerHTML+=`<option value="${b.name}" ${dis}>${b.name}</option>`;
- });
- const inst=M.FormSelect.getInstance(boosterSelect); if(inst) inst.destroy();
- setTimeout(()=>M.FormSelect.init(boosterSelect),50);
-}
-applyBoosterBtn.addEventListener('click', async()=>{
- const email=(emailEl.value||'').trim().toLowerCase();
- const matchId=matchSelectEl.value;
- const booster=boosterSelect.value;
- if(!email) return notify('Enter email');
- if(!matchId) return notify('Select match');
- if(!booster) return notify('Select booster');
- if(usedMatches.includes(matchId)) return notify('Already used booster for this match');
- applyBoosterBtn.classList.add('disabled');
- try{
-  const qs=new URLSearchParams({action:'submitbooster',email,matchId,booster});
-  const res=await fetch(`${API}?${qs.toString()}`);
-  const j=JSON.parse(await res.text());
-  if(j.ok){ notify(`Booster applied: ${booster}`); usedBoosters.push(booster); usedMatches.push(matchId); renderBoosterDropdown(); }
-  else notify(j.error||'Failed to apply booster');
- }catch(e){ notify('Network error applying booster'); }
- applyBoosterBtn.classList.remove('disabled');
-});
-disableBoosterBtn.addEventListener('click', async()=>{
- const email=(emailEl.value||'').trim().toLowerCase();
- const matchId=matchSelectEl.value;
- if(!email) return notify('Enter email');
- if(!matchId) return notify('Select match');
- disableBoosterBtn.classList.add('disabled');
- try{
-  const qs=new URLSearchParams({action:'disablebooster',email,matchId});
-  const res=await fetch(`${API}?${qs.toString()}`);
-  const j=JSON.parse(await res.text());
-  if(j.ok){ notify('Booster disabled successfully'); usedMatches=usedMatches.filter(m=>m!==matchId); renderBoosterDropdown(); }
-  else notify(j.error||'Unable to disable booster');
- }catch(e){ notify('Network error disabling booster'); }
- disableBoosterBtn.classList.remove('disabled');
-});
-document.addEventListener('DOMContentLoaded',()=>setTimeout(loadBoosters,1200));
-document.addEventListener('input',e=>{ if(e.target.id==='email') setTimeout(loadBoosters,500); });
 </script>
 
 </body>
