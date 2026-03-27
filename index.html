@@ -1422,6 +1422,45 @@ document.addEventListener("input", e => {
     setTimeout(loadBoosters, 500);
   }
 });
+const disableBoosterBtn = document.getElementById("disableBoosterBtn");
+
+disableBoosterBtn.addEventListener("click", async () => {
+    const email = (emailEl.value || "").trim().toLowerCase();
+    const matchId = matchSelectEl.value;
+
+    if (!email) return notify("Enter your email first.");
+    if (!matchId) return notify("Select match.");
+
+    disableBoosterBtn.classList.add("disabled");
+
+    try {
+        const qs = new URLSearchParams();
+        qs.set("action", "disablebooster");
+        qs.set("email", email);
+        qs.set("matchId", matchId);
+
+        const res = await fetch(`${API}?${qs.toString()}`);
+        const txt = await res.text();
+        const j = JSON.parse(txt);
+
+        if (j.ok) {
+            notify("Booster disabled successfully.");
+
+            // remove disabled match from memory
+            usedMatches = usedMatches.filter(m => m !== matchId);
+
+            // re-render dropdown
+            renderBoosterDropdown();
+        } else {
+            notify(j.error || "Unable to disable booster.");
+        }
+    } catch (e) {
+        notify("Network error disabling booster.");
+    }
+
+    disableBoosterBtn.classList.remove("disabled");
+});
+  
 </script>
 </script>
 ``
