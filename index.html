@@ -1077,15 +1077,31 @@ async function loadBoosters(){
     renderBoosterDropdown();
   }catch(e){ boosterStatus.textContent='Network error loading boosters'; }
 }
-function renderBoosterDropdown(){
-  boosterSelect.innerHTML='';
-  if(!allBoosters.length){ boosterSelect.innerHTML='<option disabled>No boosters available</option>'; M.FormSelect.init(boosterSelect); return; }
-  boosterSelect.innerHTML+='<option value="" disabled selected>Select Booster</option>';
-  allBoosters.forEach(b=>{
-    const dis = usedBoosters.includes(b.name)?'disabled':'';
-    boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
+function renderBoosterDropdown() {
+
+  boosterSelect.innerHTML =
+    '<option value="" disabled selected>Select Booster</option>';
+
+  allBoosters.forEach(b => {
+
+    // Season lock: booster disabled only if used in ANY **other** match
+    const seasonUsed = usedBoosters.includes(b.name);
+
+    // For same match: allow override BEFORE deadline — do NOT disable
+    const matchUsed = usedMatches.includes(matchSelectEl.value);
+
+    const shouldDisable =
+        seasonUsed && !matchUsed   // used earlier in season (different match)
+        ? "disabled"
+        : "";                      // allow switching for same match
+
+    boosterSelect.innerHTML +=
+      `<option value="${b.name}" ${shouldDisable}>${b.name}</option>`;
   });
-  M.FormSelect.init(boosterSelect);
+
+  const inst = M.FormSelect.getInstance(boosterSelect);
+  if (inst) inst.destroy();
+  setTimeout(() => M.FormSelect.init(boosterSelect), 50);
 }
 applyBoosterBtn.addEventListener('click', async ()=>{
   const email=(emailEl.value||'').trim().toLowerCase();
