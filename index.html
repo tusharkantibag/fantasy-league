@@ -1138,7 +1138,15 @@ function updateBoosterPanelState() {
   const matchId = matchSelectEl.value;
   const active = usedMatches.includes(matchId);
 
-  panel.classList.toggle('booster-active', active);
+  if (active) {
+    panel.style.backgroundColor = '#e8f5e9';      // light green
+    panel.style.borderColor = '#66bb6a';
+    panel.style.boxShadow = '0 6px 18px rgba(46,125,50,0.25)';
+  } else {
+    panel.style.backgroundColor = '';
+    panel.style.borderColor = '';
+    panel.style.boxShadow = '';
+  }
 }
 
 // Load boosters from backend
