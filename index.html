@@ -639,6 +639,11 @@ p.small-muted{display:none!important;}
           <a id="applyBoosterBtn" class="btn waves-effect orange">
           <i class="material-icons left">flash_on</i>Apply Booster
           </a>
+            
+          <a id="disableBoosterBtn" class="btn red" style="margin-left:0.5rem;">
+          <i class="material-icons left">highlight_off</i>Disable Booster
+          </a>
+
           <div id="boosterStatus" class="small-muted" style="margin-top:.5rem;"></div>
           </div>
         </div>
@@ -684,7 +689,7 @@ p.small-muted{display:none!important;}
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbyGROco5Bx_qCYluN9PCpUtM4_u1Oq8XKgz1G9B5ZamXucizRAPoKN62DjQ1kZJm4Sa/exec';
+const API = 'https://script.google.com/macros/s/AKfycbz6vaxZaaAuVi3S0uoNYAGcaGkuNGMb4T1b5l6EkW27N2FmFzWjn04X1eJnU-4JFmRk/exec';
 
 // === Chip filler helpers (lighter filled bars) ===
 function tagInfoBars(context){
@@ -1060,6 +1065,235 @@ const sl=document.querySelector('.sort-label');
 function updateSort(){const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'Price ↓',POINTS_ASC:'Points ↑',POINTS_DESC:'Points ↓'};sl.textContent=map[window.sortMode];st.className='material-icons sort-toggle mode-'+window.sortMode;}
 if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];updateSort();renderPlayers();}}
 
+
+<!-- BOOSTER SYSTEM AUTO-INJECTED -->
+<script>
+const boosterSelect = document.getElementById('boosterSelect');
+const applyBoosterBtn = document.getElementById('applyBoosterBtn');
+const boosterStatus = document.getElementById('boosterStatus');
+let allBoosters = [], usedBoosters = [], usedMatches = [];
+async function loadBoosters(){
+  const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return;
+  try{
+    const res=await fetch(`${API}?action=allboosters&email=${encodeURIComponent(email)}`);
+    const txt=await res.text(); let j=JSON.parse(txt);
+    if(!j.ok){ boosterStatus.textContent='Could not load boosters'; return; }
+    allBoosters=j.boosters||[]; usedBoosters=j.usedBoosters||[]; usedMatches=j.usedMatches||[];
+    renderBoosterDropdown();
+  }catch(e){ boosterStatus.textContent='Network error loading boosters'; }
+}
+function renderBoosterDropdown(){
+  boosterSelect.innerHTML='';
+  if(!allBoosters.length){ boosterSelect.innerHTML='<option disabled>No boosters available</option>'; M.FormSelect.init(boosterSelect); return; }
+  boosterSelect.innerHTML+='<option value="" disabled selected>Select Booster</option>';
+  allBoosters.forEach(b=>{
+    const dis = usedBoosters.includes(b.name)?'disabled':'';
+    boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
+  });
+  M.FormSelect.init(boosterSelect);
+}
+applyBoosterBtn.addEventListener('click', async ()=>{
+  const email=(emailEl.value||'').trim().toLowerCase();
+  const matchId=matchSelectEl.value; const booster=boosterSelect.value;
+  if(!email) return notify('Enter email'); if(!matchId) return notify('Match required'); if(!booster) return notify('Select booster');
+  if(usedMatches.includes(matchId)) return notify('Already used booster for this match');
+  applyBoosterBtn.classList.add('disabled');
+  try{
+    const qs=new URLSearchParams({action:'submitbooster',email,matchId,booster});
+    const res=await fetch(`${API}?${qs.toString()}`); const j=JSON.parse(await res.text());
+    if(j.ok){ notify(`Booster applied: ${booster}`); usedBoosters.push(booster); usedMatches.push(matchId); renderBoosterDropdown(); }
+    else notify(j.error||'Booster failed');
+  }catch(e){ notify('Network error booster apply'); }
+  finally{ applyBoosterBtn.classList.remove('disabled'); }
+});
+document.addEventListener('DOMContentLoaded',()=> setTimeout(loadBoosters,1500));
+</script>
+
+<!-- BOOSTER SYSTEM (FINAL v3) -->
+<script>
+const boosterSelect = document.getElementById('boosterSelect');
+const applyBoosterBtn = document.getElementById('applyBoosterBtn');
+const boosterStatus = document.getElementById('boosterStatus');
+
+let allBoosters = [];
+let usedBoosters = [];
+let usedMatches = [];
+
+/* ---------------------------------------------------
+   LOAD BOOSTERS
+--------------------------------------------------- */
+async function loadBoosters() {
+  const email = (emailEl.value || '').trim().toLowerCase();
+  if (!email) {
+    console.log("Booster: No email yet.");
+    return;
+  }
+
+  try {
+    const url = `${API}?action=allboosters&email=${encodeURIComponent(email)}`;
+    console.log("Booster API:", url);
+
+    const res = await fetch(url);
+    const txt = await res.text();
+    console.log("Booster API response:", txt);
+
+    const j = JSON.parse(txt);
+
+    if (!j.ok) {
+      boosterStatus.textContent = "Unable to load boosters (API error).";
+      return;
+    }
+
+    allBoosters = j.boosters || [];
+    usedBoosters = j.usedBoosters || [];
+    usedMatches = j.usedMatches || [];
+
+    console.log("Boosters:", allBoosters);
+    console.log("Used Boosters:", usedBoosters);
+    console.log("Used Matches:", usedMatches);
+
+    renderBoosterDropdown();
+
+  } catch (e) {
+    console.log("Booster API error:", e);
+    boosterStatus.textContent = "Network error loading boosters.";
+  }
+}
+
+
+/* ---------------------------------------------------
+   RENDER DROPDOWN
+--------------------------------------------------- */
+function renderBoosterDropdown() {
+  console.log("Rendering booster dropdown…");
+  boosterSelect.innerHTML = "";
+
+  if (!allBoosters.length) {
+    boosterSelect.innerHTML = `<option disabled>No boosters available</option>`;
+  } else {
+    boosterSelect.innerHTML =
+      `<option value="" disabled selected>Select Booster</option>`;
+
+    allBoosters.forEach(b => {
+      const dis = usedBoosters.includes(b.name) ? "disabled" : "";
+      boosterSelect.innerHTML += `
+        <option value="${b.name}" ${dis}>${b.name}</option>
+      `;
+    });
+  }
+
+  // IMPORTANT: Destroy previous Materialize instance
+  const inst = M.FormSelect.getInstance(boosterSelect);
+  if (inst) inst.destroy();
+
+  // Reinitialize after DOM is ready
+  setTimeout(() => {
+    console.log("Reinitializing Materialize FormSelect for boosterSelect…");
+    M.FormSelect.init(boosterSelect);
+  }, 50);
+}
+
+
+/* ---------------------------------------------------
+   APPLY BOOSTER
+--------------------------------------------------- */
+applyBoosterBtn.addEventListener("click", async () => {
+  const email = (emailEl.value || "").trim().toLowerCase();
+  const matchId = matchSelectEl.value;
+  const booster = boosterSelect.value;
+
+  if (!email) return notify("Enter your email first.");
+  if (!matchId) return notify("Select match.");
+  if (!booster) return notify("Select a booster.");
+
+  if (usedMatches.includes(matchId))
+    return notify("You already used a booster for this match.");
+
+  applyBoosterBtn.classList.add("disabled");
+
+  try {
+    const qs = new URLSearchParams();
+    qs.set("action", "submitbooster");
+    qs.set("email", email);
+    qs.set("matchId", matchId);
+    qs.set("booster", booster);
+
+    const res = await fetch(`${API}?${qs.toString()}`);
+    const txt = await res.text();
+    console.log("SubmitBooster response:", txt);
+
+    let j = JSON.parse(txt);
+
+    if (j.ok) {
+      notify(`Booster applied: ${booster}`);
+      usedBoosters.push(booster);
+      usedMatches.push(matchId);
+      renderBoosterDropdown();
+    } else {
+      notify(j.error || "Unable to apply booster.");
+    }
+
+  } catch (e) {
+    console.log("Submit booster error:", e);
+    notify("Network error.");
+  }
+
+  applyBoosterBtn.classList.remove("disabled");
+});
+
+
+/* ---------------------------------------------------
+   AUTO LOAD WHEN PAGE READY
+--------------------------------------------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Booster system: DOMContentLoaded triggered.");
+  setTimeout(loadBoosters, 1500);
+});
+
+/* Reload booster list when email changes */
+document.addEventListener("input", e => {
+  if (e.target.id === "email") {
+    setTimeout(loadBoosters, 700);
+  }
+});
+</script>
+
+<script>
+const disableBoosterBtn = document.getElementById('disableBoosterBtn');
+
+disableBoosterBtn.addEventListener("click", async () => {
+    const email = (emailEl.value || "").trim().toLowerCase();
+    const matchId = matchSelectEl.value;
+
+    if (!email) return notify("Enter your email first.");
+    if (!matchId) return notify("Select match.");
+
+    disableBoosterBtn.classList.add("disabled");
+
+    try {
+        const qs = new URLSearchParams();
+        qs.set("action", "disablebooster");
+        qs.set("email", email);
+        qs.set("matchId", matchId);
+
+        const res = await fetch(`${API}?${qs.toString()}`);
+        const j = JSON.parse(await res.text());
+
+        if (j.ok) {
+            notify("Booster disabled successfully.");
+            usedMatches = usedMatches.filter(m => m !== matchId);
+            renderBoosterDropdown();
+        } else {
+            notify(j.error || "Unable to disable booster.");
+        }
+    } catch (e) {
+        notify("Network error disabling booster.");
+    }
+
+    disableBoosterBtn.classList.remove("disabled");
+});
+<script>
+
 <script>
 // === Booster System (Option A: Booster only) ===
 
@@ -1153,6 +1387,8 @@ document.addEventListener("input", e => {
   }
 });
 </script>
+</script>
+``
 
 <script>
 window.sortMode='NONE';
