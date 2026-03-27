@@ -1061,231 +1061,34 @@ function updateSort(){const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'P
 if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];updateSort();renderPlayers();}}
 
 
-<!-- BOOSTER SYSTEM AUTO-INJECTED -->
 <script>
-const boosterSelect = document.getElementById('boosterSelect');
-const applyBoosterBtn = document.getElementById('applyBoosterBtn');
-const boosterStatus = document.getElementById('boosterStatus');
-let allBoosters = [], usedBoosters = [], usedMatches = [];
-async function loadBoosters(){
-  const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return;
-  try{
-    const res=await fetch(`${API}?action=allboosters&email=${encodeURIComponent(email)}`);
-    const txt=await res.text(); let j=JSON.parse(txt);
-    if(!j.ok){ boosterStatus.textContent='Could not load boosters'; return; }
-    allBoosters=j.boosters||[]; usedBoosters=j.usedBoosters||[]; usedMatches=j.usedMatches||[];
-    renderBoosterDropdown();
-  }catch(e){ boosterStatus.textContent='Network error loading boosters'; }
-}
-function renderBoosterDropdown() {
-
-  boosterSelect.innerHTML =
-    '<option value="" disabled selected>Select Booster</option>';
-
-  allBoosters.forEach(b => {
-
-    // Season lock: booster disabled only if used in ANY **other** match
-    const seasonUsed = usedBoosters.includes(b.name);
-
-    // For same match: allow override BEFORE deadline — do NOT disable
-    const matchUsed = usedMatches.includes(matchSelectEl.value);
-
-    const shouldDisable =
-        seasonUsed && !matchUsed   // used earlier in season (different match)
-        ? "disabled"
-        : "";                      // allow switching for same match
-
-    boosterSelect.innerHTML +=
-      `<option value="${b.name}" ${shouldDisable}>${b.name}</option>`;
-  });
-
-  const inst = M.FormSelect.getInstance(boosterSelect);
-  if (inst) inst.destroy();
-  setTimeout(() => M.FormSelect.init(boosterSelect), 50);
-}
-applyBoosterBtn.addEventListener('click', async ()=>{
-  const email=(emailEl.value||'').trim().toLowerCase();
-  const matchId=matchSelectEl.value; const booster=boosterSelect.value;
-  if(!email) return notify('Enter email'); if(!matchId) return notify('Match required'); if(!booster) return notify('Select booster');
-  if(usedMatches.includes(matchId)) return notify('Already used booster for this match');
-  applyBoosterBtn.classList.add('disabled');
-  try{
-    const qs=new URLSearchParams({action:'submitbooster',email,matchId,booster});
-    const res=await fetch(`${API}?${qs.toString()}`); const j=JSON.parse(await res.text());
-    if(j.ok){ notify(`Booster applied: ${booster}`); usedBoosters.push(booster); usedMatches.push(matchId); renderBoosterDropdown(); }
-    else notify(j.error||'Booster failed');
-  }catch(e){ notify('Network error booster apply'); }
-  finally{ applyBoosterBtn.classList.remove('disabled'); }
-});
-document.addEventListener('DOMContentLoaded',()=> setTimeout(loadBoosters,1500));
-</script>
-
-<!-- BOOSTER SYSTEM (FINAL v3) -->
-<script>
-const boosterSelect = document.getElementById('boosterSelect');
-const applyBoosterBtn = document.getElementById('applyBoosterBtn');
-const boosterStatus = document.getElementById('boosterStatus');
-
-let allBoosters = [];
-let usedBoosters = [];
-let usedMatches = [];
-
-/* ---------------------------------------------------
-   LOAD BOOSTERS
---------------------------------------------------- */
-async function loadBoosters() {
-  const email = (emailEl.value || '').trim().toLowerCase();
-  if (!email) {
-    console.log("Booster: No email yet.");
-    return;
-  }
-
-  try {
-    const url = `${API}?action=allboosters&email=${encodeURIComponent(email)}`;
-    console.log("Booster API:", url);
-
-    const res = await fetch(url);
-    const txt = await res.text();
-    console.log("Booster API response:", txt);
-
-    const j = JSON.parse(txt);
-
-    if (!j.ok) {
-      boosterStatus.textContent = "Unable to load boosters (API error).";
-      return;
-    }
-
-    allBoosters = j.boosters || [];
-    usedBoosters = j.usedBoosters || [];
-    usedMatches = j.usedMatches || [];
-
-    console.log("Boosters:", allBoosters);
-    console.log("Used Boosters:", usedBoosters);
-    console.log("Used Matches:", usedMatches);
-
-    renderBoosterDropdown();
-
-  } catch (e) {
-    console.log("Booster API error:", e);
-    boosterStatus.textContent = "Network error loading boosters.";
-  }
-}
-
-
-/* ---------------------------------------------------
-   RENDER DROPDOWN
---------------------------------------------------- */
-function renderBoosterDropdown() {
-  console.log("Rendering booster dropdown…");
-  boosterSelect.innerHTML = "";
-
-  if (!allBoosters.length) {
-    boosterSelect.innerHTML = `<option disabled>No boosters available</option>`;
-  } else {
-    boosterSelect.innerHTML =
-      `<option value="" disabled selected>Select Booster</option>`;
-
-    allBoosters.forEach(b => {
-      const dis = usedBoosters.includes(b.name) ? "disabled" : "";
-      boosterSelect.innerHTML += `
-        <option value="${b.name}" ${dis}>${b.name}</option>
-      `;
-    });
-  }
-
-  // IMPORTANT: Destroy previous Materialize instance
-  const inst = M.FormSelect.getInstance(boosterSelect);
-  if (inst) inst.destroy();
-
-  // Reinitialize after DOM is ready
-  setTimeout(() => {
-    console.log("Reinitializing Materialize FormSelect for boosterSelect…");
-    M.FormSelect.init(boosterSelect);
-  }, 50);
-}
-
-
-/* ---------------------------------------------------
-   APPLY BOOSTER
---------------------------------------------------- */
-applyBoosterBtn.addEventListener("click", async () => {
-  const email = (emailEl.value || "").trim().toLowerCase();
-  const matchId = matchSelectEl.value;
-  const booster = boosterSelect.value;
-
-  if (!email) return notify("Enter your email first.");
-  if (!matchId) return notify("Select match.");
-  if (!booster) return notify("Select a booster.");
-
-  if (usedMatches.includes(matchId))
-    return notify("You already used a booster for this match.");
-
-  applyBoosterBtn.classList.add("disabled");
-
-  try {
-    const qs = new URLSearchParams();
-    qs.set("action", "submitbooster");
-    qs.set("email", email);
-    qs.set("matchId", matchId);
-    qs.set("booster", booster);
-
-    const res = await fetch(`${API}?${qs.toString()}`);
-    const txt = await res.text();
-    console.log("SubmitBooster response:", txt);
-
-    let j = JSON.parse(txt);
-
-    if (j.ok) {
-      notify(`Booster applied: ${booster}`);
-      usedBoosters.push(booster);
-      usedMatches.push(matchId);
-      renderBoosterDropdown();
-    } else {
-      notify(j.error || "Unable to apply booster.");
-    }
-
-  } catch (e) {
-    console.log("Submit booster error:", e);
-    notify("Network error.");
-  }
-
-  applyBoosterBtn.classList.remove("disabled");
-});
-
-
-/* ---------------------------------------------------
-   AUTO LOAD WHEN PAGE READY
---------------------------------------------------- */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("Booster system: DOMContentLoaded triggered.");
-  setTimeout(loadBoosters, 1500);
-});
-
-/* Reload booster list when email changes */
-document.addEventListener("input", e => {
-  if (e.target.id === "email") {
-    setTimeout(loadBoosters, 700);
-  }
-});
-</script>
-<script>
-// === Booster System (Option A: Booster only) ===
+/* ============================================
+   BOOSTER SYSTEM — CLEAN PATCHED VERSION
+   Supports:
+   - Season lock (each booster once per season)
+   - Match override before cutoff
+   - No grey-out until deadline
+   ============================================ */
 
 const boosterSelect = document.getElementById('boosterSelect');
 const applyBoosterBtn = document.getElementById('applyBoosterBtn');
 const boosterStatus = document.getElementById('boosterStatus');
 
 let allBoosters = [];
-let usedBoosters = [];
-let usedMatches = [];
+let usedBoosters = [];   // boosters used in ANY match (season lock)
+let usedMatches = [];    // match IDs where user already applied booster
 
-// Load from backend
+/* ----------------------------------------------
+   LOAD BOOSTERS FROM BACKEND
+   ---------------------------------------------- */
 async function loadBoosters() {
+
   const email = (emailEl.value || '').trim().toLowerCase();
   if (!email) return;
 
   try {
-    const res = await fetch(`${API}?action=allboosters&email=${encodeURIComponent(email)}`);
+    const url = `${API}?action=allboosters&email=${encodeURIComponent(email)}`;
+    const res = await fetch(url);
     const txt = await res.text();
     const j = JSON.parse(txt);
 
@@ -1299,51 +1102,102 @@ async function loadBoosters() {
     usedMatches = j.usedMatches || [];
 
     renderBoosterDropdown();
+
   } catch (e) {
     boosterStatus.textContent = "Network error loading boosters";
   }
 }
 
+/* ----------------------------------------------
+   RENDER BOOSTER DROPDOWN CORRECTLY
+   ---------------------------------------------- */
 function renderBoosterDropdown() {
-  boosterSelect.innerHTML = '<option value="" disabled selected>Select Booster</option>';
+
+  const currentMatch = matchSelectEl.value;
+
+  boosterSelect.innerHTML =
+    '<option value="" disabled selected>Select Booster</option>';
 
   allBoosters.forEach(b => {
-    const dis = usedBoosters.includes(b.name) ? "disabled" : "";
-    boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
+
+    const boosterName = b.name;
+
+    // Season lock: booster used in ANY *other* match
+    const seasonUsed = usedBoosters.includes(boosterName);
+
+    // Booster already applied for THIS match?
+    const usedThisMatch = usedMatches.includes(currentMatch);
+
+    // Disable only if:
+    //  - Booster used earlier in the season AND it's not this match
+    //  - OR deadline lock (handled by isLocked flag)
+    let disable = "";
+
+    if (seasonUsed && !usedThisMatch) {
+      disable = "disabled";
+    }
+
+    if (isLocked) {
+      disable = "disabled";
+    }
+
+    boosterSelect.innerHTML += `
+      <option value="${boosterName}" ${disable}>${boosterName}</option>
+    `;
   });
 
   const inst = M.FormSelect.getInstance(boosterSelect);
   if (inst) inst.destroy();
-  setTimeout(() => M.FormSelect.init(boosterSelect), 50);
+  setTimeout(() => M.FormSelect.init(boosterSelect), 40);
 }
 
-applyBoosterBtn.addEventListener('click', async () => {
+/* ----------------------------------------------
+   APPLY BOOSTER (CALL BACKEND)
+   ---------------------------------------------- */
+applyBoosterBtn.addEventListener("click", async () => {
+
   const email = (emailEl.value || '').trim().toLowerCase();
   const matchId = matchSelectEl.value;
   const booster = boosterSelect.value;
 
-  if (!email) return notify("Enter email");
+  if (!email) return notify("Enter email first");
   if (!matchId) return notify("Select match");
-  if (!booster) return notify("Select booster");
+  if (!booster) return notify("Select a booster");
 
-  if (usedMatches.includes(matchId))
-    return notify("Already used booster for this match");
+  if (isLocked) return notify("Deadline passed");
 
   applyBoosterBtn.classList.add("disabled");
 
   try {
-    const qs = new URLSearchParams({ action: "submitbooster", email, matchId, booster });
+    const qs = new URLSearchParams({
+      action: "submitbooster",
+      email,
+      matchId,
+      booster
+    });
+
     const res = await fetch(`${API}?${qs.toString()}`);
-    const j = JSON.parse(await res.text());
+    const txt = await res.text();
+    const j = JSON.parse(txt);
 
     if (j.ok) {
       notify(`Booster applied: ${booster}`);
-      usedBoosters.push(booster);
-      usedMatches.push(matchId);
+
+      // The backend now overwrites.
+      // Update frontend state.
+      if (!usedBoosters.includes(booster)) {
+        usedBoosters.push(booster);
+      }
+      if (!usedMatches.includes(matchId)) {
+        usedMatches.push(matchId);
+      }
+
       renderBoosterDropdown();
+
     } else {
-      notify(j.error || "Failed to apply booster");
+      notify(j.error || "Unable to apply booster");
     }
+
   } catch (e) {
     notify("Network error applying booster");
   }
@@ -1351,10 +1205,16 @@ applyBoosterBtn.addEventListener('click', async () => {
   applyBoosterBtn.classList.remove("disabled");
 });
 
+/* ----------------------------------------------
+   AUTO-LOAD BOOSTERS AFTER PAGE READY
+   ---------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
   setTimeout(loadBoosters, 1200);
 });
 
+/* ----------------------------------------------
+   RELOAD BOOSTERS WHEN EMAIL CHANGES
+   ---------------------------------------------- */
 document.addEventListener("input", e => {
   if (e.target.id === "email") {
     setTimeout(loadBoosters, 500);
