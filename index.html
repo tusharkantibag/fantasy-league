@@ -1012,11 +1012,339 @@ playersList.innerHTML='';
   
   <!-- === END ORIGINAL LOGIC === -->
   
-  
+  <script>
+/* === Combine Remaining + Budget into one chip (Remaining: X/Y) w/o style changes === */
+(function(){
+  function combineRemainBudget(){
+    const remEl = document.getElementById('remaining');
+    const budEl = document.getElementById('budget');
+    if(!remEl || !budEl) return;
+
+    // Read values currently rendered
+    const remain = remEl.textContent.trim();
+    const total  = budEl.textContent.trim();
+
+    // Replace the Remaining chip's contents with Remaining: X/Y
+    const remPill = remEl.closest('.badge-inline');
+    if (remPill) {
+      remPill.innerHTML =
+        `Remaining: <b id="remaining">${remain}</b>/<b class="rem-budget-total">${total}</b>`;
+    }
+
+    // Hide the separate Budget chip (only visually)
+    const budPill = budEl.closest('.badge-inline');
+    if (budPill) budPill.style.display = 'none';
+  }
+
+  // Run once when the page is ready
+  document.addEventListener('DOMContentLoaded', combineRemainBudget);
+
+  // Also run after every badge refresh in your app
+  const _update = window.updateBadges;
+  if (typeof _update === 'function') {
+    window.updateBadges = function(chg){
+      _update.call(this, chg);
+      try { combineRemainBudget(); } catch(_) {}
+    };
+  }
+})();
+
+window.sortMode='NONE';
+const sBtn=document.querySelector('.sort-toggle');
+const sLbl=document.querySelector('.sort-label');
+if(sBtn){sBtn.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];const map={'NONE':'None','PRICE_ASC':'Price ↑','PRICE_DESC':'Price ↓','POINTS_ASC':'Points ↑','POINTS_DESC':'Points ↓'};sLbl.textContent=map[window.sortMode];if(window.sortMode==='NONE'){sBtn.classList.remove('active');}else{sBtn.classList.add('active');}renderPlayers();};}
+
+window.sortMode='NONE';
+const st=document.querySelector('.sort-toggle');
+const sl=document.querySelector('.sort-label');
+function updateSort(){const map={NONE:'None',PRICE_ASC:'Price ↑',PRICE_DESC:'Price ↓',POINTS_ASC:'Points ↑',POINTS_DESC:'Points ↓'};sl.textContent=map[window.sortMode];st.className='material-icons sort-toggle mode-'+window.sortMode;}
+if(st){st.onclick=()=>{const order=['NONE','PRICE_ASC','PRICE_DESC','POINTS_ASC','POINTS_DESC'];let i=order.indexOf(window.sortMode);i=(i+1)%order.length;window.sortMode=order[i];updateSort();renderPlayers();}}
+
+
+<!-- BOOSTER SYSTEM AUTO-INJECTED -->
+<script>
+const boosterSelect = document.getElementById('boosterSelect');
+const applyBoosterBtn = document.getElementById('applyBoosterBtn');
+const boosterStatus = document.getElementById('boosterStatus');
+let allBoosters = [], usedBoosters = [], usedMatches = [];
+async function loadBoosters(){
+  const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return;
+  try{
+    const res=await fetch(`${API}?action=allboosters&email=${encodeURIComponent(email)}`);
+    const txt=await res.text(); let j=JSON.parse(txt);
+    if(!j.ok){ boosterStatus.textContent='Could not load boosters'; return; }
+    allBoosters=j.boosters||[]; usedBoosters=j.usedBoosters||[]; usedMatches=j.usedMatches||[];
+    renderBoosterDropdown();
+  }catch(e){ boosterStatus.textContent='Network error loading boosters'; }
+}
+function renderBoosterDropdown(){
+  boosterSelect.innerHTML='';
+  if(!allBoosters.length){ boosterSelect.innerHTML='<option disabled>No boosters available</option>'; M.FormSelect.init(boosterSelect); return; }
+  boosterSelect.innerHTML+='<option value="" disabled selected>Select Booster</option>';
+  allBoosters.forEach(b=>{
+    const dis = usedBoosters.includes(b.name)?'disabled':'';
+    boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
+  });
+  M.FormSelect.init(boosterSelect);
+}
+applyBoosterBtn.addEventListener('click', async ()=>{
+  const email=(emailEl.value||'').trim().toLowerCase();
+  const matchId=matchSelectEl.value; const booster=boosterSelect.value;
+  if(!email) return notify('Enter email'); if(!matchId) return notify('Match required'); if(!booster) return notify('Select booster');
+  if(usedMatches.includes(matchId)) return notify('Already used booster for this match');
+  applyBoosterBtn.classList.add('disabled');
+  try{
+    const qs=new URLSearchParams({action:'submitbooster',email,matchId,booster});
+    const res=await fetch(`${API}?${qs.toString()}`); const j=JSON.parse(await res.text());
+    if(j.ok){ notify(`Booster applied: ${booster}`); usedBoosters.push(booster); usedMatches.push(matchId); renderBoosterDropdown(); }
+    else notify(j.error||'Booster failed');
+  }catch(e){ notify('Network error booster apply'); }
+  finally{ applyBoosterBtn.classList.remove('disabled'); }
+});
+document.addEventListener('DOMContentLoaded',()=> setTimeout(loadBoosters,1500));
+</script>
 
 <!-- BOOSTER SYSTEM (FINAL v3) -->
+<script>
+const boosterSelect = document.getElementById('boosterSelect');
+const applyBoosterBtn = document.getElementById('applyBoosterBtn');
+const boosterStatus = document.getElementById('boosterStatus');
+
+let allBoosters = [];
+let usedBoosters = [];
+let usedMatches = [];
+
+/* ---------------------------------------------------
+   LOAD BOOSTERS
+--------------------------------------------------- */
+async function loadBoosters() {
+  const email = (emailEl.value || '').trim().toLowerCase();
+  if (!email) {
+    console.log("Booster: No email yet.");
+    return;
+  }
+
+  try {
+    const url = `${API}?action=allboosters&email=${encodeURIComponent(email)}`;
+    console.log("Booster API:", url);
+
+    const res = await fetch(url);
+    const txt = await res.text();
+    console.log("Booster API response:", txt);
+
+    const j = JSON.parse(txt);
+
+    if (!j.ok) {
+      boosterStatus.textContent = "Unable to load boosters (API error).";
+      return;
+    }
+
+    allBoosters = j.boosters || [];
+    usedBoosters = j.usedBoosters || [];
+    usedMatches = j.usedMatches || [];
+
+    console.log("Boosters:", allBoosters);
+    console.log("Used Boosters:", usedBoosters);
+    console.log("Used Matches:", usedMatches);
+
+    renderBoosterDropdown();
+
+  } catch (e) {
+    console.log("Booster API error:", e);
+    boosterStatus.textContent = "Network error loading boosters.";
+  }
+}
 
 
+/* ---------------------------------------------------
+   RENDER DROPDOWN
+--------------------------------------------------- */
+function renderBoosterDropdown() {
+  console.log("Rendering booster dropdown…");
+  boosterSelect.innerHTML = "";
+
+  if (!allBoosters.length) {
+    boosterSelect.innerHTML = `<option disabled>No boosters available</option>`;
+  } else {
+    boosterSelect.innerHTML =
+      `<option value="" disabled selected>Select Booster</option>`;
+
+    allBoosters.forEach(b => {
+      const dis = usedBoosters.includes(b.name) ? "disabled" : "";
+      boosterSelect.innerHTML += `
+        <option value="${b.name}" ${dis}>${b.name}</option>
+      `;
+    });
+  }
+
+  // IMPORTANT: Destroy previous Materialize instance
+  const inst = M.FormSelect.getInstance(boosterSelect);
+  if (inst) inst.destroy();
+
+  // Reinitialize after DOM is ready
+  setTimeout(() => {
+    console.log("Reinitializing Materialize FormSelect for boosterSelect…");
+    M.FormSelect.init(boosterSelect);
+  }, 50);
+}
+
+
+/* ---------------------------------------------------
+   APPLY BOOSTER
+--------------------------------------------------- */
+applyBoosterBtn.addEventListener("click", async () => {
+  const email = (emailEl.value || "").trim().toLowerCase();
+  const matchId = matchSelectEl.value;
+  const booster = boosterSelect.value;
+
+  if (!email) return notify("Enter your email first.");
+  if (!matchId) return notify("Select match.");
+  if (!booster) return notify("Select a booster.");
+
+  if (usedMatches.includes(matchId))
+    return notify("You already used a booster for this match.");
+
+  applyBoosterBtn.classList.add("disabled");
+
+  try {
+    const qs = new URLSearchParams();
+    qs.set("action", "submitbooster");
+    qs.set("email", email);
+    qs.set("matchId", matchId);
+    qs.set("booster", booster);
+
+    const res = await fetch(`${API}?${qs.toString()}`);
+    const txt = await res.text();
+    console.log("SubmitBooster response:", txt);
+
+    let j = JSON.parse(txt);
+
+    if (j.ok) {
+      notify(`Booster applied: ${booster}`);
+      usedBoosters.push(booster);
+      usedMatches.push(matchId);
+      renderBoosterDropdown();
+    } else {
+      notify(j.error || "Unable to apply booster.");
+    }
+
+  } catch (e) {
+    console.log("Submit booster error:", e);
+    notify("Network error.");
+  }
+
+  applyBoosterBtn.classList.remove("disabled");
+});
+
+
+/* ---------------------------------------------------
+   AUTO LOAD WHEN PAGE READY
+--------------------------------------------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Booster system: DOMContentLoaded triggered.");
+  setTimeout(loadBoosters, 1500);
+});
+
+/* Reload booster list when email changes */
+document.addEventListener("input", e => {
+  if (e.target.id === "email") {
+    setTimeout(loadBoosters, 700);
+  }
+});
+</script>
+<script>
+// === Booster System (Option A: Booster only) ===
+
+const boosterSelect = document.getElementById('boosterSelect');
+const applyBoosterBtn = document.getElementById('applyBoosterBtn');
+const boosterStatus = document.getElementById('boosterStatus');
+
+let allBoosters = [];
+let usedBoosters = [];
+let usedMatches = [];
+
+// Load from backend
+async function loadBoosters() {
+  const email = (emailEl.value || '').trim().toLowerCase();
+  if (!email) return;
+
+  try {
+    const res = await fetch(`${API}?action=allboosters&email=${encodeURIComponent(email)}`);
+    const txt = await res.text();
+    const j = JSON.parse(txt);
+
+    if (!j.ok) {
+      boosterStatus.textContent = "Unable to load boosters";
+      return;
+    }
+
+    allBoosters = j.boosters || [];
+    usedBoosters = j.usedBoosters || [];
+    usedMatches = j.usedMatches || [];
+
+    renderBoosterDropdown();
+  } catch (e) {
+    boosterStatus.textContent = "Network error loading boosters";
+  }
+}
+
+function renderBoosterDropdown() {
+  boosterSelect.innerHTML = '<option value="" disabled selected>Select Booster</option>';
+
+  allBoosters.forEach(b => {
+    const dis = usedBoosters.includes(b.name) ? "disabled" : "";
+    boosterSelect.innerHTML += `<option value="${b.name}" ${dis}>${b.name}</option>`;
+  });
+
+  const inst = M.FormSelect.getInstance(boosterSelect);
+  if (inst) inst.destroy();
+  setTimeout(() => M.FormSelect.init(boosterSelect), 50);
+}
+
+applyBoosterBtn.addEventListener('click', async () => {
+  const email = (emailEl.value || '').trim().toLowerCase();
+  const matchId = matchSelectEl.value;
+  const booster = boosterSelect.value;
+
+  if (!email) return notify("Enter email");
+  if (!matchId) return notify("Select match");
+  if (!booster) return notify("Select booster");
+
+  if (usedMatches.includes(matchId))
+    return notify("Already used booster for this match");
+
+  applyBoosterBtn.classList.add("disabled");
+
+  try {
+    const qs = new URLSearchParams({ action: "submitbooster", email, matchId, booster });
+    const res = await fetch(`${API}?${qs.toString()}`);
+    const j = JSON.parse(await res.text());
+
+    if (j.ok) {
+      notify(`Booster applied: ${booster}`);
+      usedBoosters.push(booster);
+      usedMatches.push(matchId);
+      renderBoosterDropdown();
+    } else {
+      notify(j.error || "Failed to apply booster");
+    }
+  } catch (e) {
+    notify("Network error applying booster");
+  }
+
+  applyBoosterBtn.classList.remove("disabled");
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(loadBoosters, 1200);
+});
+
+document.addEventListener("input", e => {
+  if (e.target.id === "email") {
+    setTimeout(loadBoosters, 500);
+  }
+});
+</script>
 </script>
 ``
 
@@ -1032,48 +1360,6 @@ window.sortMode='NONE';
  st.onclick=function(){ let i=order.indexOf(window.sortMode); window.sortMode=order[(i+1)%order.length]; update(); if(window.renderPlayers) window.renderPlayers(); };
  update();
 })();
-</script>
-
-
-<script>
-// Force-enable booster dropdown except previous-match boosters
-(function(){document.addEventListener('DOMContentLoaded',function(){
- const sel=document.getElementById('boosterSelect');
- const btn=document.getElementById('applyBoosterBtn');
- if(!sel||!btn)return;
- function force(){
-   const mid=matchSelectEl.value;
-   sel.disabled=false;
-   let inst=M.FormSelect.getInstance(sel); if(inst)inst.destroy();
-   sel.querySelectorAll('option').forEach(o=>{
-      if(!o.value)return;
-      const usedPrev=usedBoosters.includes(o.value) && !usedMatches.includes(mid);
-      o.disabled=usedPrev;
-   });
-   setTimeout(()=>M.FormSelect.init(sel),10);
- }
- function applyBooster(){
-   const email=(emailEl.value||'').trim().toLowerCase();
-   const mid=matchSelectEl.value;
-   const b=sel.value;
-   if(!email)return notify('Enter email');
-   if(!mid)return notify('Select match');
-   if(!b)return notify('Select booster');
-   const idx=usedMatches.indexOf(mid);
-   if(idx!=-1){usedBoosters.splice(idx,1);usedMatches.splice(idx,1);} // replace
-   btn.classList.add('disabled');
-   fetch(`${API}?action=submitbooster&email=${email}&matchId=${mid}&booster=${b}`)
-     .then(r=>r.text()).then(t=>JSON.parse(t)).then(j=>{
-        if(j.ok){notify(`Booster applied: ${b}`);usedBoosters.push(b);usedMatches.push(mid);}
-        else notify(j.error||'Failed');
-        force();
-     }).catch(()=>notify('Network error')).finally(()=>btn.classList.remove('disabled'));
- }
- btn.addEventListener('click',e=>{e.preventDefault();applyBooster();});
- setTimeout(force,1500);
- matchSelectEl.addEventListener('change',()=>setTimeout(force,300));
- document.addEventListener('input',e=>{if(e.target.id=='email')setTimeout(force,500);});
-});})();
 </script>
 
 </body>
