@@ -1378,6 +1378,42 @@ applyBoosterBtn.addEventListener('click', async () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+
+
+  const disableBoosterBtn = document.getElementById('disableBoosterBtn');
+
+disableBoosterBtn.addEventListener("click", async () => {
+    const email = (emailEl.value || "").trim().toLowerCase();
+    const matchId = matchSelectEl.value;
+
+    if (!email) return notify("Enter your email first.");
+    if (!matchId) return notify("Select match.");
+
+    disableBoosterBtn.classList.add("disabled");
+
+    try {
+        const qs = new URLSearchParams();
+        qs.set("action", "disablebooster");
+        qs.set("email", email);
+        qs.set("matchId", matchId);
+
+        const res = await fetch(`${API}?${qs.toString()}`);
+        const txt = await res.text();
+        const j = JSON.parse(txt);
+
+        if (j.ok) {
+            notify("Booster disabled successfully.");
+            usedMatches = usedMatches.filter(m => m !== matchId);
+            renderBoosterDropdown();
+        } else {
+            notify(j.error || "Unable to disable booster.");
+        }
+    } catch (e) {
+        notify("Network error disabling booster.");
+    }
+
+    disableBoosterBtn.classList.remove("disabled");
+  
   setTimeout(loadBoosters, 1200);
 });
 
