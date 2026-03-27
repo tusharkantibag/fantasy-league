@@ -1118,7 +1118,7 @@ async function loadBoosters() {
    RENDER DROPDOWN
 --------------------------------------------------- */
 function renderBoosterDropdown() {
-    const inputField = boosterSelect.closest(".input-field");
+    const inputField = getBoosterSelect().closest(".input-field");
 
     // Remove everything inside the input-field
     while (inputField.firstChild) inputField.removeChild(inputField.firstChild);
@@ -1158,7 +1158,7 @@ function renderBoosterDropdown() {
 applyBoosterBtn.addEventListener("click", async () => {
   const email = (emailEl.value || "").trim().toLowerCase();
   const matchId = matchSelectEl.value;
-  const booster = boosterSelect.value;
+  const booster = getBoosterSelect().value;
 
   if (!email) return notify("Enter your email first.");
   if (!matchId) return notify("Select match.");
