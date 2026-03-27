@@ -1085,3 +1085,7 @@ window.sortMode='NONE';
 
 </body>
 </html>
+<script>
+function renderBoosterDropdown(){
+ boosterSelect.innerHTML=''; allBoosters.forEach(b=>{ const dis = (usedMatches.includes(matchSelectEl.value)||isLocked)?'disabled':''; boosterSelect.innerHTML+=`<option value='${b.name}' ${dis}>${b.name}</option>`;});}
+</script>
