@@ -885,7 +885,8 @@ function tagInfoBars(context){
     function formatIst(iso){ try{ const d=new Date(iso); return d.toLocaleString('en-IN',{ timeZone:'Asia/Kolkata', weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}); }catch(_){ return iso; } }
     function startCountdown(){ if(countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; } if(!cutoffAt){ dlCountdown.textContent='—'; return; } function tick(){ const ms=cutoffAt - new Date(); if(ms<=0){ isLocked=true; dlCountdown.textContent='LOCKED'; submitBtn.classList.add('disabled'); buildFirstBtn.classList.add('disabled'); const msg=document.getElementById('validationMsg'); msg.className='helper error-text'; msg.textContent='Deadline passed for this match.'; clearInterval(countdownTimer); countdownTimer=null; return; } const s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; dlCountdown.textContent=`${h}h ${m}m ${sec}s`; } tick(); countdownTimer=setInterval(tick,1000);}
     let pointsMap = {}; let allPlayers=[]; let lastTeamPlayers=[]; let userBudget=154, userUsed=0, maxFromTeam=7; let constraints={WK:{min:1,max:2}, BAT:{min:3,max:6}, AR:{min:1,max:4}, BOWL:{min:3,max:6}}; let categoryCaps={maxForeign:4, minUncapped:1}; let playersReady=false, statsReady=false; let totalBudget=100; let selectedNames = new Set();
-
+    let setPointsMap = {};
+  
 // === Team tint + watermark helpers ===
 function teamSlug(raw){
   if(!raw) return '';
@@ -1024,7 +1025,33 @@ playersList.innerHTML='';
       healthLine.style.display='block'; healthLine.innerHTML = `<b>Health</b>: next=${m.id || '—'}`; updateSelectionUI();
     }catch(e){ notify('Network error (nextmatch)'); } }
     async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class=\"red-text\">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class=\"red-text\">${j.error || 'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; const maxPrice=Math.max(0,...allPlayers.map(p=>Number(p.price||0))); budgetMaxEl.max=String(maxPrice || 100); const savedCap=(()=>{ try{return Number(localStorage.getItem('ml_budget_cap')||'');}catch(_){return NaN;} })(); const initialCap=!isNaN(savedCap)&&savedCap>0? Math.min(savedCap,maxPrice): maxPrice; budgetMaxEl.value=String(initialCap); budgetMaxLabel.textContent=String(initialCap); renderPlayers(); if(!allPlayers.length) notify('No players returned. Check Players headers.'); }catch(e){ playersList.innerHTML='<span class=\"red-text\">Network error</span>'; } }
-    async function fetchPoints(){ try{ const res=await fetch(`${API}?action=points`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Points response not JSON'); return; } if(!j.ok){ notify(j.error || 'API error (points)'); return; } if(Array.isArray(j.points)){ const m={}; j.points.forEach(row=>{ const n=String((row.name||row.player||'')).trim(); const v=Number(row.points||row.pts||row.total||0); if(n) m[n]=v; }); pointsMap=m; } else if(j.points && typeof j.points==='object'){ const m={}; Object.keys(j.points).forEach(k=>{ const n=String(k).trim(); const v=Number(j.points[k]); if(n) m[n]=v; }); pointsMap=m; } else { pointsMap={}; } if(allPlayers && allPlayers.length){ renderPlayers(); } }catch(e){ notify('Network error (points)'); } }
+    async function fetchPoints() {
+  try {
+    const res = await fetch(`${API}?action=points`);
+    const j = await res.json();
+    if (!j.ok) return;
+
+    pointsMap = {};
+    setPointsMap = {};   // ✅ reset (NOT let)
+
+    j.points.forEach(row => {
+      const player = String(row.Name || '').trim();
+      if (!player) return;
+
+      pointsMap[player] = Number(row.Total || 0);
+
+      Object.keys(row).forEach(col => {
+        if (/^set\d+$/i.test(col)) {
+          if (!setPointsMap[col]) setPointsMap[col] = {};
+          setPointsMap[col][player] = Number(row[col] || 0);
+        }
+      });
+    });
+
+  } catch (e) {
+    notify('Network error (points)');
+  }
+}
     async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; }
       userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; totalBudget=Number(j.totalBudget||100); categoryCaps = j.categoryCaps || { maxForeign: Number(j.maxForeign||4), minUncapped: Number(j.minUncapped||1) };
       if(j.lastCaptain) selectedCaptain = j.lastCaptain; if(j.lastViceCaptain) selectedViceCaptain = j.lastViceCaptain;
@@ -1111,11 +1138,11 @@ playersList.innerHTML='';
     }catch(_){ }
  applyTeamTints(document); try{ tagInfoBars(document); }catch(_){}; M.AutoInit();
       const stored=(()=>{ try{return localStorage.getItem('ml_email')||'';}catch(_){return'';} })(); if(stored){ emailEl.value=stored; } M.updateTextFields();
-      await fetchNextMatch(); await fetchAllPlayers(); await fetchUserStats(); await loadLeaderboard(); let setPointsMap = {};
+      await fetchNextMatch(); await fetchAllPlayers(); await fetchUserStats(); await loadLeaderboard(); await fetchPoints();
       document.addEventListener('input',(e)=>{ if(e.target.id==='email'){ try{localStorage.setItem('ml_email', e.target.value||'');}catch(_){ } statsReady=false; fetchUserStats().then(()=>applyLastXIIfReady()); } if(e.target.id==='searchInput'){ renderPlayers(); } if(e.target.id==='budgetMax'){ budgetMaxLabel.textContent=String(budgetMaxEl.value); try{ localStorage.setItem('ml_budget_cap', String(budgetMaxEl.value)); }catch(_){ } renderPlayers(); } });
       teamFilter.addEventListener('change', renderPlayers); roleFilter.addEventListener('change', renderPlayers); catFilter.addEventListener('change', renderPlayers);
       matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); updateBoosterPanelState(); });
-      document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); let setPointsMap = {}; });
+      document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints();A });
       document.getElementById('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
       document.getElementById('buildFirstBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
       document.getElementById('refreshLb').addEventListener('click', loadLeaderboard);
@@ -1126,6 +1153,8 @@ playersList.innerHTML='';
     });
 
   // ===== Step 4: View other user's team from leaderboard =====
+let viewingEmail = ''; // ✅ MUST exist globally
+
 document.addEventListener('click', async function (e) {
   const link = e.target.closest('.lb-team');
   if (!link) return;
@@ -1135,32 +1164,30 @@ document.addEventListener('click', async function (e) {
   const email = link.dataset.email;
   const name = link.dataset.name;
 
-  // Safety check
   if (!email) {
     M.toast({ html: 'User email not available' });
     return;
   }
 
-  // ✅ store globally for match-wise reloads
   viewingEmail = email;
 
-  // ✅ update modal title
   document.getElementById('viewTeamTitle').textContent =
     `${name}'s XI`;
 
-  // ✅ populate match dropdown ONCE
-  await populateViewMatchDropdown();
-
-  // ✅ load default team (Latest Team)
-  await loadViewedTeam();
-
-  // ✅ open modal (safe Materialize init)
+  // ✅ open modal immediately (safe even if data fails)
   const modalElem = document.getElementById('viewTeamModal');
   const modal =
     M.Modal.getInstance(modalElem) ||
     M.Modal.init(modalElem);
-
   modal.open();
+
+  // ✅ show loading state
+  document.getElementById('viewTeamGrid').innerHTML =
+    '<p class="grey-text">Loading team…</p>';
+
+  // ✅ then load data
+  await populateViewMatchDropdown();
+  await loadViewedTeam();
 });
 
 // ✅ Reload viewed team when match dropdown changes
