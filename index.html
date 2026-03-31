@@ -813,6 +813,10 @@ p.small-muted{display:none!important;}
       <div class="modal-footer">
         #Close</a>
       </div>
+      <div class="input-field">
+        <select id="viewMatchSelect"></select>
+        <label>Match</label>
+      </div>
     </div>
     
   </main>
@@ -822,7 +826,7 @@ p.small-muted{display:none!important;}
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbw3i2-r-PJ0LTzdmqiPwe6gI3CzxYJheK9mML6_tBuXhhLp_i4a6Yd7v9gKZW2NYFKL/exec';
+const API = 'https://script.google.com/macros/s/AKfycbyI4y4078YX7VDIAtDm1aSzZPkFXzX7Gb9w_Q1bA8OYShASonXw-hNzRAp-WXj3mOfX/exec';
 
 // === Chip filler helpers (lighter filled bars) ===
 function tagInfoBars(context){
@@ -1137,40 +1141,24 @@ document.addEventListener('click', async function (e) {
     return;
   }
 
+  // ✅ store globally for match-wise reloads
+  viewingEmail = email;
+
+  // ✅ update modal title
   document.getElementById('viewTeamTitle').textContent =
     `${name}'s XI`;
 
-  const res = await fetch(
-    `${API}?action=viewteam&email=${encodeURIComponent(email)}`
-  );
+  // ✅ populate match dropdown ONCE
+  await populateViewMatchDropdown();
 
-  const data = await res.json();
-  const grid = document.getElementById('viewTeamGrid');
-  grid.innerHTML = '';
+  // ✅ load default team (Latest Team)
+  await loadViewedTeam();
 
-  if (!data.ok || !data.team || !data.team.length) {
-    grid.innerHTML =
-      '<p class="grey-text">No team available</p>';
-  } else {
-    data.team.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'square-card readonly';
-      card.innerHTML = `
-        <div class="name">${p}</div>
-        ${p === data.captain ? '<div class="cvc-tag cvc-C">C</div>' : ''}
-        ${p === data.viceCaptain ? '<div class="cvc-tag cvc-VC">VC</div>' : ''}
-      `;
-      grid.appendChild(card);
-    });
-  }
-
+  // ✅ open modal (safe Materialize init)
+  const modalElem = document.getElementById('viewTeamModal');
   const modal =
-    M.Modal.getInstance(
-      document.getElementById('viewTeamModal')
-    ) ||
-    M.Modal.init(
-      document.getElementById('viewTeamModal')
-    );
+    M.Modal.getInstance(modalElem) ||
+    M.Modal.init(modalElem);
 
   modal.open();
 });
@@ -1529,6 +1517,56 @@ async function loadBoosters(){
   renderBoosterDropdown();
  }catch(e){ boosterStatus.textContent='Network error loading boosters'; }
 }
+async function populateViewMatchDropdown() {
+  const res = await fetch(`${API}?action=matches`);
+  const j = await res.json();
+
+  const sel = document.getElementById('viewMatchSelect');
+  sel.innerHTML =
+    '<option value="" selected>Latest Team</option>';
+
+  (j.matches || []).forEach(m => {
+    sel.innerHTML += `<option value="${m.id}">${m.label}</option>`;
+  });
+
+  M.FormSelect.init(sel);
+}
+
+async function loadViewedTeam() {
+  const matchId =
+    document.getElementById('viewMatchSelect').value;
+
+  const qs = new URLSearchParams({
+    action: 'viewteam',
+    email: viewingEmail
+  });
+
+  if (matchId) qs.set('matchId', matchId);
+
+  const res = await fetch(`${API}?${qs.toString()}`);
+  const data = await res.json();
+
+  const grid = document.getElementById('viewTeamGrid');
+  grid.innerHTML = '';
+
+  if (!data.team || !data.team.length) {
+    grid.innerHTML =
+      '<p class="grey-text">No team available for this match</p>';
+    return;
+  }
+
+  data.team.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'square-card readonly';
+    card.innerHTML = `
+      <div class="name">${p}</div>
+      ${p === data.captain ? '<div class="cvc-tag cvc-C">C</div>' : ''}
+      ${p === data.viceCaptain ? '<div class="cvc-tag cvc-VC">VC</div>' : ''}
+    `;
+    grid.appendChild(card);
+  });
+}
+  
 function renderBoosterDropdown(){
  boosterSelect.innerHTML='<option value="" disabled selected>Select Booster</option>';
  allBoosters.forEach(b=>{
