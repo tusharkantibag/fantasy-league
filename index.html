@@ -826,7 +826,7 @@ p.small-muted{display:none!important;}
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbwDTmM6LlOYmI91L4kCAfD-yCBvdD38mdLlAhDcq2kIQI6QyuywBPJogsnSfkCDGd-6/exec';
+const API = 'https://script.google.com/macros/s/AKfycbxqVmlZ2Drwe4BATMMPuOitrJSYutQWe6JLHLtYbEela1CLso7yfdR8_ZSTmR4hV6IL/exec';
 
 // === Chip filler helpers (lighter filled bars) ===
 function tagInfoBars(context){
@@ -1538,7 +1538,10 @@ async function populateViewMatchDropdown() {
 
   M.FormSelect.init(sel);
 }
-
+  
+const CAPTAIN_MULTIPLIER = 2;
+const VICE_CAPTAIN_MULTIPLIER = 1.5;
+  
 async function loadViewedTeam() {
   const matchId =
     document.getElementById('viewMatchSelect').value;
@@ -1563,15 +1566,45 @@ async function loadViewedTeam() {
   }
 
   data.team.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'square-card readonly';
-    card.innerHTML = `
-      <div class="name">${p}</div>
-      ${p === data.captain ? '<div class="cvc-tag cvc-C">C</div>' : ''}
-      ${p === data.viceCaptain ? '<div class="cvc-tag cvc-VC">VC</div>' : ''}
-    `;
-    grid.appendChild(card);
-  });
+  const basePts =
+    data.pointsMap && typeof data.pointsMap[p] === 'number'
+      ? data.pointsMap[p]
+      : 0;
+
+  let multiplier = 1;
+  let multiplierLabel = '';
+
+  if (p === data.captain) {
+    multiplier = CAPTAIN_MULTIPLIER;
+    multiplierLabel = `×${CAPTAIN_MULTIPLIER}`;
+  } else if (p === data.viceCaptain) {
+    multiplier = VICE_CAPTAIN_MULTIPLIER;
+    multiplierLabel = `×${VICE_CAPTAIN_MULTIPLIER}`;
+  }
+
+  const finalPts = basePts * multiplier;
+
+  const card = document.createElement('div');
+  card.className = 'square-card readonly';
+  card.innerHTML = `
+    <div class="name">${p}</div>
+
+    <div class="price">
+      <i class="material-icons" style="font-size:16px;vertical-align:middle;">
+        stars
+      </i>
+      ${finalPts} pts
+      ${multiplierLabel
+        ? `<span class="grey-text" style="font-size:.8rem;">(${basePts} ${multiplierLabel})</span>`
+        : ''}
+    </div>
+
+    ${p === data.captain ? '<div class="cvc-tag cvc-C">C</div>' : ''}
+    ${p === data.viceCaptain ? '<div class="cvc-tag cvc-VC">VC</div>' : ''}
+  `;
+  grid.appendChild(card);
+});
+  
 }
   
 function renderBoosterDropdown(){
