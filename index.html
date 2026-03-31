@@ -1028,18 +1028,42 @@ playersList.innerHTML='';
     async function fetchPoints() {
   try {
     const res = await fetch(`${API}?action=points`);
-    const j = await res.json();
-    if (!j.ok) return;
 
+    // ✅ HTTP-level check
+    if (!res.ok) {
+      notify(`Points HTTP error ${res.status}`);
+      return;
+    }
+
+    const txt = await res.text();
+
+    // ✅ Apps Script often returns HTML when unauthorized
+    if (!txt || txt.trim()[0] !== '{') {
+      console.error('Points raw response:', txt.slice(0, 300));
+      notify('Points response is not JSON (check Apps Script deployment)');
+      return;
+    }
+
+    const j = JSON.parse(txt);
+    if (!j.ok) {
+      notify(j.error || 'Points API error');
+      return;
+    }
+
+    // ✅ reset global caches (NO let)
     pointsMap = {};
-    setPointsMap = {};   // ✅ reset (NOT let)
+    setPointsMap = {};
 
     j.points.forEach(row => {
-      const player = String(row.Name || '').trim();
+      const player = String(row.Name || row.name || '').trim();
       if (!player) return;
 
-      pointsMap[player] = Number(row.Total || 0);
+      // total points (used elsewhere)
+      pointsMap[player] = Number(
+        row.Total || row.total || row.points || 0
+      );
 
+      // set-wise points
       Object.keys(row).forEach(col => {
         if (/^set\d+$/i.test(col)) {
           if (!setPointsMap[col]) setPointsMap[col] = {};
@@ -1049,6 +1073,7 @@ playersList.innerHTML='';
     });
 
   } catch (e) {
+    console.error(e);
     notify('Network error (points)');
   }
 }
@@ -1142,7 +1167,7 @@ playersList.innerHTML='';
       document.addEventListener('input',(e)=>{ if(e.target.id==='email'){ try{localStorage.setItem('ml_email', e.target.value||'');}catch(_){ } statsReady=false; fetchUserStats().then(()=>applyLastXIIfReady()); } if(e.target.id==='searchInput'){ renderPlayers(); } if(e.target.id==='budgetMax'){ budgetMaxLabel.textContent=String(budgetMaxEl.value); try{ localStorage.setItem('ml_budget_cap', String(budgetMaxEl.value)); }catch(_){ } renderPlayers(); } });
       teamFilter.addEventListener('change', renderPlayers); roleFilter.addEventListener('change', renderPlayers); catFilter.addEventListener('change', renderPlayers);
       matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); updateBoosterPanelState(); });
-      document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints();A });
+      document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints(); });
       document.getElementById('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
       document.getElementById('buildFirstBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
       document.getElementById('refreshLb').addEventListener('click', loadLeaderboard);
@@ -1606,10 +1631,15 @@ async function loadViewedTeam() {
     const player = getPlayerByName(p);
     const imgUrl = player.imageUrl || '';
 
-    const basePts =
-      data.pointsMap && typeof data.pointsMap[p] === 'number'
-        ? data.pointsMap[p]
-        : 0;
+    
+  const setKey = toSetColumn(matchId); // "Set1", "Set2", etc.
+
+  const basePts =
+    setPointsMap[setKey] &&
+    typeof setPointsMap[setKey][p] === 'number'
+      ? setPointsMap[setKey][p]
+      : 0;
+
 
     let multiplier = 1;
     let multiplierLabel = '';
