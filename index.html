@@ -1598,6 +1598,13 @@ async function populateViewMatchDropdown() {
   
 const CAPTAIN_MULTIPLIER = 2;
 const VICE_CAPTAIN_MULTIPLIER = 1.5;
+
+function toSetColumn(matchId) {
+  if (!matchId) return 'Set1';
+  const n = Number(matchId);
+  return Number.isFinite(n) ? `Set${n}` : 'Set1';
+}
+
   
 async function loadViewedTeam() {
   const matchId = document.getElementById('viewMatchSelect').value;
