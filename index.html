@@ -1078,7 +1078,7 @@ async function fetchPoints() {
         });
       });
     }
-
+    renderPlayers();
   } catch (e) {
     console.error(e);
     notify('Network error (points)');
