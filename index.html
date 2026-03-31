@@ -1162,6 +1162,13 @@ document.addEventListener('click', async function (e) {
 
   modal.open();
 });
+
+// ✅ Reload viewed team when match dropdown changes
+document.addEventListener('change', function (e) {
+  if (e.target && e.target.id === 'viewMatchSelect') {
+    loadViewedTeam();
+  }
+});
  
 </script>
 
