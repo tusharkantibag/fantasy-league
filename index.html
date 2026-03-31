@@ -804,6 +804,17 @@ p.small-muted{display:none!important;}
         <a href="#" class="modal-close btn-flat"><i class="material-icons left">close</i>Cancel</a>
       </div>
     </div>
+
+    <div id="viewTeamModal" class="modal">
+      <div class="modal-content">
+        <h5 id="viewTeamTitle">Team</h5>
+        <div id="viewTeamGrid" class="preview-grid"></div>
+      </div>
+      <div class="modal-footer">
+        #Close</a>
+      </div>
+    </div>
+    
   </main>
 
   <!-- Same JS logic/IDs as your file will be included below by pasting your original scripts. To keep this sample self-contained, we only add small theme helpers. -->
@@ -811,7 +822,7 @@ p.small-muted{display:none!important;}
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbxGRDC_VJso34ez_9Augj2k_UcdZCV2BCP1H5mNDhJHxLsHpzlxEkVR44qUxa567frD/exec';
+const API = 'https://script.google.com/macros/s/AKfycbwEdidkB-gVeoSFY0UIE3pMgniwrpe5lMQyFbUFQXWYwllZMuPpc30N8DdqsMNLswW3/exec';
 
 // === Chip filler helpers (lighter filled bars) ===
 function tagInfoBars(context){
@@ -1018,7 +1029,52 @@ playersList.innerHTML='';
       statsReady=true; applyLastXIIfReady();
     }catch(e){ notify('Network error (stats)'); }
     }
-    async function loadLeaderboard(){ lbTable.innerHTML='<tr><td colspan=\"3\">Loading…</td></tr>'; try{ const res=await fetch(`${API}?action=leaderboard`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ lbTable.innerHTML='<tr><td colspan=\"3\" class=\"red-text\">Response not JSON</td></tr>'; return; } if(!j.ok){ lbTable.innerHTML = `<tr><td colspan=\"3\" class=\"red-text\">${j.error || 'API error'}</td></tr>`; return; } lbTable.innerHTML=(j.leaderboard||[]).map((r,i)=>`<tr><td>${i+1}</td><td>${r.name||''}</td><td><span class=\ data-badge-caption=\"\">${r.total}</span></td></tr>`).join('') || '<tr><td colspan=\"3\" class=\"grey-text\">No data yet.</td></tr>'; }catch(e){ lbTable.innerHTML='<tr><td colspan=\"3\" class=\"red-text\">Failed</td></tr>'; } }
+    async function loadLeaderboard(){
+  lbTable.innerHTML =
+    '<tr><td colspan="3">Loading…</td></tr>';
+
+  try {
+    const res = await fetch(`${API}?action=leaderboard`);
+    const txt = await res.text();
+
+    let j;
+    try {
+      j = JSON.parse(txt);
+    } catch (e) {
+      lbTable.innerHTML =
+        '<tr><td colspan="3" class="red-text">Response not JSON</td></tr>';
+      return;
+    }
+
+    if (!j.ok) {
+      lbTable.innerHTML =
+        `<tr><td colspan="3" class="red-text">${j.error || 'API error'}</td></tr>`;
+      return;
+    }
+
+    lbTable.innerHTML = (j.leaderboard || []).map((r, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>
+          <a href="#"
+             class="lb-team"
+             data-name="${r.name || ''}"
+             data-email="${r.useremail || ''}">
+            ${r.name || ''}
+          </a>
+        </td>
+        <td>
+          <span class="badge">${r.total}</span>
+        </td>
+      </tr>
+    `).join('') ||
+    '<tr><td colspan="3" class="grey-text">No data yet.</td></tr>';
+
+  } catch (e) {
+    lbTable.innerHTML =
+      '<tr><td colspan="3" class="red-text">Failed</td></tr>';
+  }
+}
     function computeTransfers(){ const prev=new Set(lastTeamPlayers||[]); const curr=new Set(selected()); const adds=Array.from(curr).filter(x=>!prev.has(x)); const drops=Array.from(prev).filter(x=>!curr.has(x)); return {adds, drops}; }
     async function submitTransfers(){ const email=(emailEl.value||'').trim(); const names=selected(); if(!email || !matchSelectEl.value){ notify('Email & Match required'); return; } if(!lastTeamPlayers || !lastTeamPlayers.length){ notify('No previous XI found; please build your first XI.'); return; } if(names.length!==11){ notify('Your XI must have exactly 11 after transfers'); return; } if(!cvcIsValid()){ notify('Pick Captain & Vice‑Captain (must be different)'); return; }
       const {adds,drops}=computeTransfers(); submitBtn.classList.add('disabled');
@@ -1064,6 +1120,61 @@ playersList.innerHTML='';
       captainSelect.addEventListener('change', ()=>{ selectedCaptain = captainSelect.value; updateSelectionUI(); });
       viceCaptainSelect.addEventListener('change', ()=>{ selectedViceCaptain = viceCaptainSelect.value; updateSelectionUI(); });
     });
+
+  // ===== Step 4: View other user's team from leaderboard =====
+document.addEventListener('click', async function (e) {
+  const link = e.target.closest('.lb-team');
+  if (!link) return;
+
+  e.preventDefault();
+
+  const email = link.dataset.email;
+  const name = link.dataset.name;
+
+  // Safety check
+  if (!email) {
+    M.toast({ html: 'User email not available' });
+    return;
+  }
+
+  document.getElementById('viewTeamTitle').textContent =
+    `${name}'s XI`;
+
+  const res = await fetch(
+    `${API}?action=viewteam&email=${encodeURIComponent(email)}`
+  );
+
+  const data = await res.json();
+  const grid = document.getElementById('viewTeamGrid');
+  grid.innerHTML = '';
+
+  if (!data.ok || !data.team || !data.team.length) {
+    grid.innerHTML =
+      '<p class="grey-text">No team available</p>';
+  } else {
+    data.team.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'square-card readonly';
+      card.innerHTML = `
+        <div class="name">${p}</div>
+        ${p === data.captain ? '<div class="cvc-tag cvc-C">C</div>' : ''}
+        ${p === data.viceCaptain ? '<div class="cvc-tag cvc-VC">VC</div>' : ''}
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  const modal =
+    M.Modal.getInstance(
+      document.getElementById('viewTeamModal')
+    ) ||
+    M.Modal.init(
+      document.getElementById('viewTeamModal')
+    );
+
+  modal.open();
+});
+ 
 </script>
 
 <script>
