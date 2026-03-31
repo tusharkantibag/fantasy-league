@@ -1025,11 +1025,10 @@ playersList.innerHTML='';
       healthLine.style.display='block'; healthLine.innerHTML = `<b>Health</b>: next=${m.id || '—'}`; updateSelectionUI();
     }catch(e){ notify('Network error (nextmatch)'); } }
     async function fetchAllPlayers(){ playersList.innerHTML='Loading players…'; try{ const res=await fetch(`${API}?action=allplayers`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ playersList.innerHTML='<span class=\"red-text\">Response not JSON</span>'; return; } if(!j.ok){ playersList.innerHTML=`<span class=\"red-text\">${j.error || 'API error'}</span>`; return; } allPlayers=Array.isArray(j.players)? j.players: []; const maxPrice=Math.max(0,...allPlayers.map(p=>Number(p.price||0))); budgetMaxEl.max=String(maxPrice || 100); const savedCap=(()=>{ try{return Number(localStorage.getItem('ml_budget_cap')||'');}catch(_){return NaN;} })(); const initialCap=!isNaN(savedCap)&&savedCap>0? Math.min(savedCap,maxPrice): maxPrice; budgetMaxEl.value=String(initialCap); budgetMaxLabel.textContent=String(initialCap); renderPlayers(); if(!allPlayers.length) notify('No players returned. Check Players headers.'); }catch(e){ playersList.innerHTML='<span class=\"red-text\">Network error</span>'; } }
-    async function fetchPoints() {
+
+async function fetchPoints() {
   try {
     const res = await fetch(`${API}?action=points`);
-
-    // ✅ HTTP-level check
     if (!res.ok) {
       notify(`Points HTTP error ${res.status}`);
       return;
@@ -1037,10 +1036,9 @@ playersList.innerHTML='';
 
     const txt = await res.text();
 
-    // ✅ Apps Script often returns HTML when unauthorized
     if (!txt || txt.trim()[0] !== '{') {
       console.error('Points raw response:', txt.slice(0, 300));
-      notify('Points response is not JSON (check Apps Script deployment)');
+      notify('Points response not JSON');
       return;
     }
 
@@ -1050,33 +1048,43 @@ playersList.innerHTML='';
       return;
     }
 
-    // ✅ reset global caches (NO let)
+    // ✅ reset global caches
     pointsMap = {};
     setPointsMap = {};
 
-    j.points.forEach(row => {
-      const player = String(row.Name || row.name || '').trim();
-      if (!player) return;
-
-      // total points (used elsewhere)
-      pointsMap[player] = Number(
-        row.Total || row.total || row.points || 0
-      );
-
-      // set-wise points
-      Object.keys(row).forEach(col => {
-        if (/^set\d+$/i.test(col)) {
-          if (!setPointsMap[col]) setPointsMap[col] = {};
-          setPointsMap[col][player] = Number(row[col] || 0);
-        }
+    // ✅ CASE 1: object map { name: total }
+    if (j.points && !Array.isArray(j.points) && typeof j.points === 'object') {
+      Object.keys(j.points).forEach(name => {
+        pointsMap[name] = Number(j.points[name] || 0);
       });
-    });
+      return; // no set-wise data available
+    }
+
+    // ✅ CASE 2: array of rows (future-proof)
+    if (Array.isArray(j.points)) {
+      j.points.forEach(row => {
+        const player = String(row.Name || row.name || '').trim();
+        if (!player) return;
+
+        pointsMap[player] = Number(
+          row.Total || row.total || row.points || 0
+        );
+
+        Object.keys(row).forEach(col => {
+          if (/^set\d+$/i.test(col)) {
+            if (!setPointsMap[col]) setPointsMap[col] = {};
+            setPointsMap[col][player] = Number(row[col] || 0);
+          }
+        });
+      });
+    }
 
   } catch (e) {
     console.error(e);
     notify('Network error (points)');
   }
 }
+  
     async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; }
       userBudget=Number(j.budget||100); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; totalBudget=Number(j.totalBudget||100); categoryCaps = j.categoryCaps || { maxForeign: Number(j.maxForeign||4), minUncapped: Number(j.minUncapped||1) };
       if(j.lastCaptain) selectedCaptain = j.lastCaptain; if(j.lastViceCaptain) selectedViceCaptain = j.lastViceCaptain;
