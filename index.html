@@ -1169,6 +1169,11 @@ document.addEventListener('change', function (e) {
     loadViewedTeam();
   }
 });
+
+function getPlayerByName(name) {
+  return allPlayers.find(p => p.name === name) || {};
+}
+
  
 </script>
 
@@ -1543,8 +1548,7 @@ const CAPTAIN_MULTIPLIER = 2;
 const VICE_CAPTAIN_MULTIPLIER = 1.5;
   
 async function loadViewedTeam() {
-  const matchId =
-    document.getElementById('viewMatchSelect').value;
+  const matchId = document.getElementById('viewMatchSelect').value;
 
   const qs = new URLSearchParams({
     action: 'viewteam',
@@ -1557,7 +1561,11 @@ async function loadViewedTeam() {
   const data = await res.json();
 
   const grid = document.getElementById('viewTeamGrid');
+  const ptsBox = document.getElementById('viewTeamPoints');
+  const ptsVal = document.getElementById('viewTeamPointsValue');
+
   grid.innerHTML = '';
+  ptsBox.style.display = 'none';
 
   if (!data.team || !data.team.length) {
     grid.innerHTML =
@@ -1565,47 +1573,71 @@ async function loadViewedTeam() {
     return;
   }
 
+  let teamTotal = 0;
+
   data.team.forEach(p => {
-  const basePts =
-    data.pointsMap && typeof data.pointsMap[p] === 'number'
-      ? data.pointsMap[p]
-      : 0;
+    const player = getPlayerByName(p);
+    const imgUrl = player.imageUrl || '';
 
-  let multiplier = 1;
-  let multiplierLabel = '';
+    const basePts =
+      data.pointsMap && typeof data.pointsMap[p] === 'number'
+        ? data.pointsMap[p]
+        : 0;
 
-  if (p === data.captain) {
-    multiplier = CAPTAIN_MULTIPLIER;
-    multiplierLabel = `×${CAPTAIN_MULTIPLIER}`;
-  } else if (p === data.viceCaptain) {
-    multiplier = VICE_CAPTAIN_MULTIPLIER;
-    multiplierLabel = `×${VICE_CAPTAIN_MULTIPLIER}`;
-  }
+    let multiplier = 1;
+    let multiplierLabel = '';
 
-  const finalPts = basePts * multiplier;
+    if (p === data.captain) {
+      multiplier = CAPTAIN_MULTIPLIER;
+      multiplierLabel = `×${CAPTAIN_MULTIPLIER}`;
+    } else if (p === data.viceCaptain) {
+      multiplier = VICE_CAPTAIN_MULTIPLIER;
+      multiplierLabel = `×${VICE_CAPTAIN_MULTIPLIER}`;
+    }
 
-  const card = document.createElement('div');
-  card.className = 'square-card readonly';
-  card.innerHTML = `
-    <div class="name">${p}</div>
+    const finalPts = basePts * multiplier;
+    teamTotal += finalPts;
 
-    <div class="price">
-      <i class="material-icons" style="font-size:16px;vertical-align:middle;">
-        stars
-      </i>
-      ${finalPts} pts
-      ${multiplierLabel
-        ? `<span class="grey-text" style="font-size:.8rem;">(${basePts} ${multiplierLabel})</span>`
-        : ''}
-    </div>
+    const card = document.createElement('div');
+    card.className = 'square-card readonly';
 
-    ${p === data.captain ? '<div class="cvc-tag cvc-C">C</div>' : ''}
-    ${p === data.viceCaptain ? '<div class="cvc-tag cvc-VC">VC</div>' : ''}
-  `;
-  grid.appendChild(card);
-});
-  
+    card.innerHTML = `
+      <div class="pic">
+        ${
+          imgUrl
+            ? `<img src="${imgUrl}" loading="lazy" onerror="this.remove(); this.parentNode.innerHTML='<i class=material-icons>person</i>'">`
+            : `<i class="material-icons">person</i>`
+        }
+      </div>
+
+      <div class="name">${p}</div>
+
+      <div class="price">
+        <i class="material-icons" style="font-size:16px;vertical-align:middle;">
+          stars
+        </i>
+        ${finalPts} pts
+        ${
+          multiplierLabel
+            ? `<span class="grey-text" style="font-size:.8rem;">
+                (${basePts} ${multiplierLabel})
+              </span>`
+            : ''
+        }
+      </div>
+
+      ${p === data.captain ? '<div class="cvc-tag cvc-C">C</div>' : ''}
+      ${p === data.viceCaptain ? '<div class="cvc-tag cvc-VC">VC</div>' : ''}
+    `;
+
+    grid.appendChild(card);
+  });
+
+  // ✅ Show team total (rounded to 1 decimal for VC cases)
+  ptsVal.textContent = Math.round(teamTotal * 10) / 10;
+  ptsBox.style.display = 'inline-flex';
 }
+
   
 function renderBoosterDropdown(){
  boosterSelect.innerHTML='<option value="" disabled selected>Select Booster</option>';
