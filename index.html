@@ -700,8 +700,6 @@ p.small-muted{display:none!important;}
               </div>
             </div>
 
-            <div id="boosterIndicator" class="small-muted" style="margin:-6px 0 6px 0; display:none;"></div>
-
             <div style="display:flex; flex-wrap:wrap; gap:.5rem; margin:.25rem 0 .5rem 0;">
               <span class="pill" id="pillWK">WK: 0</span>
               <span class="pill" id="pillBAT">BAT: 0</span>
@@ -1173,10 +1171,10 @@ async function fetchPoints() {
     }catch(_){ }
  applyTeamTints(document); try{ tagInfoBars(document); }catch(_){}; M.AutoInit();
       const stored=(()=>{ try{return localStorage.getItem('ml_email')||'';}catch(_){return'';} })(); if(stored){ emailEl.value=stored; } M.updateTextFields();
-      await fetchNextMatch(); await fetchPoints(); await fetchAllPlayers(); await fetchUserStats(); await loadLeaderboard(); await updateBoosterIndicator();
+      await fetchNextMatch(); await fetchPoints(); await fetchAllPlayers(); await fetchUserStats(); await loadLeaderboard();
       document.addEventListener('input',(e)=>{ if(e.target.id==='email'){ try{localStorage.setItem('ml_email', e.target.value||'');}catch(_){ } statsReady=false; fetchUserStats().then(()=>applyLastXIIfReady()); } if(e.target.id==='searchInput'){ renderPlayers(); } if(e.target.id==='budgetMax'){ budgetMaxLabel.textContent=String(budgetMaxEl.value); try{ localStorage.setItem('ml_budget_cap', String(budgetMaxEl.value)); }catch(_){ } renderPlayers(); } });
       teamFilter.addEventListener('change', renderPlayers); roleFilter.addEventListener('change', renderPlayers); catFilter.addEventListener('change', renderPlayers);
-      matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); updateBoosterPanelState(); await updateBoosterIndicator(); });
+      matchSelectEl.addEventListener('change', ()=>{ statsReady=false; fetchUserStats(); updateBoosterPanelState(); });
       document.getElementById('refreshPlayers').addEventListener('click', async ()=>{ await fetchAllPlayers(); await fetchPoints(); });
       document.getElementById('submitBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('transfers'); });
       document.getElementById('buildFirstBtn').addEventListener('click', (e)=>{ e.preventDefault(); openConfirmModal('firstxi'); });
@@ -1238,9 +1236,6 @@ function getPlayerByName(name) {
 
  
 </script>
-
-
-  
 
 <script>
 // ======= Embedded login/session (pre-portal mask) =======
@@ -1498,7 +1493,6 @@ applyBoosterBtn.addEventListener('click', async () => {
       usedMatches.push(matchId);
       renderBoosterDropdown();
       updateBoosterPanelState();
-      await updateBoosterIndicator();
     } else {
       notify(j.error || "Failed to apply booster");
     }
@@ -1537,7 +1531,6 @@ document.addEventListener("DOMContentLoaded", () => {
         usedMatches = usedMatches.filter(m => m !== matchId);
         renderBoosterDropdown();
         updateBoosterPanelState();
-        await updateBoosterIndicator();
       } else {
         notify(j.error || "Unable to disable booster.");
       }
@@ -1556,43 +1549,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
-// Update boosters indicator
-  async function updateBoosterIndicator() {
-  const email = (emailEl.value || '').trim().toLowerCase();
-  const matchId = matchSelectEl.value;
-  const el = document.getElementById('boosterIndicator');
-
-  if (!email || !matchId || !el) {
-    if (el) el.style.display = 'none';
-    return;
-  }
-
-  try {
-    const res = await fetch(
-      `${API}?action=allboosters&email=${encodeURIComponent(email)}`
-    );
-    const j = await res.json();
-
-    if (!j.ok) {
-      el.style.display = 'none';
-      return;
-    }
-
-    const idx = j.usedMatches.indexOf(matchId);
-    if (idx === -1) {
-      el.style.display = 'none';
-      return;
-    }
-
-    const boosterName = j.usedBoosters[idx] || 'Booster';
-    el.innerHTML = `⚡ <b>Booster Active:</b> ${boosterName}`;
-    el.style.display = 'block';
-  } catch (e) {
-    el.style.display = 'none';
-  }
-}
-    
 </script>
 
 </script>
