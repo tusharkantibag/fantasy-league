@@ -1220,9 +1220,7 @@ document.addEventListener('click', async function (e) {
 
   // ✅ then load data
   await populateViewMatchDropdown();
-  const res = await fetch(`${API}?action=viewteam&email=${viewingEmail}`);
-  const data = await res.json();
-  renderViewTeam(data);
+  await loadViewedTeam();
 
 });
 
