@@ -826,7 +826,7 @@ p.small-muted{display:none!important;}
   <!-- PLACEHOLDER: Paste your existing two <script> blocks from index (v1.9.1)_Okay.html below this line to preserve ALL functionality. -->
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbwc_WuDW3UOVq4nqi8svphfSZ98sDED7Lve6HToqK7mSX8F7KV7ayELorMLoa9jIdqY/exec';
+const API = 'https://script.google.com/macros/s/AKfycbxKimQBTrEpZOkjlZ2Wuk5Nb01Yc0Nswp36pvKnwMhsWQkH5-G1WNKMSCOWu51Cb8jO/exec';
 
 // === Chip filler helpers (lighter filled bars) ===
 function tagInfoBars(context){
@@ -1306,6 +1306,45 @@ function getPlayerByName(name) {
   })();
 </script>
 
+  
+
+<script>
+
+  // ===== View Team UI Renderer (ADD HERE) =====
+  function renderViewTeam(data) {
+    const grid = document.getElementById('viewTeamGrid');
+    grid.innerHTML = '';
+
+    if (!data.rows || !data.rows.length) {
+      grid.innerHTML = '<span class="grey-text">No team found for this match.</span>';
+      return;
+    }
+
+    data.rows.forEach(r => {
+      const div = document.createElement('div');
+      div.className = 'pill';
+      div.innerHTML = `
+        <b>${r.player}</b>
+        ${r.cvc ? `<span class="badge">${r.cvc}</span>` : ''}
+        <span style="float:right;">${r.points}</span>
+      `;
+      grid.appendChild(div);
+    });
+
+    const footer = document.createElement('div');
+    footer.style.marginTop = '12px';
+    footer.innerHTML = `
+      <b>Booster:</b> ${data.booster || '—'}<br/>
+      <b>Set Total:</b> ${data.setTotal}
+    `;
+    grid.appendChild(footer);
+  }
+
+</script>
+
+
+
+  
   <!-- === BEGIN ORIGINAL LOGIC (not included here to avoid duplication in this sample) === -->
   
   <!-- === END ORIGINAL LOGIC === -->
