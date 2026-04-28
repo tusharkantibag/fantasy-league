@@ -1220,7 +1220,10 @@ document.addEventListener('click', async function (e) {
 
   // ✅ then load data
   await populateViewMatchDropdown();
-  await loadViewedTeam();
+  const res = await fetch(`${API}?action=viewteam&email=${viewingEmail}`);
+  const data = await res.json();
+  renderViewTeam(data);
+
 });
 
 // ✅ Reload viewed team when match dropdown changes
@@ -1305,44 +1308,6 @@ function getPlayerByName(name) {
     });
   })();
 </script>
-
-  
-
-<script>
-
-  // ===== View Team UI Renderer (ADD HERE) =====
-  function renderViewTeam(data) {
-    const grid = document.getElementById('viewTeamGrid');
-    grid.innerHTML = '';
-
-    if (!data.rows || !data.rows.length) {
-      grid.innerHTML = '<span class="grey-text">No team found for this match.</span>';
-      return;
-    }
-
-    data.rows.forEach(r => {
-      const div = document.createElement('div');
-      div.className = 'pill';
-      div.innerHTML = `
-        <b>${r.player}</b>
-        ${r.cvc ? `<span class="badge">${r.cvc}</span>` : ''}
-        <span style="float:right;">${r.points}</span>
-      `;
-      grid.appendChild(div);
-    });
-
-    const footer = document.createElement('div');
-    footer.style.marginTop = '12px';
-    footer.innerHTML = `
-      <b>Booster:</b> ${data.booster || '—'}<br/>
-      <b>Set Total:</b> ${data.setTotal}
-    `;
-    grid.appendChild(footer);
-  }
-
-</script>
-
-
 
   
   <!-- === BEGIN ORIGINAL LOGIC (not included here to avoid duplication in this sample) === -->
