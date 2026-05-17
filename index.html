@@ -912,7 +912,8 @@ function applyTeamTints(root){
     function categoryCounts(list){ const c={FOREIGN:0, UNCAPPED:0, CAPPED:0}; (list||[]).forEach(name=>{ const p=allPlayers.find(x=>x.name===name)||{}; const cat=categoryOf(p); if(typeof c[cat]==='number') c[cat]++; }); return c; }
     function updateBadges(chg){ const remain=Math.max(0, userBudget-(userUsed+chg));
       document.getElementById('todayChanges').textContent=String(chg);
-      document.getElementById('usedSoFar').textContent=String(userUsed+chg);
+      document.getElementById('usedSoFar').textContent=String(chg);
+       // document.getElementById('usedSoFar').textContent=String(userUsed+chg);
       document.getElementById('remaining').textContent=String(remain);
       document.getElementById('budget').textContent=String(userBudget);
       const panel=document.getElementById('budgetPanel');
