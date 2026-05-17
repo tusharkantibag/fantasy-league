@@ -914,7 +914,8 @@ function applyTeamTints(root){
       document.getElementById('todayChanges').textContent=String(chg);
       document.getElementById('usedSoFar').textContent=String(chg);
        // document.getElementById('usedSoFar').textContent=String(userUsed+chg);
-      document.getElementById('remaining').textContent=String(remain);
+      document.getElementById('remaining').textContent=String(200);
+      // document.getElementById('remaining').textContent=String(remain);
       document.getElementById('budget').textContent=String(userBudget);
       const panel=document.getElementById('budgetPanel');
       panel.querySelectorAll('.badge-inline').forEach(b=>{ b.classList.remove('badge-ok','badge-warn','badge-alert'); if(remain<0) b.classList.add('badge-alert'); else if(remain<=10) b.classList.add('badge-warn'); else b.classList.add('badge-ok'); 
