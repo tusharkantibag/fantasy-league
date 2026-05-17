@@ -831,8 +831,11 @@ const API = 'https://script.google.com/macros/s/AKfycbwZtIHYQNtaYUNsEZ55bPHRZlK8
 // === Chip filler helpers (lighter filled bars) ===
 function tagInfoBars(context){
   const root = context || document;
+  //const set = (id, cls) => { const b=root.getElementById(id); if(!b) return; const pill=b.closest('.badge-inline'); if(!pill) return; pill.classList.remove('bar-today','bar-used','bar-remaining','bar-budget','bar-spent','bar-left','bar-cap'); pill.classList.add(cls); };
+  //set('todayChanges','bar-today'); set('usedSoFar','bar-used'); set('remaining','bar-remaining'); set('budget','bar-budget'); set('spentCr','bar-spent'); set('purseLeft','bar-left'); set('totalBudgetCr','bar-cap');
+//}
   const set = (id, cls) => { const b=root.getElementById(id); if(!b) return; const pill=b.closest('.badge-inline'); if(!pill) return; pill.classList.remove('bar-today','bar-used','bar-remaining','bar-budget','bar-spent','bar-left','bar-cap'); pill.classList.add(cls); };
-  set('todayChanges','bar-today'); set('usedSoFar','bar-used'); set('remaining','bar-remaining'); set('budget','bar-budget'); set('spentCr','bar-spent'); set('purseLeft','bar-left'); set('totalBudgetCr','bar-cap');
+  set('todayChanges','bar-today'); set('usedSoFar','bar-used'); set('remaining','bar-remaining'); set('budget','200'); set('spentCr','bar-spent'); set('purseLeft','bar-left'); set('totalBudgetCr','bar-cap');
 }
 
     function notify(msg){ M.toast({html: msg, displayLength: 3500}); }
