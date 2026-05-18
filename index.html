@@ -1086,7 +1086,7 @@ async function fetchPoints() {
 }
   
     async function fetchUserStats(){ const email=(emailEl.value||'').trim().toLowerCase(); if(!email) return; try{ const res=await fetch(`${API}?action=userstats&email=${encodeURIComponent(email)}`); const txt=await res.text(); let j; try{ j=JSON.parse(txt);}catch(e){ notify('Stats response not JSON'); return; } if(!j.ok){ notify('Stats error'); return; }
-      userBudget=Number(j.budget||200); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; totalBudget=Number(j.totalBudget||200); categoryCaps = j.categoryCaps || { maxForeign: Number(j.maxForeign||4), minUncapped: Number(j.minUncapped||1) };
+      userBudget=Number(j.budget||200); userUsed=Number(j.used||0); lastTeamPlayers=Array.isArray(j.lastTeam)? j.lastTeam: []; maxFromTeam=Number(j.maxFromTeam||7); constraints=j.constraints||constraints; totalBudget=Number(j.totalBudget||100); categoryCaps = j.categoryCaps || { maxForeign: Number(j.maxForeign||4), minUncapped: Number(j.minUncapped||1) };
       if(j.lastCaptain) selectedCaptain = j.lastCaptain; if(j.lastViceCaptain) selectedViceCaptain = j.lastViceCaptain;
       selectedNames=new Set(lastTeamPlayers||[]);
       updateBadges(0); capLine.textContent=`Team cap: max ${maxFromTeam} per team. Foreign ≤ ${categoryCaps.maxForeign}; Uncapped ≥ ${categoryCaps.minUncapped}.`;
